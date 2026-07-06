@@ -6,10 +6,51 @@ import { AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, Cartesia
    AI Skin Analysis · Wellness Coach · Habit Builder · Confidence Guide
 ═══════════════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════
+   SMIRA V4 — Auth · Light/Dark/System Theme · Settings
+═══════════════════════════════════════════════════════════ */
+
 const LS = {
-  get:(k,fb=null)=>{try{const v=localStorage.getItem("smira3_"+k);return v?JSON.parse(v):fb;}catch{return fb;}},
-  set:(k,v)=>{try{localStorage.setItem("smira3_"+k,JSON.stringify(v));}catch{}},
-  del:(k)=>{try{localStorage.removeItem("smira3_"+k);}catch{}},
+  get:(k,fb=null)=>{try{const v=localStorage.getItem("smira4_"+k);return v?JSON.parse(v):fb;}catch{return fb;}},
+  set:(k,v)=>{try{localStorage.setItem("smira4_"+k,JSON.stringify(v));}catch{}},
+  del:(k)=>{try{localStorage.removeItem("smira4_"+k);}catch{}},
+};
+
+/* ── THEME SYSTEM ───────────────────────────────────────────────────── */
+const DARK_T={dp:"#1A0B12",deep:"#2E0E1F",plum:"#4A1530",wine:"#6B2244",berry:"#8B3A57",rose:"#B55C79",blush:"#D4879A",petal:"#F0C4CC",mist:"#F5E6EA",card:"rgba(74,21,48,0.45)",border:"rgba(181,92,121,0.18)",txt:"#F5E6EA",muted:"#9A6677",soft:"#D4879A",bg:"#1A0B12",sbg:"rgba(18,6,14,.97)",topbar:"rgba(18,6,14,.88)",inpBg:"rgba(255,255,255,.04)",inpBorder:"rgba(181,92,121,.18)",gold:"#D8B36A",scrollThumb:"#6B2244",bodyBg:"linear-gradient(135deg,#1A0B12 0%,#200D16 55%,#160910 100%)"};
+const LIGHT_T={dp:"#FFFDFB",deep:"#FFF7F8",plum:"#F9EEF1",wine:"#E9D7DD",berry:"#8B3A57",rose:"#B55C79",blush:"#8B3A57",petal:"#6B2244",mist:"#2E0E1F",card:"rgba(255,247,248,0.94)",border:"#E9D7DD",txt:"#2E0E1F",muted:"#7A5060",soft:"#8B3A57",bg:"#FFFDFB",sbg:"#F9EEF1",topbar:"rgba(255,253,251,.95)",inpBg:"rgba(139,58,87,.05)",inpBorder:"#D4B5C0",gold:"#B8902A",scrollThumb:"#D4879A",bodyBg:"linear-gradient(135deg,#FFFDFB 0%,#FFF7F8 55%,#F9EEF1 100%)"};
+const getSystemTheme=()=>window.matchMedia?.("(prefers-color-scheme:dark)").matches?"dark":"light";
+const resolveTheme=(p)=>p==="system"?getSystemTheme():p;
+const ThemeCtx=typeof window!=="undefined"?window.__smiraThemeCtx||(window.__smiraThemeCtx={t:DARK_T}):{t:DARK_T};
+
+/* ── AUTH (localStorage-based, swap for Firebase in production) ────── */
+const AUTH={
+  getUser:()=>LS.get("auth_user",null),
+  setUser:(u)=>LS.set("auth_user",u),
+  clear:()=>LS.del("auth_user"),
+  signup:async(name,email,pw)=>{
+    await new Promise(r=>setTimeout(r,900));
+    if(!email.includes("@"))throw new Error("Invalid email address.");
+    if(pw.length<6)throw new Error("Password must be at least 6 characters.");
+    return{uid:`uid_${Date.now()}`,name,email,provider:"email",createdAt:Date.now()};
+  },
+  login:async(email,pw)=>{
+    await new Promise(r=>setTimeout(r,800));
+    if(!email.includes("@"))throw new Error("Invalid email address.");
+    if(!pw)throw new Error("Please enter your password.");
+    const storedUser=LS.get("auth_user",null);
+    if(storedUser&&storedUser.email===email)return storedUser;
+    return{uid:`uid_${email.replace(/\W/g,"")}`,name:email.split("@")[0],email,provider:"email"};
+  },
+  google:async()=>{
+    await new Promise(r=>setTimeout(r,700));
+    return{uid:`g_${Date.now()}`,name:"Google User",email:"user@gmail.com",provider:"google",photoURL:null};
+  },
+  resetPw:async(email)=>{
+    await new Promise(r=>setTimeout(r,700));
+    if(!email.includes("@"))throw new Error("Enter a valid email address.");
+    return true;
+  },
 };
 
 const AV={
@@ -25,25 +66,27 @@ const AV={
   achievement:"/avatars/achievement.png",
 };
 
-const GlobalStyles=()=>(
+const GlobalStyles=({theme="dark"})=>{
+const t=theme==="light"?LIGHT_T:DARK_T;
+return(
 <style>{`
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--dp:#1A0B12;--deep:#2E0E1F;--plum:#4A1530;--wine:#6B2244;--berry:#8B3A57;--rose:#B55C79;--blush:#D4879A;--petal:#F0C4CC;--mist:#F5E6EA;--card:rgba(74,21,48,0.45);--border:rgba(181,92,121,0.18);--txt:#F5E6EA;--muted:#9A6677;--soft:#D4879A;--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;}
-html,body{height:100%;background:var(--dp);color:var(--txt);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#1A0B12}::-webkit-scrollbar-thumb{background:#6B2244;border-radius:2px}
+:root{--dp:${t.dp};--deep:${t.deep};--plum:${t.plum};--wine:${t.wine};--berry:${t.berry};--rose:${t.rose};--blush:${t.blush};--petal:${t.petal};--mist:${t.mist};--card:${t.card};--border:${t.border};--txt:${t.txt};--muted:${t.muted};--soft:${t.soft};--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;--gold:${t.gold};}
+html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sans-serif;overflow-x:hidden;transition:background .35s,color .35s;}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:${t.bg}}::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:2px}
 .cf{font-family:'Cormorant Garamond',serif}
-.glass{background:var(--card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border);border-radius:20px;}
+.glass{background:${t.card};backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid ${t.border};border-radius:20px;}
 .glow{box-shadow:0 0 32px rgba(181,92,121,0.22);}
 .btn{background:linear-gradient(135deg,#8B3A57,#B55C79);border:none;color:#F5E6EA;padding:12px 28px;border-radius:50px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .3s;letter-spacing:.3px;}
 .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(139,58,87,.55);}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
 .btn-o{background:transparent;border:1px solid rgba(181,92,121,.35);color:#D4879A;padding:10px 22px;border-radius:50px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .3s;}
 .btn-o:hover{background:rgba(181,92,121,.1);}
-.inp{background:rgba(255,255,255,.04);border:1px solid rgba(181,92,121,.18);border-radius:12px;padding:12px 16px;color:#F5E6EA;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;transition:border .3s;}
-.inp:focus{border-color:#D4879A;background:rgba(181,92,121,.07);}
-.inp::placeholder{color:#6B4455;}
-.sel{background:rgba(20,8,15,.95);border:1px solid rgba(181,92,121,.18);border-radius:12px;padding:12px 16px;color:#F5E6EA;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;cursor:pointer;}
+.inp{background:var(--inp-bg);border:1px solid var(--inp-border);border-radius:12px;padding:12px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;transition:border .3s;}
+.inp:focus{border-color:#D4879A;background:rgba(181,92,121,.09);}
+.inp::placeholder{color:${theme==="light"?"#9A7080":"#6B4455"};}
+.sel{background:${theme==="light"?"rgba(249,238,241,.98)":"rgba(20,8,15,.95)"};border:1px solid rgba(181,92,121,.18);border-radius:12px;padding:12px 16px;color:#F5E6EA;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;cursor:pointer;}
 .tag{background:rgba(181,92,121,.14);border:1px solid rgba(181,92,121,.28);color:#D4879A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes gPulse{0%,100%{opacity:.5}50%{opacity:1}}
@@ -89,6 +132,7 @@ html,body{height:100%;background:var(--dp);color:var(--txt);font-family:'DM Sans
 .hamburger span{display:block;width:22px;height:2px;background:#D4879A;border-radius:2px;}
 `}</style>
 );
+};
 
 const Ic=({n,s=18,c="currentColor"})=>{
   const d={
@@ -112,6 +156,7 @@ const Ic=({n,s=18,c="currentColor"})=>{
     dl:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
     refresh:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
     forecast:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 113.19-13.28A5.5 5.5 0 1117.5 19z"/></svg>,
+    gear:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
   };
   return d[n]||null;
 };
@@ -381,6 +426,274 @@ const runVisionAnalysis=async(imgData,user)=>{
   catch{const m=text.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error("Could not parse response");}
 };
 
+
+/* ── AURA S LOGO (SVG, always circular) ──────────────────────────────────── */
+const AuraLogo=({size=56,gold="#D8B36A",bg="#1A0B12"})=>(
+  <div style={{width:size,height:size,borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:`1.5px solid ${gold}40`,boxShadow:`0 0 ${size*.35}px ${gold}22`}}>
+    <svg width={size*.55} height={size*.55} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 6C14 6 8 13 8 20c0 5 3 9 8 11l-2 5h20l-2-5c5-2 8-6 8-11C40 13 34 6 24 6z" fill="none" stroke={gold} strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M16 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke={gold} strokeWidth="1.8" strokeLinecap="round"/>
+      <circle cx="24" cy="22" r="3.5" fill={gold} opacity="0.9"/>
+      <path d="M18 36h12" stroke={gold} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M20 39h8" stroke={gold} strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
+    </svg>
+  </div>
+);
+
+const LogoBrand=({size=56,gold="#D8B36A",bg="#1A0B12",showTagline=true,textColor="#F5E6EA"})=>(
+  <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
+    <AuraLogo size={size} gold={gold} bg={bg}/>
+    <span className="cf" style={{fontSize:size*.48,fontWeight:300,letterSpacing:".08em",color:textColor,lineHeight:1}}>SMIRA</span>
+    {showTagline&&<span style={{fontSize:size*.2,color:gold,letterSpacing:".12em",fontWeight:400,opacity:.85}}>Glow with Confidence.</span>}
+  </div>
+);
+
+/* ── SPLASH SCREEN ──────────────────────────────────────────────────────────── */
+const Splash=({onDone,theme="dark"})=>{
+  const t=theme==="light"?LIGHT_T:DARK_T;
+  useEffect(()=>{const timer=setTimeout(onDone,2800);return()=>clearTimeout(timer);},[onDone]);
+  return(
+    <div style={{minHeight:"100vh",background:t.bodyBg,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:0,position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",width:420,height:420,borderRadius:"50%",background:"rgba(139,58,87,.18)",filter:"blur(90px)",top:"10%",left:"15%",animation:"gPulse 4s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",width:320,height:320,borderRadius:"50%",background:"rgba(74,21,48,.22)",filter:"blur(70px)",bottom:"10%",right:"10%",animation:"gPulse 5s ease-in-out infinite 1.5s"}}/>
+      <div style={{animation:"fadeUp .9s ease forwards",textAlign:"center",zIndex:10}}>
+        <div style={{marginBottom:28}}>
+          <LogoBrand size={78} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+        </div>
+        <p style={{color:t.muted,fontSize:13,letterSpacing:".04em",marginTop:16}}>Loading your wellness journey...</p>
+        <div style={{marginTop:22,width:48,height:3,borderRadius:2,background:`linear-gradient(90deg,${t.berry},${t.rose})`,margin:"18px auto 0",animation:"shimmer 1.6s ease-in-out infinite",backgroundSize:"200% 100%"}}/>
+      </div>
+    </div>
+  );
+};
+
+/* ── AUTH SCREENS ──────────────────────────────────────────────────────────── */
+const AuthScreen=({onAuth,theme="dark"})=>{
+  const t=theme==="light"?LIGHT_T:DARK_T;
+  const [mode,setMode]=useState("login"); // login | signup | forgot
+  const [form,setForm]=useState({name:"",email:"",password:"",confirm:""});
+  const [loading,setLoading]=useState(false);
+  const [err,setErr]=useState("");
+  const [msg,setMsg]=useState("");
+  const upd=(k,v)=>setForm(p=>({...p,[k]:v}));
+
+  const submit=async()=>{
+    setErr("");setMsg("");setLoading(true);
+    try{
+      if(mode==="forgot"){
+        await AUTH.resetPw(form.email);
+        setMsg("Reset link sent! Check your inbox.");
+        setLoading(false);return;
+      }
+      if(mode==="signup"){
+        if(!form.name.trim())throw new Error("Please enter your name.");
+        if(form.password!==form.confirm)throw new Error("Passwords do not match.");
+        const user=await AUTH.signup(form.name,form.email,form.password);
+        AUTH.setUser(user);onAuth(user);
+      } else {
+        const user=await AUTH.login(form.email,form.password);
+        AUTH.setUser(user);onAuth(user);
+      }
+    }catch(e){setErr(e.message);}
+    setLoading(false);
+  };
+
+  const googleAuth=async()=>{
+    setErr("");setLoading(true);
+    try{const user=await AUTH.google();AUTH.setUser(user);onAuth(user);}
+    catch(e){setErr(e.message);}
+    setLoading(false);
+  };
+
+  const cardBg=theme==="light"?"rgba(255,247,248,.96)":"rgba(46,14,31,.7)";
+  return(
+    <div style={{minHeight:"100vh",background:t.bodyBg,display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",width:400,height:400,borderRadius:"50%",background:"rgba(139,58,87,.15)",filter:"blur(80px)",top:"-5%",right:"5%",animation:"gPulse 5s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:"rgba(74,21,48,.2)",filter:"blur(70px)",bottom:"0%",left:"0%",animation:"gPulse 6s ease-in-out infinite 2s"}}/>
+      <div style={{width:"100%",maxWidth:420,zIndex:10,animation:"fadeUp .5s ease"}}>
+        {/* Brand header */}
+        <div style={{textAlign:"center",marginBottom:32}}>
+          <LogoBrand size={62} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+        </div>
+        <div style={{background:cardBg,backdropFilter:"blur(20px)",border:`1px solid ${t.border}`,borderRadius:24,padding:"34px 30px",boxShadow:"0 20px 60px rgba(0,0,0,.18)"}}>
+          <h2 className="cf" style={{fontSize:26,fontWeight:400,marginBottom:22,textAlign:"center",color:t.txt}}>
+            {mode==="login"?"Welcome back":"Create account"}
+            {mode==="forgot"&&"Reset password"}
+          </h2>
+          {err&&<div style={{background:"rgba(245,163,163,.1)",border:"1px solid rgba(245,163,163,.28)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#F5A3A3"}}>{err}</div>}
+          {msg&&<div style={{background:"rgba(168,230,201,.1)",border:"1px solid rgba(168,230,201,.25)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#A8E6C9"}}>{msg}</div>}
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {mode==="signup"&&<input className="inp" placeholder="Full name" value={form.name} onChange={e=>upd("name",e.target.value)} style={{color:t.txt}}/>}
+            <input className="inp" placeholder="Email address" type="email" value={form.email} onChange={e=>upd("email",e.target.value)} style={{color:t.txt}}/>
+            {mode!=="forgot"&&<input className="inp" placeholder="Password" type="password" value={form.password} onChange={e=>upd("password",e.target.value)} style={{color:t.txt}} onKeyDown={e=>e.key==="Enter"&&submit()}/>}
+            {mode==="signup"&&<input className="inp" placeholder="Confirm password" type="password" value={form.confirm} onChange={e=>upd("confirm",e.target.value)} style={{color:t.txt}}/>}
+          </div>
+          {mode==="login"&&<button onClick={()=>{setMode("forgot");setErr("");}} style={{background:"none",border:"none",color:t.soft,fontSize:12,cursor:"pointer",marginTop:8,padding:"2px 0",textDecoration:"underline",textUnderlineOffset:3}}>Forgot password?</button>}
+          <button className="btn" onClick={submit} disabled={loading} style={{width:"100%",marginTop:18,fontSize:15,padding:"14px"}}>
+            {loading?<span style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><span style={{width:16,height:16,border:"2px solid #F5E6EA",borderTopColor:"transparent",borderRadius:"50%",display:"inline-block",animation:"spin 0.7s linear infinite"}}/>{mode==="login"?"Signing in...":mode==="signup"?"Creating account...":"Sending link..."}</span>:mode==="login"?"Sign In →":mode==="signup"?"Create Account →":"Send Reset Link →"}
+          </button>
+          {mode!=="forgot"&&(
+            <>
+              <div style={{display:"flex",alignItems:"center",gap:12,margin:"18px 0"}}>
+                <div style={{flex:1,height:1,background:t.border}}/>
+                <span style={{fontSize:12,color:t.muted}}>or</span>
+                <div style={{flex:1,height:1,background:t.border}}/>
+              </div>
+              <button onClick={googleAuth} disabled={loading} style={{width:"100%",padding:"13px",borderRadius:50,border:`1px solid ${t.border}`,background:theme==="light"?"rgba(139,58,87,.06)":"rgba(255,255,255,.04)",color:t.txt,fontSize:14,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all .2s",fontFamily:"DM Sans,sans-serif"}}>
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+              </button>
+            </>
+          )}
+          <div style={{textAlign:"center",marginTop:18,fontSize:13,color:t.muted}}>
+            {mode==="login"?<>Don't have an account? <button onClick={()=>{setMode("signup");setErr("");}} style={{background:"none",border:"none",color:t.soft,cursor:"pointer",fontWeight:600,fontSize:13}}>Sign up</button></>
+            :mode==="signup"?<>Already have an account? <button onClick={()=>{setMode("login");setErr("");}} style={{background:"none",border:"none",color:t.soft,cursor:"pointer",fontWeight:600,fontSize:13}}>Sign in</button></>
+            :<>Back to <button onClick={()=>{setMode("login");setErr("");}} style={{background:"none",border:"none",color:t.soft,cursor:"pointer",fontWeight:600,fontSize:13}}>Sign in</button></>}
+          </div>
+        </div>
+        <p style={{textAlign:"center",fontSize:11,color:t.muted,marginTop:18,lineHeight:1.6}}>By continuing you agree to Smira's Terms of Service and Privacy Policy.</p>
+      </div>
+    </div>
+  );
+};
+
+/* ── SETTINGS PAGE ──────────────────────────────────────────────────────────── */
+const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,theme="dark"})=>{
+  const t=theme==="light"?LIGHT_T:DARK_T;
+  const [tab,setTab]=useState("profile");
+  const [profile,setProfile]=useState({name:user?.name||authUser?.name||"",email:user?.email||authUser?.email||"",age:user?.age||"",skinType:user?.skinType||"Combination",skinGoal:user?.skinGoal||[]});
+  const [notifs,setNotifs]=useState(()=>LS.get("notifs",{wellness:true,water:true,journal:false,weekly:true}));
+  const [pwForm,setPwForm]=useState({current:"",next:"",confirm:""});
+  const [saved,setSaved]=useState(false);
+  const [pwMsg,setPwMsg]=useState("");
+  const cardBg=theme==="light"?"rgba(255,247,248,.95)":"rgba(46,14,31,.6)";
+  const Card=({children,style={}})=><div style={{background:cardBg,border:`1px solid ${t.border}`,borderRadius:18,padding:"22px 24px",...style}}>{children}</div>;
+  const Label=({children})=><div style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>{children}</div>;
+  const Row=({label,children})=><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:`1px solid ${t.border}`}}><span style={{fontSize:14,color:t.txt}}>{label}</span>{children}</div>;
+  const Toggle=({on,onChange})=><div onClick={onChange} style={{width:46,height:26,borderRadius:13,background:on?"linear-gradient(135deg,#8B3A57,#B55C79)":"rgba(181,92,121,.2)",cursor:"pointer",position:"relative",transition:"background .3s",flexShrink:0}}><div style={{position:"absolute",top:3,left:on?22:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.3)"}}/></div>;
+
+  const saveProfile=()=>{
+    onUpdateProfile({...user,...profile});
+    setSaved(true);setTimeout(()=>setSaved(false),2200);
+  };
+  const changePw=async()=>{
+    if(pwForm.next!==pwForm.confirm){setPwMsg("Passwords don't match.");return;}
+    if(pwForm.next.length<6){setPwMsg("Password must be at least 6 characters.");return;}
+    setPwMsg("Password updated successfully.");
+    setPwForm({current:"",next:"",confirm:""});
+    setTimeout(()=>setPwMsg(""),3000);
+  };
+  const toggleNotif=k=>{const n={...notifs,[k]:!notifs[k]};setNotifs(n);LS.set("notifs",n);};
+  const THEME_OPTS=[{id:"dark",label:"Dark",icon:"🌙"},{id:"light",label:"Light",icon:"☀️"},{id:"system",label:"System",icon:"💻"}];
+
+  return(
+    <div style={{padding:"24px 22px",maxWidth:680,margin:"0 auto"}}>
+      <div style={{marginBottom:24,display:"flex",alignItems:"center",gap:14}}>
+        <AuraLogo size={44} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"}/>
+        <div>
+          <h1 className="cf" style={{fontSize:30,fontWeight:400,color:t.txt}}>Settings</h1>
+          <p style={{color:t.muted,fontSize:13}}>Manage your account, appearance, and preferences</p>
+        </div>
+      </div>
+
+      <div style={{display:"flex",gap:6,marginBottom:22,flexWrap:"wrap"}}>
+        {[["profile","👤 Profile"],["appearance","🌗 Appearance"],["notifications","🔔 Notifications"],["account","🔐 Account"],["about","ℹ️ About"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{padding:"8px 16px",borderRadius:20,border:`1px solid ${tab===id?"#D4879A":t.border}`,background:tab===id?"rgba(181,92,121,.18)":"transparent",color:tab===id?"#D4879A":t.muted,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s"}}>{label}</button>
+        ))}
+      </div>
+
+      {tab==="profile"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <Card>
+            <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
+              <div style={{width:64,height:64,borderRadius:"50%",background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,fontWeight:700,color:"#F5E6EA",border:"2px solid rgba(212,135,154,.3)",flexShrink:0}}>{profile.name?.[0]?.toUpperCase()||"S"}</div>
+              <div><div style={{fontSize:16,fontWeight:600,color:t.txt}}>{profile.name||"Smira User"}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{profile.email}</div></div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <div><Label>Full Name</Label><input className="inp" value={profile.name} onChange={e=>setProfile(p=>({...p,name:e.target.value}))} style={{color:t.txt}}/></div>
+              <div><Label>Email</Label><input className="inp" value={profile.email} type="email" onChange={e=>setProfile(p=>({...p,email:e.target.value}))} style={{color:t.txt}}/></div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                <div><Label>Age</Label><input className="inp" value={profile.age} type="number" onChange={e=>setProfile(p=>({...p,age:e.target.value}))} style={{color:t.txt}}/></div>
+                <div><Label>Skin Type</Label><select className="sel" value={profile.skinType} onChange={e=>setProfile(p=>({...p,skinType:e.target.value}))} style={{color:t.txt,background:theme==="light"?"rgba(249,238,241,.98)":"rgba(20,8,15,.95)"}}><option>Oily</option><option>Dry</option><option>Combination</option><option>Normal</option><option>Sensitive</option></select></div>
+              </div>
+            </div>
+            <button className="btn" onClick={saveProfile} style={{marginTop:18,width:"100%"}}>{saved?"✅ Profile Saved!":"Save Profile"}</button>
+          </Card>
+        </div>
+      )}
+
+      {tab==="appearance"&&(
+        <Card>
+          <h3 style={{fontSize:16,fontWeight:600,color:t.txt,marginBottom:18}}>Appearance</h3>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {THEME_OPTS.map(opt=>(
+              <div key={opt.id} onClick={()=>onThemeChange(opt.id)} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",borderRadius:14,cursor:"pointer",background:themePref===opt.id?"rgba(181,92,121,.14)":"rgba(181,92,121,.04)",border:`1px solid ${themePref===opt.id?"#D4879A":t.border}`,transition:"all .2s"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${themePref===opt.id?"#D4879A":t.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{themePref===opt.id&&<div style={{width:10,height:10,borderRadius:"50%",background:"#D4879A"}}/>}</div>
+                <span style={{fontSize:20}}>{opt.icon}</span>
+                <span style={{fontSize:15,fontWeight:500,color:t.txt}}>{opt.label}</span>
+                {opt.id==="system"&&<span style={{fontSize:11,color:t.muted,marginLeft:"auto"}}>({getSystemTheme()} detected)</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:18,padding:"12px 16px",background:"rgba(181,92,121,.07)",borderRadius:12,fontSize:12,color:t.muted,lineHeight:1.7}}>Theme preference is saved automatically and persists across sessions.</div>
+        </Card>
+      )}
+
+      {tab==="notifications"&&(
+        <Card>
+          <h3 style={{fontSize:16,fontWeight:600,color:t.txt,marginBottom:4}}>Notifications</h3>
+          <p style={{fontSize:13,color:t.muted,marginBottom:18}}>Choose what reminders help you stay on track.</p>
+          {[["wellness","Daily Wellness Reminder","Morning check-in to start your day"],["water","Water Reminder","Hourly nudge to drink more water"],["journal","Journal Reminder","Evening prompt to write a journal entry"],["weekly","Weekly Progress Summary","Get your skin & wellness recap every Sunday"]].map(([key,label,desc])=>(
+            <Row key={key} label={<div><div style={{fontSize:14,color:t.txt,fontWeight:500}}>{label}</div><div style={{fontSize:11,color:t.muted,marginTop:2}}>{desc}</div></div>}>
+              <Toggle on={notifs[key]} onChange={()=>toggleNotif(key)}/>
+            </Row>
+          ))}
+        </Card>
+      )}
+
+      {tab==="account"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <Card>
+            <h3 style={{fontSize:15,fontWeight:600,color:t.txt,marginBottom:14}}>Change Password</h3>
+            {pwMsg&&<div style={{background:pwMsg.includes("success")?"rgba(168,230,201,.1)":"rgba(245,163,163,.1)",border:`1px solid ${pwMsg.includes("success")?"rgba(168,230,201,.3)":"rgba(245,163,163,.3)"}`,borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:13,color:pwMsg.includes("success")?"#A8E6C9":"#F5A3A3"}}>{pwMsg}</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:11}}>
+              <input className="inp" placeholder="Current password" type="password" value={pwForm.current} onChange={e=>setPwForm(p=>({...p,current:e.target.value}))} style={{color:t.txt}}/>
+              <input className="inp" placeholder="New password" type="password" value={pwForm.next} onChange={e=>setPwForm(p=>({...p,next:e.target.value}))} style={{color:t.txt}}/>
+              <input className="inp" placeholder="Confirm new password" type="password" value={pwForm.confirm} onChange={e=>setPwForm(p=>({...p,confirm:e.target.value}))} style={{color:t.txt}}/>
+            </div>
+            <button className="btn-o" onClick={changePw} style={{marginTop:14,width:"100%"}}>Update Password</button>
+          </Card>
+          <Card>
+            <Row label="Signed in as"><span style={{fontSize:13,color:t.muted,maxWidth:180,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{authUser?.email||user?.email||"—"}</span></Row>
+            <Row label="Sign-in method"><span style={{fontSize:13,color:t.muted,textTransform:"capitalize"}}>{authUser?.provider||"email"}</span></Row>
+          </Card>
+          <Card>
+            <button onClick={onLogout} style={{width:"100%",padding:"13px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"rgba(245,163,163,.07)",color:"#F5A3A3",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all .2s"}}>Sign Out</button>
+            <p style={{textAlign:"center",fontSize:11,color:t.muted,marginTop:12,lineHeight:1.6}}>Signing out will keep your skin data saved locally on this device.</p>
+          </Card>
+        </div>
+      )}
+
+      {tab==="about"&&(
+        <Card style={{textAlign:"center",padding:"40px 30px"}}>
+          <div style={{marginBottom:22}}>
+            <LogoBrand size={64} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+          </div>
+          <p style={{fontSize:14,color:t.muted,lineHeight:1.85,maxWidth:380,margin:"0 auto 24px"}}>AI-powered skincare and emotional wellness designed to help you understand your skin, build healthy habits, and grow your confidence — one day at a time.</p>
+          <div style={{display:"flex",gap:9,justifyContent:"center",flexWrap:"wrap",marginBottom:22}}>
+            {["AI Skin Analysis","Confidence Score™","Glow Journal","Skin Forecast","Wellness Coach"].map(f=><span key={f} style={{fontSize:11,color:t.soft,background:"rgba(181,92,121,.1)",border:`1px solid rgba(181,92,121,.2)`,padding:"4px 12px",borderRadius:20}}>{f}</span>)}
+          </div>
+          <div style={{fontSize:12,color:t.muted,borderTop:`1px solid ${t.border}`,paddingTop:18,lineHeight:1.8}}>
+            <div style={{fontWeight:600,color:t.txt,marginBottom:4}}>Version 4.0</div>
+            <div>© 2026 Smira · Not a medical device</div>
+            <div style={{marginTop:4}}>Always consult a qualified dermatologist for clinical advice.</div>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+};
+
 const Landing=({onEnter})=>{
   const h=new Date().getHours();
   const avState=h<12?"morning":h<20?"welcome":"night";
@@ -390,11 +703,12 @@ const Landing=({onEnter})=>{
       <div className="orb" style={{width:400,height:400,background:"rgba(74,21,48,.3)",bottom:"-5%",right:"-5%",animationDelay:"2.5s"}}/>
       <div className="orb" style={{width:300,height:300,background:"rgba(181,92,121,.14)",top:"30%",right:"8%",animationDelay:"1.2s"}}/>
       <div style={{zIndex:10,maxWidth:560,position:"relative"}}>
-        <div style={{width:200,height:240,margin:"0 auto 28px",borderRadius:26,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",boxShadow:"0 20px 60px rgba(0,0,0,.5), 0 0 50px rgba(181,92,121,.25)",animation:"floatY 5s ease-in-out infinite"}}>
+        <div style={{marginBottom:20,display:"flex",justifyContent:"center"}}><AuraLogo size={72} gold="#D8B36A" bg="#1A0B12"/></div>
+        <div style={{width:200,height:240,margin:"0 auto 16px",borderRadius:26,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",boxShadow:"0 20px 60px rgba(0,0,0,.5), 0 0 50px rgba(181,92,121,.25)",animation:"floatY 5s ease-in-out infinite"}}>
           <SmiraAvatar state={avState} portrait size={240}/>
         </div>
-        <span className="cf" style={{fontSize:"clamp(48px,8vw,72px)",fontWeight:300,background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:6}}>Smira</span>
-        <p style={{color:"#D4879A",fontSize:15,fontWeight:500,marginBottom:20,letterSpacing:".02em"}}>Hi, I'm Smira — your AI skincare, wellness &amp; confidence companion.</p>
+        <span className="cf" style={{fontSize:"clamp(44px,7vw,66px)",fontWeight:300,letterSpacing:".08em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:4}}>SMIRA</span>
+        <p style={{color:"#D8B36A",fontSize:13,fontWeight:500,marginBottom:20,letterSpacing:".14em",textTransform:"uppercase",opacity:.9}}>Glow with Confidence.</p>
         <h1 className="cf" style={{fontSize:"clamp(26px,4.5vw,42px)",fontWeight:300,lineHeight:1.3,marginBottom:22}}>
           You're already <em style={{background:"linear-gradient(135deg,#F0C4CC,#B55C79)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>beautiful.</em><br/>
           Let's also make you <em style={{background:"linear-gradient(135deg,#D4879A,#6B2244)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>feel it.</em>
@@ -792,6 +1106,8 @@ const Dashboard=({user,results,onNav,scans})=>{
   const confScore=calcConfidenceScore(habits,water,journalEntries,scans);
   const cl=confLabel(confScore),cc=confColor(confScore);
   const greeting=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  const welcomeBack=LS.get("just_logged_in",false);
+  useEffect(()=>{if(welcomeBack)setTimeout(()=>LS.set("just_logged_in",false),4000);},[welcomeBack]);
   const latestScan=scans?.[scans.length-1];
   return(
     <div style={{padding:"24px 22px",maxWidth:1000,margin:"0 auto"}}>
@@ -1589,17 +1905,19 @@ const Sidebar=({active,onNav,user,open,onClose})=>{
     {id:"journey",icon:"spark",label:"My Journey"},
     {id:"story",icon:"star",label:"Monthly Story"},
     {id:"menstrual",icon:"cycle",label:"Cycle Tracker"},
+    {id:"settings",icon:"gear",label:"Settings"},
   ];
   return(
     <>
       <div className="sidebar-overlay" onClick={onClose}/>
       <div className={`app-sidebar glass${open?" open":""}`} style={{width:220,height:"100vh",display:"flex",flexDirection:"column",padding:"18px 12px",position:"sticky",top:0,flexShrink:0,borderRight:"1px solid rgba(181,92,121,.12)",borderRadius:0,background:"rgba(18,6,14,.95)"}}>
         <div style={{padding:"14px 8px 20px",borderBottom:"1px solid rgba(181,92,121,.12)",marginBottom:12}}>
-          <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:10}}>
-            <div style={{width:38,height:46,borderRadius:10,overflow:"hidden",border:"1px solid rgba(212,135,154,.2)",flexShrink:0}}>
-              <SmiraAvatar state="neutral" portrait size={46}/>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,paddingBottom:4}}>
+            <AuraLogo size={50} gold="#D8B36A" bg="#1A0B12"/>
+            <div style={{textAlign:"center"}}>
+              <div className="cf" style={{fontSize:22,fontWeight:300,letterSpacing:".06em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1.1}}>SMIRA</div>
+              <div style={{fontSize:9,color:"#D8B36A",letterSpacing:".12em",opacity:.8,marginTop:2}}>Glow with Confidence.</div>
             </div>
-            <span className="cf" style={{fontSize:26,fontWeight:300,background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Smira</span>
           </div>
           {user?.name&&(
             <div style={{fontSize:12,color:"#9A6677",paddingLeft:2}}>
@@ -1617,7 +1935,10 @@ const Sidebar=({active,onNav,user,open,onClose})=>{
           ))}
         </nav>
         <div style={{paddingTop:12,borderTop:"1px solid rgba(181,92,121,.12)"}}>
-          <div style={{fontSize:10,color:"#3A1525",textAlign:"center",padding:"4px 8px"}}>Smira · Your Wellness Companion</div>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"4px 8px"}}>
+            <div style={{fontSize:9,color:"#3A1525",letterSpacing:".08em",textAlign:"center"}}>SMIRA · V4.0</div>
+            <div style={{fontSize:8,color:"#2A1020",textAlign:"center"}}>Glow with Confidence.</div>
+          </div>
         </div>
       </div>
     </>
@@ -1625,7 +1946,21 @@ const Sidebar=({active,onNav,user,open,onClose})=>{
 };
 
 export default function App(){
-  const [page,setPage]=useState(()=>LS.get("smira_page","landing"));
+  /* ── Theme ── */
+  const [themePref,setThemePref]=useState(()=>LS.get("theme_pref","dark"));
+  const resolvedTheme=resolveTheme(themePref);
+  const T=resolvedTheme==="light"?LIGHT_T:DARK_T;
+  const saveTheme=(p)=>{setThemePref(p);LS.set("theme_pref",p);};
+
+  /* ── Auth ── */
+  const [authUser,setAuthUser]=useState(()=>AUTH.getUser());
+
+  /* ── App State ── */
+  const [screen,setScreen]=useState(()=>{
+    // Splash → always show on fresh load
+    return "splash";
+  });
+  const [page,setPage]=useState(()=>LS.get("smira_page","dashboard"));
   const [user,setUser]=useState(()=>LS.get("smira_user",null));
   const [results,setResults]=useState(()=>LS.get("smira_results",null));
   const [scanImg,setScanImg]=useState(()=>LS.get("smira_img",null));
@@ -1635,13 +1970,50 @@ export default function App(){
   const [water]=useState(()=>LS.get("water_today",0));
   const [journalEntries]=useState(()=>LS.get("glowJournal",[]));
 
+  /* Listen for system theme changes */
+  useEffect(()=>{
+    const mq=window.matchMedia("(prefers-color-scheme:dark)");
+    const handler=()=>{if(themePref==="system")setThemePref(p=>p);};
+    mq.addEventListener("change",handler);
+    return()=>mq.removeEventListener("change",handler);
+  },[themePref]);
+
   const nav=(p)=>{setPage(p);LS.set("smira_page",p);setSideOpen(false);window.scrollTo(0,0);};
 
+  const handleSplashDone=()=>{
+    if(authUser){
+      // Already logged in — go straight to app
+      if(!user)setScreen("onboarding");
+      else setScreen("app");
+    } else {
+      setScreen("auth");
+    }
+  };
+
+  const handleAuth=(aUser)=>{
+    setAuthUser(aUser);AUTH.setUser(aUser);
+    // Merge name from auth if no profile yet
+    if(!user){
+      setScreen("onboarding");
+    } else {
+      setScreen("app");
+    }
+  };
+
   const handleOnboard=(d)=>{
-    setUser(d);LS.set("smira_user",d);
-    // Initialize activities (new user starts at 0 streak)
+    const merged={...d,email:authUser?.email||d.email,name:d.name||authUser?.name};
+    setUser(merged);LS.set("smira_user",merged);
     if(!LS.get("activities",null))LS.set("activities",{});
-    nav("dashboard");
+    setScreen("app");nav("dashboard");
+  };
+
+  const handleLogout=()=>{
+    AUTH.clear();setAuthUser(null);
+    setScreen("auth");
+  };
+
+  const handleUpdateProfile=(updated)=>{
+    setUser(updated);LS.set("smira_user",updated);
   };
 
   const handleResult=(r,img)=>{
@@ -1653,24 +2025,33 @@ export default function App(){
     nav("results");
   };
 
-  const showApp=page!=="landing"&&page!=="onboarding";
+  // Add spin keyframe for auth loader
+  const spinStyle=`@keyframes spin{to{transform:rotate(360deg)}}`;
 
   return(
-    <div style={{minHeight:"100vh",background:"var(--dp)"}}>
-      <GlobalStyles/>
-      {page==="landing"&&<Landing onEnter={()=>user?nav("dashboard"):nav("onboarding")}/>}
-      {page==="onboarding"&&<Onboarding onDone={handleOnboard}/>}
-      {showApp&&(
+    <div style={{minHeight:"100vh",background:T.bodyBg,transition:"background .35s"}}>
+      <GlobalStyles theme={resolvedTheme}/>
+      <style>{spinStyle}</style>
+
+      {screen==="splash"&&<Splash onDone={handleSplashDone} theme={resolvedTheme}/>}
+      {screen==="auth"&&<AuthScreen onAuth={handleAuth} theme={resolvedTheme}/>}
+      {screen==="onboarding"&&<Onboarding onDone={handleOnboard}/>}
+
+      {screen==="app"&&(
         <div style={{display:"flex",minHeight:"100vh"}}>
           <Sidebar active={page} onNav={nav} user={user} open={sideOpen} onClose={()=>setSideOpen(false)}/>
-          <div className="app-main" style={{flex:1,marginLeft:0,minWidth:0}}>
-            {/* Top bar for mobile */}
-            <div style={{padding:"14px 18px",borderBottom:"1px solid rgba(181,92,121,.1)",display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(18,6,14,.7)",position:"sticky",top:0,zIndex:50,backdropFilter:"blur(12px)"}}>
+          <div className="app-main" style={{flex:1,marginLeft:0,minWidth:0,background:T.bodyBg}}>
+            {/* Top bar */}
+            <div style={{padding:"12px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",background:T.topbar,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(14px)",transition:"background .35s"}}>
               <button className="hamburger" onClick={()=>setSideOpen(s=>!s)} aria-label="Menu"><span/><span/><span/></button>
-              <span className="cf" style={{fontSize:22,background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:300}}>Smira</span>
-              <div style={{width:32,display:"flex",justifyContent:"flex-end"}}>
-                {user&&<div style={{width:30,height:36,borderRadius:8,overflow:"hidden",border:"1px solid rgba(212,135,154,.2)"}}><SmiraAvatar state="neutral" portrait size={36}/></div>}
+              <div style={{display:"flex",alignItems:"center",gap:9}}>
+                <AuraLogo size={28} gold={T.gold} bg={resolvedTheme==="light"?"#8B3A57":"#1A0B12"}/>
+                <span className="cf" style={{fontSize:19,letterSpacing:".06em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:300}}>SMIRA</span>
               </div>
+              <button onClick={()=>nav("settings")} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:8,display:"flex",alignItems:"center",gap:6,color:T.muted}} title="Settings">
+                <Ic n="gear" s={18} c={T.muted}/>
+                {user?.name&&<span style={{fontSize:12,color:T.muted,display:"none"}} className="hide-mobile">{user.name.split(" ")[0]}</span>}
+              </button>
             </div>
             <div style={{padding:"0"}}>
               {page==="dashboard"&&<Dashboard user={user} results={results} onNav={nav} scans={scans}/>}
@@ -1686,6 +2067,7 @@ export default function App(){
               {page==="story"&&<MonthlyStory user={user} scans={scans} habits={habits} journalEntries={journalEntries}/>}
               {page==="menstrual"&&<MenstrualTracker/>}
               {page==="coach"&&<div style={{height:"calc(100vh - 60px)"}}><AICoach user={user} results={results} scans={scans}/></div>}
+              {page==="settings"&&<Settings user={user} authUser={authUser} themePref={themePref} onThemeChange={saveTheme} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} theme={resolvedTheme}/>}
             </div>
           </div>
           <FloatingCompanion user={user} results={results} scans={scans}/>
