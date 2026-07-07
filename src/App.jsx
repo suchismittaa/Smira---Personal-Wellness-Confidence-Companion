@@ -407,7 +407,12 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
    Central helper for every AI call in the app (Skin Analysis + Coach).
    Reads the key from Vite env — never hardcode it.                    */
 const GEMINI_MODEL="gemini-2.5-flash";
-const GEMINI_URL=(key)=>`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+/* Routed through the '/api/gemini' proxy defined in vite.config.js, which
+   rewrites to https://generativelanguage.googleapis.com. This avoids
+   calling the Google domain directly from the browser during dev. In
+   production, configure an equivalent rewrite/proxy on your host (Vercel
+   rewrites, Netlify redirects, Nginx, etc.) so this path still resolves. */
+const GEMINI_URL=(key)=>`/api/gemini/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
 
 /* Low-level call: takes a full Gemini `contents` array (multi-turn ready). */
 const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>{
