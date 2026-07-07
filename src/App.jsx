@@ -405,26 +405,21 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
 });
 /* ── GEMINI API CLIENT ───────────────────────────────────────────────
    Central helper for every AI call in the app (Skin Analysis + Coach).
-   Reads the key from Vite env — never hardcode it.                    */
+   Calls our own /api/gemini serverless function (see /api/gemini.js),
+   which holds the real Gemini key server-side. The browser never sees
+   an API key at all — nothing to configure here via import.meta.env. */
 const GEMINI_MODEL="gemini-2.5-flash";
-/* Routed through the '/api/gemini' proxy defined in vite.config.js, which
-   rewrites to https://generativelanguage.googleapis.com. This avoids
-   calling the Google domain directly from the browser during dev. In
-   production, configure an equivalent rewrite/proxy on your host (Vercel
-   rewrites, Netlify redirects, Nginx, etc.) so this path still resolves. */
-const GEMINI_URL=(key)=>`/api/gemini/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+const GEMINI_ENDPOINT=`/api/gemini?model=${GEMINI_MODEL}`;
 
 /* Low-level call: takes a full Gemini `contents` array (multi-turn ready). */
 const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>{
-  const apiKey=import.meta.env.VITE_GEMINI_KEY;
-  if(!apiKey){const e=new Error("AI is not configured. Missing VITE_GEMINI_KEY.");e.code="NO_KEY";throw e;}
   if(typeof navigator!=="undefined"&&navigator.onLine===false){const e=new Error("You appear to be offline. Please check your connection.");e.code="OFFLINE";throw e;}
 
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeoutMs);
   let res;
   try{
-    res=await fetch(GEMINI_URL(apiKey),{
+    res=await fetch(GEMINI_ENDPOINT,{
       method:"POST",headers:{"Content-Type":"application/json"},signal:controller.signal,
       body:JSON.stringify({
         ...(system?{systemInstruction:{parts:[{text:system}]}}:{}),
@@ -441,7 +436,7 @@ const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeou
 
   if(!res.ok){
     let msg=`Request failed (${res.status})`;
-    try{const errJson=await res.json();msg=errJson?.error?.message||msg;}catch{}
+    try{const errJson=await res.json();msg=errJson?.error?.message||msg;if(errJson?.error?.message?.includes("GEMINI_KEY"))msg="AI is not configured. Missing GEMINI_KEY on the server.";}catch{}
     const e=new Error(msg);e.status=res.status;throw e;
   }
   const data=await res.json();
