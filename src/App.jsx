@@ -403,27 +403,86 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
   };
   img.onerror=()=>res(dataUrl);img.src=dataUrl;
 });
+/* ── GEMINI API CLIENT ───────────────────────────────────────────────
+   Central helper for every AI call in the app (Skin Analysis + Coach).
+   Reads the key from Vite env — never hardcode it.                    */
+const GEMINI_MODEL="gemini-2.5-flash";
+const GEMINI_URL=(key)=>`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+
+/* Low-level call: takes a full Gemini `contents` array (multi-turn ready). */
+const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>{
+  const apiKey=import.meta.env.VITE_GEMINI_KEY;
+  if(!apiKey){const e=new Error("AI is not configured. Missing VITE_GEMINI_KEY.");e.code="NO_KEY";throw e;}
+  if(typeof navigator!=="undefined"&&navigator.onLine===false){const e=new Error("You appear to be offline. Please check your connection.");e.code="OFFLINE";throw e;}
+
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  let res;
+  try{
+    res=await fetch(GEMINI_URL(apiKey),{
+      method:"POST",headers:{"Content-Type":"application/json"},signal:controller.signal,
+      body:JSON.stringify({
+        ...(system?{systemInstruction:{parts:[{text:system}]}}:{}),
+        contents,
+        generationConfig:{maxOutputTokens:maxTokens,temperature},
+      }),
+    });
+  }catch(networkErr){
+    clearTimeout(timer);
+    if(networkErr.name==="AbortError"){const e=new Error("The request timed out. Please try again.");e.code="TIMEOUT";throw e;}
+    const e=new Error("Network error — please check your connection and try again.");e.code="NETWORK";throw e;
+  }
+  clearTimeout(timer);
+
+  if(!res.ok){
+    let msg=`Request failed (${res.status})`;
+    try{const errJson=await res.json();msg=errJson?.error?.message||msg;}catch{}
+    const e=new Error(msg);e.status=res.status;throw e;
+  }
+  const data=await res.json();
+  if(data?.promptFeedback?.blockReason){
+    const e=new Error(`Response was blocked (${data.promptFeedback.blockReason}).`);e.code="BLOCKED";throw e;
+  }
+  const text=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+  if(!text){const e=new Error("Received an empty response from the AI.");e.code="EMPTY";throw e;}
+  return text;
+};
+
+/* Single-turn helper — used by Skin Analysis (image + prompt, no history). */
+const callGemini=async(parts,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>
+  callGeminiRaw([{role:"user",parts}],{system,maxTokens,temperature,timeoutMs});
+
+/* Multi-turn helper — used by the AI Coach (prior turns + new message). */
+const callGeminiChat=async(history,latestMessage,system,opts={})=>
+  callGeminiRaw([...history,{role:"user",parts:[{text:latestMessage}]}],{system,maxTokens:500,temperature:0.8,timeoutMs:30000,...opts});
+
+/* Turns any error from callGemini into a calm, user-facing message. */
+const friendlyAIError=(e)=>{
+  if(e?.code==="NO_KEY")return"Smira's AI isn't configured yet. Please contact support.";
+  if(e?.code==="OFFLINE")return"You appear to be offline. Please check your connection and try again.";
+  if(e?.code==="TIMEOUT")return"That's taking longer than expected. Please try again with a stable connection.";
+  if(e?.code==="NETWORK")return"Couldn't reach Smira's AI. Please check your internet connection.";
+  if(e?.code==="BLOCKED")return"That request couldn't be completed safely. Please try a different photo or message.";
+  if(e?.status===401||e?.status===403)return"AI authentication failed. Please contact support.";
+  if(e?.status===400)return"That request couldn't be processed. Please try a different photo or message.";
+  if(e?.status===429)return"Smira is a little busy right now — please wait a moment and try again.";
+  if(e?.status>=500)return"Smira's AI service is temporarily unavailable. Please try again shortly.";
+  return e?.message||"Something didn't go as planned. Please try again.";
+};
+
 const runVisionAnalysis=async(imgData,user)=>{
   const resized=await resizeImg(imgData);
   const mediaType=getMediaType(resized);
   const base64Data=resized.split(",")[1];
-  const res=await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      model:"claude-sonnet-4-20250514",max_tokens:1000,
-      system:`You are a compassionate dermatologist AI for Smira. Analyze facial skin from photos with care and empathy. CRITICAL: Never imply skin conditions reduce beauty. Frame everything supportively. Return ONLY valid JSON, no markdown fences.`,
-      messages:[{role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:mediaType,data:base64Data}},
-        {type:"text",text:`Analyze this person's skin compassionately. Return JSON: {overallScore:number(40-90),hydrationLevel:number(30-90),elasticity:number(40-90),brightness:number(30-85),skinAge:string,skinType:string,aiSummary:string(2-3 warm sentences),emotionalNote:string(1 affirming sentence),concerns:[{name,severity:"Low|Moderate|High",confidence:number,color:string,description:string}](max4),rootCauses:[{cause,probability:number}](max4),heatZones:[{x:number,y:number,label,color,intensity:"Low|Medium|High"}](max4),forecast:{hydration30days:number,brightnessChange:string,recommendation:string},triggers:[{food:string,correlation:number,insight:string}](max3)} User context: age ${user?.age||"unknown"} stress:${user?.stress||"Moderate"} sleep:${user?.sleep||"7-8 hrs"} ${user?.pcos?"PCOS":""} ${user?.thyroid?"thyroid":""}`}
-      ]}],
-    }),
-  });
-  if(!res.ok){const e=await res.text();throw new Error(`API ${res.status}: ${e.slice(0,120)}`);}
-  const data=await res.json();
-  if(data.error)throw new Error(data.error.message||"API error");
-  const text=data?.content?.[0]?.text||"{}";
+  const system=`You are a compassionate dermatologist AI for Smira. Analyze facial skin from photos with care and empathy. CRITICAL: Never imply skin conditions reduce beauty. Frame everything supportively. Return ONLY valid JSON, no markdown fences.`;
+  const prompt=`Analyze this person's skin compassionately. Return JSON: {overallScore:number(40-90),hydrationLevel:number(30-90),elasticity:number(40-90),brightness:number(30-85),skinAge:string,skinType:string,aiSummary:string(2-3 warm sentences),emotionalNote:string(1 affirming sentence),concerns:[{name,severity:"Low|Moderate|High",confidence:number,color:string,description:string}](max4),rootCauses:[{cause,probability:number}](max4),heatZones:[{x:number,y:number,label,color,intensity:"Low|Medium|High"}](max4),forecast:{hydration30days:number,brightnessChange:string,recommendation:string},triggers:[{food:string,correlation:number,insight:string}](max3)} User context: age ${user?.age||"unknown"} stress:${user?.stress||"Moderate"} sleep:${user?.sleep||"7-8 hrs"} ${user?.pcos?"PCOS":""} ${user?.thyroid?"thyroid":""}`;
+  const parts=[
+    {inlineData:{mimeType:mediaType,data:base64Data}},
+    {text:prompt},
+  ];
+  const text=await callGemini(parts,{system,maxTokens:1000,temperature:0.6,timeoutMs:45000});
   try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
-  catch{const m=text.match(/\{[\s\S]*\}/);if(m)return JSON.parse(m[0]);throw new Error("Could not parse response");}
+  catch{const m=text.match(/\{[\s\S]*\}/);if(m){try{return JSON.parse(m[0]);}catch{}}const e=new Error("Could not parse the analysis response. Please try again.");e.code="PARSE";throw e;}
 };
 
 
@@ -863,10 +922,9 @@ const SkinScan=({onResult,user,existingScans})=>{
       setTimeout(()=>{onResult(result,imgData);setAnalyzing(false);},800);
     }catch(e){
       clearInterval(ticker);
-      console.error("[Smira Scan]",e.message,new Date().toISOString());
-      let msg="Something didn't go as planned. Please try again or upload a different photo.";
-      if(e.message==="timeout")msg="The analysis is taking longer than expected. Please try again with a clear, well-lit photo.";
-      else if(e.message?.includes("413"))msg="This photo is too large. Please try a smaller image.";
+      console.error("[Smira Scan]",e?.message,new Date().toISOString());
+      let msg=e?.message==="timeout"?"The analysis is taking longer than expected. Please try again with a clear, well-lit photo.":friendlyAIError(e);
+      if(e?.status===413)msg="This photo is too large. Please try a smaller image.";
       setErr(msg);setAnalyzing(false);setProgress(0);
     }
   },[user,onResult]);
@@ -1780,19 +1838,15 @@ HOLISTIC ANALYSIS: Connect food + products + sleep + stress into complete insigh
 EMOTIONAL SUPPORT: Validate feelings FIRST before any advice. Never minimize. End with something affirming.
 
 User context: ${ctx}`;
-      const history=newMsgs.slice(-10).map(m=>({role:m.role==="assistant"?"assistant":"user",content:m.text}));
-      const res=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,system:systemPrompt,messages:history}),
-      });
-      if(!res.ok)throw new Error(`API ${res.status}`);
-      const data=await res.json();
-      if(data.error)throw new Error(data.error.message);
-      const reply=data.content?.[0]?.text||"I'm here for you. Could you tell me more?";
+      /* Gemini multi-turn history: role must be "user" or "model", and the
+         final turn is passed separately so it becomes the active prompt. */
+      const history=newMsgs.slice(-10,-1).map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.text}]}));
+      const text=await callGeminiChat(history,userMsg.text,systemPrompt);
+      const reply=text||"I'm here for you. Could you tell me more?";
       setMsgs(m=>[...m,{role:"assistant",text:reply,ts:Date.now()}]);
     }catch(e){
-      console.error("[Smira Coach]",e.message,new Date().toISOString());
-      setErr("Something went wrong. Please try again.");
+      console.error("[Smira Coach]",e?.message,new Date().toISOString());
+      setErr(friendlyAIError(e));
     }finally{setLoading(false);}
   };
 
