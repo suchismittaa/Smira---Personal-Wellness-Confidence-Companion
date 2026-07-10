@@ -408,8 +408,10 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
    Calls our own /api/gemini serverless function (see /api/gemini.js),
    which holds the real Gemini key server-side. The browser never sees
    an API key at all — nothing to configure here via import.meta.env. */
-const GEMINI_MODEL="gemini-2.5-flash";
-const GEMINI_ENDPOINT=`/api/gemini?model=${GEMINI_MODEL}`;
+/* Model choice now lives server-side (GEMINI_MODEL env var in api/gemini.js,
+   defaulting to gemini-3.5-flash) so a future model swap needs no redeploy
+   of this client code — just an env var update on Vercel. */
+const GEMINI_ENDPOINT="/api/gemini";
 
 /* Low-level call: takes a full Gemini `contents` array (multi-turn ready). */
 const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>{
