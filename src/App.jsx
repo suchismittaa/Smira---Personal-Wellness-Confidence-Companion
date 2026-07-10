@@ -482,7 +482,7 @@ const runVisionAnalysis=async(imgData,user)=>{
     {inlineData:{mimeType:mediaType,data:base64Data}},
     {text:prompt},
   ];
-  const text=await callGemini(parts,{system,maxTokens:1000,temperature:0.6,timeoutMs:45000});
+  const text=await callGemini(parts,{system,maxTokens:1000,temperature:0.6,timeoutMs:65000});
   try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
   catch{const m=text.match(/\{[\s\S]*\}/);if(m){try{return JSON.parse(m[0]);}catch{}}const e=new Error("Could not parse the analysis response. Please try again.");e.code="PARSE";throw e;}
 };
@@ -917,7 +917,7 @@ const SkinScan=({onResult,user,existingScans})=>{
       setStepTxt(STEPS[Math.min(Math.floor(p/(94/STEPS.length)),STEPS.length-1)]);
     },600);
     try{
-      const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),45000));
+      const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),65000));
       const result=await Promise.race([runVisionAnalysis(imgData,user),timeout]);
       clearInterval(ticker);setProgress(100);setStepTxt("Your insights are ready");
       recordActivity("scan");
