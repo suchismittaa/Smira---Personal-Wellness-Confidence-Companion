@@ -414,7 +414,7 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
 const GEMINI_ENDPOINT="/api/gemini";
 
 /* Low-level call: takes a full Gemini `contents` array (multi-turn ready). */
-const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>{
+const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000,responseMimeType}={})=>{
   if(typeof navigator!=="undefined"&&navigator.onLine===false){const e=new Error("You appear to be offline. Please check your connection.");e.code="OFFLINE";throw e;}
 
   const controller=new AbortController();
@@ -426,7 +426,7 @@ const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeou
       body:JSON.stringify({
         ...(system?{systemInstruction:{parts:[{text:system}]}}:{}),
         contents,
-        generationConfig:{maxOutputTokens:maxTokens,temperature},
+        generationConfig:{maxOutputTokens:maxTokens,temperature,...(responseMimeType?{responseMimeType}:{})},
       }),
     });
   }catch(networkErr){
@@ -445,14 +445,20 @@ const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeou
   if(data?.promptFeedback?.blockReason){
     const e=new Error(`Response was blocked (${data.promptFeedback.blockReason}).`);e.code="BLOCKED";throw e;
   }
-  const text=(data?.candidates?.[0]?.content?.parts||[]).map(p=>p.text||"").join("");
+  const candidate=data?.candidates?.[0];
+  /* Gemini 3.x "thinking" models can return internal reasoning as separate
+     parts flagged `thought:true` — exclude those, we only want the final answer. */
+  const text=(candidate?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||"").join("");
+  if(candidate?.finishReason==="MAX_TOKENS"&&(!text||text.trim().length<20)){
+    const e=new Error("The AI's response was cut off before finishing. Please try again.");e.code="TRUNCATED";throw e;
+  }
   if(!text){const e=new Error("Received an empty response from the AI.");e.code="EMPTY";throw e;}
   return text;
 };
 
 /* Single-turn helper — used by Skin Analysis (image + prompt, no history). */
-const callGemini=async(parts,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000}={})=>
-  callGeminiRaw([{role:"user",parts}],{system,maxTokens,temperature,timeoutMs});
+const callGemini=async(parts,{system,maxTokens=1000,temperature=0.7,timeoutMs=30000,responseMimeType}={})=>
+  callGeminiRaw([{role:"user",parts}],{system,maxTokens,temperature,timeoutMs,responseMimeType});
 
 /* Multi-turn helper — used by the AI Coach (prior turns + new message). */
 const callGeminiChat=async(history,latestMessage,system,opts={})=>
@@ -482,9 +488,14 @@ const runVisionAnalysis=async(imgData,user)=>{
     {inlineData:{mimeType:mediaType,data:base64Data}},
     {text:prompt},
   ];
-  const text=await callGemini(parts,{system,maxTokens:1000,temperature:0.6,timeoutMs:65000});
+  const text=await callGemini(parts,{system,maxTokens:2048,temperature:0.6,timeoutMs:65000,responseMimeType:"application/json"});
   try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
-  catch{const m=text.match(/\{[\s\S]*\}/);if(m){try{return JSON.parse(m[0]);}catch{}}const e=new Error("Could not parse the analysis response. Please try again.");e.code="PARSE";throw e;}
+  catch{
+    const m=text.match(/\{[\s\S]*\}/);
+    if(m){try{return JSON.parse(m[0]);}catch{}}
+    console.error("[Smira Scan] Unparseable AI response:",text.slice(0,500));
+    const e=new Error("Could not parse the analysis response. Please try again.");e.code="PARSE";throw e;
+  }
 };
 
 
