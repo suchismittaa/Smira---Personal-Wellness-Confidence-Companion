@@ -351,13 +351,58 @@ const ErrorBox=({message,onRetry})=>(
   </div>
 );
 
-const WEEKLY=[
-  {day:"Mon",acne:45,hydration:62,brightness:55,confidence:58},{day:"Tue",acne:48,hydration:65,brightness:57,confidence:60},
-  {day:"Wed",acne:42,hydration:68,brightness:60,confidence:63},{day:"Thu",acne:38,hydration:70,brightness:63,confidence:67},
-  {day:"Fri",acne:35,hydration:72,brightness:65,confidence:70},{day:"Sat",acne:32,hydration:74,brightness:68,confidence:73},
-  {day:"Sun",acne:30,hydration:75,brightness:70,confidence:76},
-];
-const MONTHLY=[{week:"Wk 1",score:48,confidence:52},{week:"Wk 2",score:55,confidence:58},{week:"Wk 3",score:61,confidence:65},{week:"Wk 4",score:68,confidence:76}];
+/* WEEKLY/MONTHLY placeholder chart data removed — every chart now derives
+   from real scan history via computeProgress(scans). */
+
+/* Turns real scan history into: a chartable time series, a latest-vs-previous
+   comparison (deltas + % change per metric), and per-concern trend direction.
+   Used by both the Results "Progress" tab and Analytics' trend chart. */
+const computeProgress=(scans)=>{
+  const sorted=[...(scans||[])].sort((a,b)=>(a.ts||0)-(b.ts||0));
+  const series=sorted.map(s=>({
+    date:s.date,
+    ts:s.ts,
+    overallScore:s.overallScore||0,
+    hydrationLevel:s.hydrationLevel||0,
+    elasticity:s.elasticity||0,
+    brightness:s.brightness||0,
+  }));
+  if(sorted.length<2)return{series,hasComparison:false};
+
+  const latest=sorted[sorted.length-1];
+  const prev=sorted[sorted.length-2];
+  const first=sorted[0];
+  const pctChange=(now,then)=>then?Math.round(((now-then)/then)*100):0;
+
+  const metricDelta=(key)=>({
+    value:(latest[key]||0)-(prev[key]||0),
+    pct:pctChange(latest[key]||0,prev[key]||0),
+    current:latest[key]||0,
+    since:first[key]||0,
+    sinceFirstPct:pctChange(latest[key]||0,first[key]||0),
+  });
+
+  const concernTrend=(latest.concerns||[]).map(c=>{
+    const prevMatch=(prev.concerns||[]).find(p=>p.name===c.name);
+    const firstMatch=(first.concerns||[]).find(p=>p.name===c.name);
+    return{
+      name:c.name,
+      current:c.confidence,
+      prevChange:prevMatch?c.confidence-prevMatch.confidence:null,
+      sinceFirstChange:firstMatch?c.confidence-firstMatch.confidence:null,
+    };
+  });
+
+  return{
+    series,hasComparison:true,scanCount:sorted.length,
+    firstDate:first.date,latestDate:latest.date,
+    overallScore:metricDelta("overallScore"),
+    hydrationLevel:metricDelta("hydrationLevel"),
+    elasticity:metricDelta("elasticity"),
+    brightness:metricDelta("brightness"),
+    concernTrend,
+  };
+};
 const DEFAULT_HABITS=[
   {id:1,icon:"spark",label:"Morning skincare routine",done:false},
   {id:2,icon:"leaf",label:"8 glasses of water",done:false},
@@ -475,6 +520,22 @@ const resizeImg=(dataUrl)=>new Promise(res=>{
   };
   img.onerror=()=>res(dataUrl);img.src=dataUrl;
 });
+/* Small (~2-6KB) thumbnail for scan history entries. We keep up to 30 scans
+   in one Firestore document (1MB limit) — full-size photos would blow past
+   that almost immediately, so history only ever stores this tiny preview. */
+const makeThumb=(dataUrl)=>new Promise(res=>{
+  const img=new Image();
+  img.onload=()=>{
+    const SIZE=96;
+    const canvas=document.createElement("canvas");
+    canvas.width=SIZE;canvas.height=SIZE;
+    const scale=Math.max(SIZE/img.width,SIZE/img.height);
+    const w=img.width*scale,h=img.height*scale;
+    canvas.getContext("2d").drawImage(img,(SIZE-w)/2,(SIZE-h)/2,w,h);
+    res(canvas.toDataURL("image/jpeg",.55));
+  };
+  img.onerror=()=>res(null);img.src=dataUrl;
+});
 /* ── GEMINI API CLIENT ───────────────────────────────────────────────
    Central helper for every AI call in the app (Skin Analysis + Coach).
    Calls our own /api/gemini serverless function (see /api/gemini.js),
@@ -550,17 +611,36 @@ const friendlyAIError=(e)=>{
   return e?.message||"Something didn't go as planned. Please try again.";
 };
 
-const runVisionAnalysis=async(imgData,user)=>{
+const runVisionAnalysis=async(imgData,user,prevScan)=>{
   const resized=await resizeImg(imgData);
   const mediaType=getMediaType(resized);
   const base64Data=resized.split(",")[1];
   const system=`You are a compassionate dermatologist AI for Smira. Analyze facial skin from photos with care and empathy. CRITICAL: Never imply skin conditions reduce beauty. Frame everything supportively. Return ONLY valid JSON, no markdown fences.`;
-  const prompt=`Analyze this person's skin compassionately. Return JSON: {overallScore:number(40-90),hydrationLevel:number(30-90),elasticity:number(40-90),brightness:number(30-85),skinAge:string,skinType:string,aiSummary:string(2-3 warm sentences),emotionalNote:string(1 affirming sentence),concerns:[{name,severity:"Low|Moderate|High",confidence:number,color:string,description:string}](max4),rootCauses:[{cause,probability:number}](max4),heatZones:[{x:number,y:number,label,color,intensity:"Low|Medium|High"}](max4),forecast:{hydration30days:number,brightnessChange:string,recommendation:string},triggers:[{food:string,correlation:number,insight:string}](max3)} User context: age ${user?.age||"unknown"} stress:${user?.stress||"Moderate"} sleep:${user?.sleep||"7-8 hrs"} ${user?.pcos?"PCOS":""} ${user?.thyroid?"thyroid":""}`;
+  const conditions=["pcos","pcod","thyroid","diabetes"].filter(k=>user?.[k]).join(", ")||"none reported";
+  const trendCtx=prevScan?`Previous scan (${prevScan.date}): overall score ${prevScan.overallScore}, hydration ${prevScan.hydrationLevel}, brightness ${prevScan.brightness}, elasticity ${prevScan.elasticity}, concerns: ${(prevScan.concerns||[]).map(c=>c.name).join(", ")||"none"}. Reference this trend naturally in aiSummary where relevant (e.g. noting improvement or a new concern) — don't just restate the numbers.`:"This is their first tracked scan — no prior trend to compare.";
+  const prompt=`Analyze this person's skin compassionately, using their full profile below to personalize everything (not just the photo in isolation).
+
+User profile: age ${user?.age||"unknown"}, gender ${user?.gender||"unspecified"}, skin type ${user?.skinType||"unknown"}, diet ${user?.diet||"unspecified"}, water intake ${user?.water||"unspecified"}, sleep ${user?.sleep||"7-8 hrs"}, stress level ${user?.stress||"Moderate"}, health conditions: ${conditions}, skin goals: ${(user?.skinGoal||[]).join(", ")||"general improvement"}.
+
+${trendCtx}
+
+Return JSON with this exact shape:
+{overallScore:number(40-90),hydrationLevel:number(30-90),elasticity:number(40-90),brightness:number(30-85),skinAge:string,skinType:string,
+aiSummary:string(2-3 warm sentences, personalized to their profile and trend above),
+emotionalNote:string(1 affirming sentence),
+concerns:[{name,severity:"Low|Moderate|High",confidence:number,color:string,description:string}](max4),
+rootCauses:[{cause,probability:number}](max4),
+heatZones:[{x:number,y:number,label,color,intensity:"Low|Medium|High"}](max4),
+forecast:{hydration30days:number,brightnessChange:string,recommendation:string},
+triggers:[{food:string,correlation:number,insight:string}](max3),
+recommendations:[{action:string(specific, e.g. "Add a niacinamide serum in the morning"),reason:string(why this helps, tied to their specific profile/concerns),targetConcern:string(which concern from the list above this addresses),expectedImprovement:string(what visibly improves),timeframe:string(e.g. "2-3 weeks with consistent use")}](max5, ordered by priority)}
+
+Every recommendation must be justified by something specific in this person's profile or concerns — never generic advice.`;
   const parts=[
     {inlineData:{mimeType:mediaType,data:base64Data}},
     {text:prompt},
   ];
-  const text=await callGemini(parts,{system,maxTokens:2048,temperature:0.6,timeoutMs:65000,responseMimeType:"application/json"});
+  const text=await callGemini(parts,{system,maxTokens:2560,temperature:0.6,timeoutMs:65000,responseMimeType:"application/json"});
   try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
   catch{
     const m=text.match(/\{[\s\S]*\}/);
@@ -1027,7 +1107,8 @@ const SkinScan=({onResult,user,existingScans})=>{
     },600);
     try{
       const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),65000));
-      const result=await Promise.race([runVisionAnalysis(imgData,user),timeout]);
+      const prevScan=existingScans?.length?existingScans[existingScans.length-1]:null;
+      const result=await Promise.race([runVisionAnalysis(imgData,user,prevScan),timeout]);
       clearInterval(ticker);setProgress(100);setStepTxt("Your insights are ready");
       recordActivity("scan");
       setTimeout(()=>{onResult(result,imgData);setAnalyzing(false);},800);
@@ -1038,7 +1119,7 @@ const SkinScan=({onResult,user,existingScans})=>{
       if(e?.status===413)msg="This photo is too large. Please try a smaller image.";
       setErr(msg);setAnalyzing(false);setProgress(0);
     }
-  },[user,onResult]);
+  },[user,onResult,existingScans]);
 
   if(analyzing)return(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"65vh",padding:24}}>
@@ -1109,7 +1190,7 @@ const SkinScan=({onResult,user,existingScans})=>{
           <div style={{display:"flex",gap:9,overflowX:"auto",paddingBottom:6}}>
             {existingScans.slice(-5).reverse().map((s,i)=>(
               <div key={i} className="glass" style={{padding:"12px 14px",borderRadius:14,flexShrink:0,textAlign:"center",minWidth:90}}>
-                <div style={{fontSize:20,fontWeight:700,color:"#D4879A",marginBottom:3}}>{s.score}</div>
+                <div style={{fontSize:20,fontWeight:700,color:"#D4879A",marginBottom:3}}>{s.overallScore}</div>
                 <div style={{fontSize:10,color:"#6B4455"}}>{s.date}</div>
               </div>
             ))}
@@ -1124,6 +1205,7 @@ const Results=({results,img,user,onNav,scans})=>{
   const [tab,setTab]=useState("overview");
   const cColors={Low:"#A8E6C9",Moderate:"#F0C4CC",High:"#F5A3A3"};
   if(!results)return<EmptyState avatarState="analysis" title="No analysis yet" message="Complete your first skin scan to see your personalized results and begin your glow journey." actionLabel="Start Skin Analysis" onAction={()=>onNav("scan")}/>;
+  const progress=computeProgress(scans);
   const radar=[{s:"Hydration",v:results.hydrationLevel||62},{s:"Brightness",v:results.brightness||60},{s:"Elasticity",v:results.elasticity||70},{s:"Clarity",v:100-(results.concerns?.find(c=>c.name==="Acne")?.confidence||40)},{s:"Evenness",v:results.overallScore||68}];
   return(
     <div style={{padding:"24px 22px",maxWidth:920,margin:"0 auto"}}>
@@ -1151,7 +1233,7 @@ const Results=({results,img,user,onNav,scans})=>{
         </div>
       )}
       <div style={{display:"flex",gap:5,marginBottom:18,overflowX:"auto",paddingBottom:3}}>
-        {[["overview","Overview"],["concerns","Concerns"],["heatmap","Heat Map"],["forecast","Forecast"],["triggers","Triggers"],["routine","Routine"]].map(([t,l])=>(
+        {[["overview","Overview"],["progress","Progress"],["concerns","Concerns"],["heatmap","Heat Map"],["forecast","Forecast"],["triggers","Triggers"],["routine","Routine"]].map(([t,l])=>(
           <button key={t} className={`tab-btn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
         ))}
       </div>
@@ -1169,6 +1251,74 @@ const Results=({results,img,user,onNav,scans})=>{
               ))}
             </div>
           </div>
+        </div>
+      )}
+      {tab==="progress"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:18}}>
+          {!progress.hasComparison?(
+            <div className="glass" style={{padding:"28px 24px",borderRadius:20,textAlign:"center"}}>
+              <SmiraAvatar state="analysis" size={48}/>
+              <p style={{fontSize:14,color:"#9A6677",marginTop:14,lineHeight:1.7}}>Complete one more scan to start seeing progress comparisons. Smira tracks every scan so you can see exactly how your skin changes over time.</p>
+            </div>
+          ):(
+            <>
+              <div className="glass" style={{padding:"16px 20px",borderRadius:16,display:"flex",gap:10,alignItems:"center"}}>
+                <SmiraAvatar state="celebration" size={40}/>
+                <p style={{fontSize:13,color:"#F0C4CC",lineHeight:1.6}}>Comparing your <b>{progress.latestDate}</b> scan to your previous one ({progress.scanCount} scans tracked since {progress.firstDate}).</p>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:13}}>
+                {[
+                  {key:"overallScore",label:"Overall Score",unit:""},
+                  {key:"hydrationLevel",label:"Hydration",unit:"%"},
+                  {key:"elasticity",label:"Elasticity",unit:"%"},
+                  {key:"brightness",label:"Brightness",unit:"%"},
+                ].map(({key,label,unit})=>{
+                  const m=progress[key];
+                  const up=m.value>0;const flat=m.value===0;
+                  const color=flat?"#9A6677":up?"#A8E6C9":"#F5A3A3";
+                  return(
+                    <div key={key} className="glass" style={{padding:"16px 14px",borderRadius:16,textAlign:"center"}}>
+                      <div style={{fontSize:11,color:"#9A6677",marginBottom:6}}>{label}</div>
+                      <div style={{fontSize:22,fontWeight:700,color:"#F0C4CC"}}>{m.current}{unit}</div>
+                      <div style={{fontSize:12,fontWeight:600,color,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:3}}>
+                        {!flat&&<span>{up?"↑":"↓"}</span>}{Math.abs(m.value)}{unit} since last scan
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {progress.concernTrend?.length>0&&(
+                <div className="glass" style={{padding:22,borderRadius:20}}>
+                  <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Concern Progress</h3>
+                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    {progress.concernTrend.map(c=>(
+                      <div key={c.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                        <span style={{fontSize:13,color:"#F0C4CC"}}>{c.name}</span>
+                        <span style={{fontSize:12,fontWeight:600,color:c.prevChange==null?"#9A6677":c.prevChange<0?"#A8E6C9":c.prevChange>0?"#F5A3A3":"#9A6677"}}>
+                          {c.prevChange==null?"New":c.prevChange===0?"No change":c.prevChange<0?`Improved ${Math.abs(c.prevChange)}%`:`Up ${c.prevChange}%`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{fontSize:11,color:"#6B4455",marginTop:12,lineHeight:1.6}}>Lower confidence % generally means the concern is less prominent in your latest scan.</p>
+                </div>
+              )}
+              <div className="glass" style={{padding:22,borderRadius:20}}>
+                <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Skin Health Timeline</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart data={progress.series}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
+                    <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
+                    <YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
+                    <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
+                    <Line type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" strokeWidth={2} dot={{r:3}} name="Hydration"/>
+                    <Line type="monotone" dataKey="brightness" stroke="#D4879A" strokeWidth={2} dot={{r:3}} name="Brightness"/>
+                    <Line type="monotone" dataKey="overallScore" stroke="#A8E6C9" strokeWidth={2} dot={{r:3}} name="Overall"/>
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          )}
         </div>
       )}
       {tab==="concerns"&&(
@@ -1241,6 +1391,30 @@ const Results=({results,img,user,onNav,scans})=>{
       )}
       {tab==="routine"&&(
         <div>
+          {results.recommendations?.length>0&&(
+            <div style={{marginBottom:22}}>
+              <h3 style={{fontSize:15,fontWeight:600,marginBottom:6,color:"#F0C4CC"}}>Personalized For You</h3>
+              <p style={{fontSize:12,color:"#9A6677",marginBottom:14}}>Based on your profile, concerns, and this scan — not a generic list.</p>
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {results.recommendations.map((r,i)=>(
+                  <div key={i} className="glass" style={{padding:"18px 20px",borderRadius:16,borderLeft:"3px solid #D4879A"}}>
+                    <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                      <div style={{width:26,height:26,borderRadius:7,background:"rgba(181,92,121,.18)",display:"flex",alignItems:"center",justifyContent:"center",color:"#D4879A",fontSize:12,fontWeight:700,flexShrink:0,marginTop:1}}>{i+1}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:14,fontWeight:600,color:"#F0C4CC",marginBottom:6}}>{r.action}</div>
+                        {r.reason&&<p style={{fontSize:12,color:"#9A6677",lineHeight:1.65,marginBottom:8}}>{r.reason}</p>}
+                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                          {r.targetConcern&&<span style={{fontSize:10,color:"#D4879A",background:"rgba(181,92,121,.1)",padding:"3px 9px",borderRadius:20}}>Targets: {r.targetConcern}</span>}
+                          {r.timeframe&&<span style={{fontSize:10,color:"#A8E6C9",background:"rgba(168,230,201,.08)",padding:"3px 9px",borderRadius:20}}>⏱ {r.timeframe}</span>}
+                        </div>
+                        {r.expectedImprovement&&<p style={{fontSize:11,color:"#6B4455",marginTop:8,fontStyle:"italic"}}>Expected: {r.expectedImprovement}</p>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {[["Morning Routine",["Gentle cleanser — 60 seconds","Niacinamide serum — 2–3 drops, wait 60s","Lightweight gel moisturizer","SPF 50+ sunscreen — always last"]],["Night Routine",["Oil cleanser → water cleanser (double cleanse)","BHA exfoliant (Mon / Wed / Fri only)","Treatment serum (retinol or Vitamin C)","Rich nourishing night cream"]],["Weekly",["Chemical exfoliation ×2","Hydrating sheet mask (Sunday)","Clay mask for T-zone (Saturday)","1 rest day — no actives"]]].map(([title,items])=>(
             <div key={title} className="glass" style={{padding:"20px 22px",borderRadius:18,marginBottom:14}}>
               <h3 style={{fontSize:15,fontWeight:600,marginBottom:14}}>{title}</h3>
@@ -1307,7 +1481,7 @@ const Dashboard=({user,results,onNav,scans})=>{
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:22}}>
         {[
           {label:"Confidence",value:confScore,unit:"/100",sub:cl,color:cc,page:"confidence"},
-          {label:"Skin Score",value:latestScan?.score||"—",unit:latestScan?"":"scan",sub:latestScan?"Last scan":"No scan yet",color:"#D4879A",page:"scan"},
+          {label:"Skin Score",value:latestScan?.overallScore||"—",unit:latestScan?"":"scan",sub:latestScan?"Last scan":"No scan yet",color:"#D4879A",page:"scan"},
           {label:"Streak",value:streak,unit:streak===1?"day":streak>1?"days":"",sub:streak===0?"Start today!":"Keep it up!",color:"#F5D5A3",page:null},
           {label:"Habits",value:`${done}/${habits.length}`,unit:"",sub:"Completed today",color:"#A8E6C9",page:null},
           {label:"Water",value:water,unit:"/8",sub:"Glasses today",color:"#7EC8E3",page:null},
@@ -1391,11 +1565,11 @@ const Dashboard=({user,results,onNav,scans})=>{
           <button onClick={()=>onNav("analytics")} style={{fontSize:11,color:"#D4879A",background:"none",border:"1px solid rgba(181,92,121,.25)",borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Full Analytics</button>
         </div>
         <ResponsiveContainer width="100%" height={150}>
-          <AreaChart data={WEEKLY}><defs><linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient></defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="day" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
+          <AreaChart data={computeProgress(scans).series.slice(-7)}><defs><linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient></defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
             <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-            <Area type="monotone" dataKey="hydration" stroke="#7EC8E3" fill="url(#dg1)" strokeWidth={2} name="Hydration"/>
-            <Line type="monotone" dataKey="confidence" stroke="#D4879A" strokeWidth={2} dot={false} name="Confidence"/>
+            <Area type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" fill="url(#dg1)" strokeWidth={2} name="Hydration"/>
+            <Line type="monotone" dataKey="overallScore" stroke="#D4879A" strokeWidth={2} dot={false} name="Overall Score"/>
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -1731,12 +1905,14 @@ const Challenges=()=>{
 const Analytics=({scans})=>{
   const [tab,setTab]=useState("weekly");
   if(!scans?.length)return<EmptyState avatarState="analysis" title="No scan data yet" message="Complete your first skin scan to start seeing trends, charts, and insights over time." actionLabel="Start Your First Scan" onAction={null}/>;
+  const progress=computeProgress(scans);
+  const recentSeries=progress.series.slice(-7);
   return(
     <div style={{padding:"24px 22px",maxWidth:900,margin:"0 auto"}}>
       <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:400}}>Your Analytics</h1>
       <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>Track how your skin and wellness evolve over time.</p>
       <div style={{display:"flex",gap:5,marginBottom:22}}>
-        {[["weekly","7-Day Trends"],["monthly","Monthly Progress"],["habits","Habit Insights"]].map(([t,l])=>(
+        {[["weekly","Recent Scans"],["monthly","All Scans"],["habits","Habit Insights"]].map(([t,l])=>(
           <button key={t} className={`tab-btn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
         ))}
       </div>
@@ -1744,27 +1920,28 @@ const Analytics=({scans})=>{
         <div style={{display:"flex",flexDirection:"column",gap:18}}>
           <div className="glass" style={{padding:22,borderRadius:20}}>
             <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Skin Health Trends</h3>
+            <p style={{fontSize:11,color:"#6B4455",marginBottom:10}}>Your last {recentSeries.length} scan{recentSeries.length===1?"":"s"}</p>
             <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={WEEKLY}><defs>
+              <AreaChart data={recentSeries}><defs>
                 <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7EC8E3" stopOpacity={0.25}/><stop offset="95%" stopColor="#7EC8E3" stopOpacity={0}/></linearGradient>
                 <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient>
               </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="day" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
                 <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-                <Area type="monotone" dataKey="hydration" stroke="#7EC8E3" fill="url(#ag1)" strokeWidth={2} name="Hydration"/>
+                <Area type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" fill="url(#ag1)" strokeWidth={2} name="Hydration"/>
                 <Area type="monotone" dataKey="brightness" stroke="#D4879A" fill="url(#ag2)" strokeWidth={2} name="Brightness"/>
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="glass" style={{padding:22,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Confidence Trend</h3>
+            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Overall Skin Score Trend</h3>
             <ResponsiveContainer width="100%" height={150}>
-              <LineChart data={WEEKLY}>
+              <LineChart data={recentSeries}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-                <XAxis dataKey="day" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
+                <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
                 <YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
                 <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-                <Line type="monotone" dataKey="confidence" stroke="#D4879A" strokeWidth={2.5} dot={{fill:"#D4879A",r:3}} name="Confidence"/>
+                <Line type="monotone" dataKey="overallScore" stroke="#D4879A" strokeWidth={2.5} dot={{fill:"#D4879A",r:3}} name="Overall Score"/>
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1772,15 +1949,16 @@ const Analytics=({scans})=>{
       )}
       {tab==="monthly"&&(
         <div className="glass" style={{padding:22,borderRadius:20}}>
-          <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Monthly Score Progress</h3>
+          <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>All-Time Score Progress</h3>
+          <p style={{fontSize:11,color:"#6B4455",marginBottom:10}}>Every scan you've completed, oldest to newest</p>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={MONTHLY}>
+            <BarChart data={progress.series}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-              <XAxis dataKey="week" tick={{fill:"#9A6677",fontSize:11}} axisLine={false} tickLine={false}/>
+              <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
               <YAxis tick={{fill:"#9A6677",fontSize:11}} axisLine={false} tickLine={false}/>
               <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-              <Bar dataKey="score" fill="rgba(181,92,121,.5)" radius={[6,6,0,0]} name="Skin Score"/>
-              <Bar dataKey="confidence" fill="rgba(212,135,154,.4)" radius={[6,6,0,0]} name="Confidence"/>
+              <Bar dataKey="overallScore" fill="rgba(181,92,121,.5)" radius={[6,6,0,0]} name="Skin Score"/>
+              <Bar dataKey="hydrationLevel" fill="rgba(212,135,154,.4)" radius={[6,6,0,0]} name="Hydration"/>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1819,9 +1997,9 @@ const Journey=({scans})=>{
             <div className="glass" style={{flex:1,padding:"16px 18px",borderRadius:16,marginBottom:12}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
                 <div style={{fontSize:14,fontWeight:600,color:"#F0C4CC"}}>{s.date}</div>
-                <div style={{fontSize:20,fontWeight:700,color:"#D4879A"}}>{s.score}</div>
+                <div style={{fontSize:20,fontWeight:700,color:"#D4879A"}}>{s.overallScore}</div>
               </div>
-              {s.img&&<img src={s.img} alt="scan" style={{width:80,height:80,objectFit:"cover",borderRadius:10,marginBottom:8}}/>}
+              {s.thumb&&<img src={s.thumb} alt="scan" style={{width:80,height:80,objectFit:"cover",borderRadius:10,marginBottom:8}}/>}
               <p style={{fontSize:12,color:"#9A6677",lineHeight:1.6}}>{s.summary||"Skin analysis completed. Check your results for personalized insights."}</p>
             </div>
           </div>
@@ -2276,11 +2454,24 @@ export default function App(){
     setUser(updated);LS.set("smira_user",updated);
   };
 
-  const handleResult=(r,img)=>{
+  const handleResult=async(r,img)=>{
     setResults(r);setScanImg(img);
     LS.set("smira_results",r);LS.set("smira_img",img);
-    const entry={score:r.overallScore||0,date:new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}),img,summary:r.aiSummary,ts:Date.now()};
-    const next=[...scans,entry].slice(-20);
+    const thumb=await makeThumb(img).catch(()=>null);
+    const entry={
+      date:new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}),
+      ts:Date.now(),
+      overallScore:r.overallScore||0,
+      hydrationLevel:r.hydrationLevel||0,
+      elasticity:r.elasticity||0,
+      brightness:r.brightness||0,
+      skinType:r.skinType||null,
+      skinAge:r.skinAge||null,
+      concerns:(r.concerns||[]).map(c=>({name:c.name,severity:c.severity,confidence:c.confidence})),
+      summary:r.aiSummary,
+      thumb,
+    };
+    const next=[...scans,entry].slice(-30);
     setScans(next);LS.set("smira_scans",next);
     nav("results");
   };
