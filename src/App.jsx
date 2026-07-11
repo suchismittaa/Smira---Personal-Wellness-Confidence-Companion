@@ -1,5 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis } from "recharts";
+import { auth } from "./firebase";
+import { pullUserData, pushUserData, deleteUserCloudData } from "./cloudSync";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendPasswordResetEmail,
+  updateProfile,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 
 /* ═══════════════════════════════════════════════════════════════════════
    SMIRA — Your Personal Wellness & Confidence Companion
@@ -11,9 +23,17 @@ import { AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis, Cartesia
 ═══════════════════════════════════════════════════════════ */
 
 const LS = {
+  _listeners: new Set(),
   get:(k,fb=null)=>{try{const v=localStorage.getItem("smira4_"+k);return v?JSON.parse(v):fb;}catch{return fb;}},
-  set:(k,v)=>{try{localStorage.setItem("smira4_"+k,JSON.stringify(v));}catch{}},
+  set:(k,v)=>{
+    try{localStorage.setItem("smira4_"+k,JSON.stringify(v));}catch{}
+    LS._listeners.forEach(fn=>{try{fn(k,v);}catch{}});
+  },
+  /* Writes without notifying listeners — used only when hydrating from the
+     cloud, so we don't immediately re-push what we just pulled down. */
+  setSilent:(k,v)=>{try{localStorage.setItem("smira4_"+k,JSON.stringify(v));}catch{}},
   del:(k)=>{try{localStorage.removeItem("smira4_"+k);}catch{}},
+  subscribe:(fn)=>{LS._listeners.add(fn);return()=>LS._listeners.delete(fn);},
 };
 
 /* ── THEME SYSTEM ───────────────────────────────────────────────────── */
@@ -23,33 +43,82 @@ const getSystemTheme=()=>window.matchMedia?.("(prefers-color-scheme:dark)").matc
 const resolveTheme=(p)=>p==="system"?getSystemTheme():p;
 const ThemeCtx=typeof window!=="undefined"?window.__smiraThemeCtx||(window.__smiraThemeCtx={t:DARK_T}):{t:DARK_T};
 
-/* ── AUTH (localStorage-based, swap for Firebase in production) ────── */
+/* ── AUTH (Firebase Authentication) ─────────────────────────────────
+   Same method names/shapes as the old localStorage placeholder
+   (getUser/setUser/clear/signup/login/google/resetPw), so AuthScreen,
+   Settings, and the main App component didn't need to change at all. */
+
+const mapFbUser=(u)=>u?{
+  uid:u.uid,
+  name:u.displayName||(u.email?u.email.split("@")[0]:""),
+  email:u.email,
+  provider:u.providerData?.[0]?.providerId==="google.com"?"google":"email",
+  photoURL:u.photoURL||null,
+  createdAt:u.metadata?.creationTime?new Date(u.metadata.creationTime).getTime():Date.now(),
+}:null;
+
+/* Firebase's error messages are technical (e.g. "Firebase: Error
+   (auth/invalid-credential)."); map the common ones to plain language. */
+const friendlyAuthError=(err)=>{
+  const code=err?.code||"";
+  const map={
+    "auth/email-already-in-use":"An account with this email already exists. Try signing in instead.",
+    "auth/invalid-email":"Please enter a valid email address.",
+    "auth/weak-password":"Password must be at least 6 characters.",
+    "auth/user-not-found":"No account found with that email.",
+    "auth/wrong-password":"Incorrect password. Please try again.",
+    "auth/invalid-credential":"Incorrect email or password. Please try again.",
+    "auth/too-many-requests":"Too many attempts. Please wait a moment and try again.",
+    "auth/popup-closed-by-user":"Sign-in was cancelled.",
+    "auth/network-request-failed":"Network error. Please check your connection and try again.",
+  };
+  return new Error(map[code]||err?.message||"Something went wrong. Please try again.");
+};
+
 const AUTH={
+  /* Firebase persists sessions itself — getUser/setUser/clear are kept only
+     as a lightweight local cache so the app can render instantly on reload
+     without waiting a tick for onAuthStateChanged to fire. The source of
+     truth is always Firebase; see onChange() below. */
   getUser:()=>LS.get("auth_user",null),
   setUser:(u)=>LS.set("auth_user",u),
-  clear:()=>LS.del("auth_user"),
+  clear:async()=>{await signOut(auth);LS.del("auth_user");},
+  /* Subscribes to real Firebase auth state. Call once on app mount. */
+  onChange:(cb)=>onAuthStateChanged(auth,(fbUser)=>{
+    const mapped=mapFbUser(fbUser);
+    if(mapped)LS.set("auth_user",mapped);else LS.del("auth_user");
+    cb(mapped);
+  }),
   signup:async(name,email,pw)=>{
-    await new Promise(r=>setTimeout(r,900));
     if(!email.includes("@"))throw new Error("Invalid email address.");
     if(pw.length<6)throw new Error("Password must be at least 6 characters.");
-    return{uid:`uid_${Date.now()}`,name,email,provider:"email",createdAt:Date.now()};
+    try{
+      const cred=await createUserWithEmailAndPassword(auth,email,pw);
+      if(name)await updateProfile(cred.user,{displayName:name});
+      return mapFbUser({...cred.user,displayName:name||cred.user.displayName});
+    }catch(err){throw friendlyAuthError(err);}
   },
   login:async(email,pw)=>{
-    await new Promise(r=>setTimeout(r,800));
     if(!email.includes("@"))throw new Error("Invalid email address.");
     if(!pw)throw new Error("Please enter your password.");
-    const storedUser=LS.get("auth_user",null);
-    if(storedUser&&storedUser.email===email)return storedUser;
-    return{uid:`uid_${email.replace(/\W/g,"")}`,name:email.split("@")[0],email,provider:"email"};
+    try{
+      const cred=await signInWithEmailAndPassword(auth,email,pw);
+      return mapFbUser(cred.user);
+    }catch(err){throw friendlyAuthError(err);}
   },
   google:async()=>{
-    await new Promise(r=>setTimeout(r,700));
-    return{uid:`g_${Date.now()}`,name:"Google User",email:"user@gmail.com",provider:"google",photoURL:null};
+    try{
+      const provider=new GoogleAuthProvider();
+      const cred=await signInWithPopup(auth,provider);
+      return mapFbUser(cred.user);
+    }catch(err){throw friendlyAuthError(err);}
   },
   resetPw:async(email)=>{
-    await new Promise(r=>setTimeout(r,700));
     if(!email.includes("@"))throw new Error("Enter a valid email address.");
-    return true;
+    try{
+      await sendPasswordResetEmail(auth,email);
+      return true;
+    }catch(err){throw friendlyAuthError(err);}
   },
 };
 
@@ -114,7 +183,8 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sa
 .challenge-card{background:linear-gradient(135deg,rgba(139,58,87,.22),rgba(74,21,48,.4));border:1px solid rgba(181,92,121,.25);border-radius:18px;padding:20px;}
 .floating-btn{position:fixed;bottom:28px;right:28px;z-index:200;cursor:pointer;width:62px;height:62px;border-radius:50%;overflow:hidden;border:2px solid rgba(212,135,154,.45);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:pulseRing 3s ease-in-out infinite;transition:transform .2s;}
 .floating-btn:hover{transform:scale(1.08);}
-.floating-panel{position:fixed;bottom:104px;right:28px;z-index:199;width:min(350px,calc(100vw - 52px));background:rgba(16,5,12,.97);border:1px solid rgba(181,92,121,.3);border-radius:22px;box-shadow:0 16px 56px rgba(0,0,0,.7);animation:fadeUp .28s ease;}
+.floating-panel{position:fixed;bottom:calc(104px + env(safe-area-inset-bottom));right:28px;z-index:199;width:min(350px,calc(100vw - 52px));background:rgba(16,5,12,.97);border:1px solid rgba(181,92,121,.3);border-radius:22px;box-shadow:0 16px 56px rgba(0,0,0,.7);animation:fadeUp .28s ease;}
+.floating-mini-bar{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom));right:28px;z-index:200;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:20px;background:rgba(16,5,12,.97);border:1px solid rgba(181,92,121,.35);box-shadow:0 8px 28px rgba(0,0,0,.55);cursor:pointer;max-width:min(240px,calc(100vw - 32px));animation:fadeUp .25s ease;}
 .mood-btn{padding:10px 14px;border-radius:14px;border:1px solid rgba(181,92,121,.22);background:rgba(181,92,121,.06);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .mood-btn.sel,.mood-btn:hover{background:rgba(181,92,121,.2);border-color:#D4879A;transform:scale(1.05);}
 @media(max-width:768px){
@@ -123,8 +193,9 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sa
   .app-sidebar.open{transform:translateX(0);}
   .app-main{margin-left:0!important;}
   .hamburger{display:flex!important;}
-  .floating-btn{bottom:80px;right:16px;width:54px;height:54px;}
-  .floating-panel{bottom:146px;right:16px;width:calc(100vw - 32px);}
+  .floating-btn{bottom:calc(80px + env(safe-area-inset-bottom));right:16px;width:54px;height:54px;}
+  .floating-panel{bottom:calc(146px + env(safe-area-inset-bottom));right:16px;width:calc(100vw - 32px);max-height:70vh!important;}
+  .floating-mini-bar{bottom:calc(80px + env(safe-area-inset-bottom));right:16px;}
   .r-col{grid-template-columns:1fr!important;}
 }
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
@@ -153,6 +224,7 @@ const Ic=({n,s=18,c="currentColor"})=>{
     share:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
     alert:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
     x:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+    minus:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>,
     dl:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
     refresh:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
     forecast:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 113.19-13.28A5.5 5.5 0 1117.5 19z"/></svg>,
@@ -501,14 +573,19 @@ const runVisionAnalysis=async(imgData,user)=>{
 
 /* ── AURA S LOGO (SVG, always circular) ──────────────────────────────────── */
 const AuraLogo=({size=56,gold="#D8B36A",bg="#1A0B12"})=>(
-  <div style={{width:size,height:size,borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:`1.5px solid ${gold}40`,boxShadow:`0 0 ${size*.35}px ${gold}22`}}>
-    <svg width={size*.55} height={size*.55} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M24 6C14 6 8 13 8 20c0 5 3 9 8 11l-2 5h20l-2-5c5-2 8-6 8-11C40 13 34 6 24 6z" fill="none" stroke={gold} strokeWidth="2" strokeLinejoin="round"/>
-      <path d="M16 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke={gold} strokeWidth="1.8" strokeLinecap="round"/>
-      <circle cx="24" cy="22" r="3.5" fill={gold} opacity="0.9"/>
-      <path d="M18 36h12" stroke={gold} strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M20 39h8" stroke={gold} strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
-    </svg>
+  <div style={{width:size,height:size,borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:`1.5px solid ${gold}40`,boxShadow:`0 0 ${size*.35}px ${gold}22`,overflow:"hidden"}}>
+    <img
+      src="/smira-logo.png"
+      alt="Smira"
+      width={size}
+      height={size}
+      style={{width:"100%",height:"100%",objectFit:"cover"}}
+      onError={e=>{
+        /* Fallback to the original drawn mark if the logo file is missing,
+           so the app never shows a broken image icon. */
+        e.target.outerHTML=`<svg width="${size*.55}" height="${size*.55}" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24 6C14 6 8 13 8 20c0 5 3 9 8 11l-2 5h20l-2-5c5-2 8-6 8-11C40 13 34 6 24 6z" fill="none" stroke="${gold}" stroke-width="2" stroke-linejoin="round"/><path d="M16 20c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="${gold}" stroke-width="1.8" stroke-linecap="round"/><circle cx="24" cy="22" r="3.5" fill="${gold}" opacity="0.9"/><path d="M18 36h12" stroke="${gold}" stroke-width="1.5" stroke-linecap="round"/><path d="M20 39h8" stroke="${gold}" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/></svg>`;
+      }}
+    />
   </div>
 );
 
@@ -630,7 +707,7 @@ const AuthScreen=({onAuth,theme="dark"})=>{
 };
 
 /* ── SETTINGS PAGE ──────────────────────────────────────────────────────────── */
-const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,theme="dark"})=>{
+const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,onDeleteAccount,theme="dark"})=>{
   const t=theme==="light"?LIGHT_T:DARK_T;
   const [tab,setTab]=useState("profile");
   const [profile,setProfile]=useState({name:user?.name||authUser?.name||"",email:user?.email||authUser?.email||"",age:user?.age||"",skinType:user?.skinType||"Combination",skinGoal:user?.skinGoal||[]});
@@ -638,6 +715,9 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
   const [pwForm,setPwForm]=useState({current:"",next:"",confirm:""});
   const [saved,setSaved]=useState(false);
   const [pwMsg,setPwMsg]=useState("");
+  const [confirmDelete,setConfirmDelete]=useState(false);
+  const [deleting,setDeleting]=useState(false);
+  const [deleteErr,setDeleteErr]=useState("");
   const cardBg=theme==="light"?"rgba(255,247,248,.95)":"rgba(46,14,31,.6)";
   const Card=({children,style={}})=><div style={{background:cardBg,border:`1px solid ${t.border}`,borderRadius:18,padding:"22px 24px",...style}}>{children}</div>;
   const Label=({children})=><div style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>{children}</div>;
@@ -743,6 +823,24 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
             <button onClick={onLogout} style={{width:"100%",padding:"13px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"rgba(245,163,163,.07)",color:"#F5A3A3",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all .2s"}}>Sign Out</button>
             <p style={{textAlign:"center",fontSize:11,color:t.muted,marginTop:12,lineHeight:1.6}}>Signing out will keep your skin data saved locally on this device.</p>
           </Card>
+          {onDeleteAccount&&(
+            <Card style={{border:"1px solid rgba(245,163,163,.25)"}}>
+              <h3 style={{fontSize:15,fontWeight:600,color:"#F5A3A3",marginBottom:8}}>Danger Zone</h3>
+              <p style={{fontSize:12,color:t.muted,lineHeight:1.7,marginBottom:14}}>Permanently deletes your account, scan history, journal, habits, and all cloud data. This cannot be undone.</p>
+              {!confirmDelete?(
+                <button onClick={()=>setConfirmDelete(true)} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"transparent",color:"#F5A3A3",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Delete My Account</button>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {deleteErr&&<div style={{background:"rgba(245,163,163,.1)",border:"1px solid rgba(245,163,163,.28)",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#F5A3A3"}}>{deleteErr}</div>}
+                  <p style={{fontSize:12,color:"#F5A3A3",fontWeight:600}}>Are you absolutely sure? This is permanent.</p>
+                  <div style={{display:"flex",gap:8}}>
+                    <button onClick={()=>{setConfirmDelete(false);setDeleteErr("");}} style={{flex:1,padding:"11px",borderRadius:50,border:`1px solid ${t.border}`,background:"transparent",color:t.muted,fontSize:13,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Cancel</button>
+                    <button onClick={async()=>{setDeleting(true);setDeleteErr("");try{await onDeleteAccount();}catch(e){setDeleteErr(e.message||"Could not delete account. Please sign out and back in, then try again.");setDeleting(false);}}} disabled={deleting} style={{flex:1,padding:"11px",borderRadius:50,border:"none",background:"linear-gradient(135deg,#C4506A,#8B3A57)",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>{deleting?"Deleting...":"Yes, Delete Everything"}</button>
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
         </div>
       )}
 
@@ -1811,7 +1909,7 @@ const MenstrualTracker=()=>{
   );
 };
 
-const AICoach=({user,results,scans,onClose})=>{
+const AICoach=({user,results,scans,onClose,onMinimize})=>{
   const [msgs,setMsgs]=useState(()=>LS.get("coach_msgs",[{role:"assistant",text:`Hi${user?.name?" "+user.name.split(" ")[0]:""}! I'm Smira, your personal wellness companion. I can analyze your food choices, skincare routine, habits, or just be here to talk. What's on your mind today?`,ts:Date.now()}]));
   const [input,setInput]=useState("");
   const [loading,setLoading]=useState(false);
@@ -1866,14 +1964,17 @@ User context: ${ctx}`;
   const quickPrompts=["Analyze what I ate today","Review my skincare routine","I'm feeling frustrated about my skin","Help me build a better sleep habit","What should I eat for clearer skin?"];
 
   return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",minHeight:"100vh"}}>
+    <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
       <div style={{padding:"20px 22px",borderBottom:"1px solid rgba(181,92,121,.15)",background:"rgba(26,11,18,.6)",display:"flex",gap:12,alignItems:"center"}}>
         <div style={{width:44,height:52,borderRadius:12,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",flexShrink:0}}><SmiraAvatar state="welcome" portrait size={52}/></div>
         <div>
           <h2 className="cf" style={{fontSize:22,fontWeight:400}}>Smira</h2>
           <p style={{fontSize:12,color:"#9A6677"}}>AI Wellness Companion · Always here for you</p>
         </div>
-        {onClose&&<button onClick={onClose} style={{marginLeft:"auto",background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:8}}><Ic n="x" s={18} c="#9A6677"/></button>}
+        <div style={{marginLeft:"auto",display:"flex",gap:4}}>
+          {onMinimize&&<button onClick={onMinimize} aria-label="Minimize chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:8}}><Ic n="minus" s={18} c="#9A6677"/></button>}
+          {onClose&&<button onClick={onClose} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:8}}><Ic n="x" s={18} c="#9A6677"/></button>}
+        </div>
       </div>
 
       <div style={{flex:1,overflowY:"auto",padding:"18px 16px",display:"flex",flexDirection:"column",gap:14,minHeight:0}}>
@@ -1922,6 +2023,7 @@ User context: ${ctx}`;
 
 const FloatingCompanion=({user,results,scans})=>{
   const [open,setOpen]=useState(false);
+  const [minimized,setMinimized]=useState(false);
   const [msg,setMsg]=useState(()=>getMsg("encouragement"));
   const [showBubble,setShowBubble]=useState(true);
   useEffect(()=>{
@@ -1938,22 +2040,33 @@ const FloatingCompanion=({user,results,scans})=>{
   return(
     <>
       {showBubble&&!open&&(
-        <div style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"rgba(16,5,12,.95)",border:"1px solid rgba(181,92,121,.3)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setShowBubble(false);}}>
+        <div style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"rgba(16,5,12,.95)",border:"1px solid rgba(181,92,121,.3)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setMinimized(false);setShowBubble(false);}}>
           <p style={{fontSize:12,color:"#F0C4CC",lineHeight:1.65,fontStyle:"italic"}}>"{msg}"</p>
           <div style={{fontSize:10,color:"#6B4455",marginTop:4,textAlign:"right"}}>— Smira</div>
         </div>
       )}
-      {open&&(
+      {open&&!minimized&&(
         <>
+          {/* Backdrop only shows in the full open state — minimizing removes it
+              entirely so the rest of the app is never blocked on mobile. */}
           <div style={{position:"fixed",inset:0,zIndex:198,background:"rgba(0,0,0,.3)",backdropFilter:"blur(2px)"}} onClick={()=>setOpen(false)}/>
           <div className="floating-panel" style={{maxHeight:"80vh",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-            <AICoach user={user} results={results} scans={scans} onClose={()=>setOpen(false)}/>
+            <AICoach user={user} results={results} scans={scans} onClose={()=>setOpen(false)} onMinimize={()=>setMinimized(true)}/>
           </div>
         </>
       )}
-      <div className="floating-btn" onClick={()=>{setOpen(o=>!o);setShowBubble(false);}}>
-        <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Cormorant Garamond,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
-      </div>
+      {open&&minimized&&(
+        <div className="floating-mini-bar" onClick={()=>setMinimized(false)}>
+          <div style={{width:26,height:26,borderRadius:"50%",overflow:"hidden",flexShrink:0}}><img src={AV.welcome} alt="" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}}/></div>
+          <span style={{fontSize:13,color:"#F0C4CC",flex:1}}>Smira — tap to reopen</span>
+          <button onClick={e=>{e.stopPropagation();setOpen(false);setMinimized(false);}} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:4}}><Ic n="x" s={16} c="#9A6677"/></button>
+        </div>
+      )}
+      {!(open&&minimized)&&(
+        <div className="floating-btn" onClick={()=>{setOpen(o=>!o);setMinimized(false);setShowBubble(false);}}>
+          <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Cormorant Garamond,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
+        </div>
+      )}
     </>
   );
 };
@@ -2020,7 +2133,52 @@ export default function App(){
   const saveTheme=(p)=>{setThemePref(p);LS.set("theme_pref",p);};
 
   /* ── Auth ── */
-  const [authUser,setAuthUser]=useState(()=>AUTH.getUser());
+  const [authUser,setAuthUser]=useState(()=>AUTH.getUser()); // instant cache for first paint
+  const [authLoading,setAuthLoading]=useState(true);
+  const [splashDone,setSplashDone]=useState(false);
+  const [cloudHydrated,setCloudHydrated]=useState(false);
+
+  const CLOUD_KEYS=["smira_user","smira_results","smira_scans","habits3","water_today","glowJournal"];
+
+  /* Firebase resolves the real session asynchronously — subscribe once.
+     On a real (non-null) user, pull their cloud document first and write
+     it into localStorage *silently* (no re-push) before letting the app
+     move past the splash screen — so every component's first read already
+     sees the synced data, with no need to touch each component. */
+  useEffect(()=>{
+    const unsub=AUTH.onChange(async(u)=>{
+      setAuthUser(u);
+      if(u?.uid){
+        const cloud=await pullUserData(u.uid);
+        if(cloud){
+          if(cloud.smira_user!==undefined)LS.setSilent("smira_user",cloud.smira_user);
+          if(cloud.smira_results!==undefined)LS.setSilent("smira_results",cloud.smira_results);
+          if(cloud.smira_scans!==undefined)LS.setSilent("smira_scans",cloud.smira_scans);
+          if(cloud.habits3!==undefined)LS.setSilent("habits3",cloud.habits3);
+          if(cloud.water_today!==undefined)LS.setSilent("water_today",cloud.water_today);
+          if(cloud.glowJournal!==undefined)LS.setSilent("glowJournal",cloud.glowJournal);
+        }
+      }
+      setCloudHydrated(true);
+      setAuthLoading(false);
+    });
+    return unsub;
+  },[]);
+
+  /* Push-sync: once signed in and hydrated, any local change to a tracked
+     key (from *any* component — habit tracker, journal, water counter, the
+     scan flow, profile edits) gets pushed to Firestore, debounced per key
+     so rapid edits (e.g. typing a journal entry) don't spam writes. */
+  useEffect(()=>{
+    if(!authUser?.uid||!cloudHydrated)return;
+    const timers={};
+    const unsub=LS.subscribe((key,value)=>{
+      if(!CLOUD_KEYS.includes(key))return;
+      clearTimeout(timers[key]);
+      timers[key]=setTimeout(()=>pushUserData(authUser.uid,{[key]:value}),1200);
+    });
+    return()=>{unsub();Object.values(timers).forEach(clearTimeout);};
+  },[authUser?.uid,cloudHydrated]);
 
   /* ── App State ── */
   const [screen,setScreen]=useState(()=>{
@@ -2047,14 +2205,30 @@ export default function App(){
 
   const nav=(p)=>{setPage(p);LS.set("smira_page",p);setSideOpen(false);window.scrollTo(0,0);};
 
-  const handleSplashDone=()=>{
-    if(authUser){
-      // Already logged in — go straight to app
-      if(!user)setScreen("onboarding");
-      else setScreen("app");
-    } else {
-      setScreen("auth");
+  /* Move on from splash only once both the splash animation is done AND
+     Firebase has told us whether someone's actually signed in. If Firebase
+     resolves quickly this feels instant (thanks to the localStorage cache
+     above); if not, we simply wait rather than guessing. */
+  useEffect(()=>{
+    if(splashDone&&!authLoading&&cloudHydrated){
+      if(authUser){
+        // Hydration may have updated localStorage *after* this component's
+        // initial useState read — re-sync from storage now, once, before
+        // deciding which screen to show.
+        const freshUser=LS.get("smira_user",null);
+        if(JSON.stringify(freshUser)!==JSON.stringify(user))setUser(freshUser);
+        setResults(LS.get("smira_results",null));
+        setScans(LS.get("smira_scans",[]));
+        if(!freshUser)setScreen("onboarding");
+        else setScreen("app");
+      } else {
+        setScreen("auth");
+      }
     }
+  },[splashDone,authLoading,cloudHydrated,authUser]);
+
+  const handleSplashDone=()=>{
+    setSplashDone(true);
   };
 
   const handleAuth=(aUser)=>{
@@ -2074,8 +2248,27 @@ export default function App(){
     setScreen("app");nav("dashboard");
   };
 
-  const handleLogout=()=>{
-    AUTH.clear();setAuthUser(null);
+  const handleLogout=async()=>{
+    await AUTH.clear();setAuthUser(null);
+    setScreen("auth");
+  };
+
+  const handleDeleteAccount=async()=>{
+    const uid=authUser?.uid;
+    if(uid)await deleteUserCloudData(uid);
+    // Clear every locally-stored key, not just the tracked cloud ones —
+    // this is a full local wipe, not just an unsync.
+    ["smira_user","smira_results","smira_img","smira_scans","habits3","water_today","glowJournal","smira_page","auth_user","coach_msgs","notifs"].forEach(k=>LS.del(k));
+    try{
+      const { deleteUser } = await import("firebase/auth");
+      if(auth.currentUser)await deleteUser(auth.currentUser);
+    }catch(err){
+      if(err?.code==="auth/requires-recent-login"){
+        throw new Error("For security, please sign out and sign back in, then try deleting your account again.");
+      }
+      throw err;
+    }
+    setAuthUser(null);setUser(null);setResults(null);setScans([]);
     setScreen("auth");
   };
 
@@ -2134,7 +2327,7 @@ export default function App(){
               {page==="story"&&<MonthlyStory user={user} scans={scans} habits={habits} journalEntries={journalEntries}/>}
               {page==="menstrual"&&<MenstrualTracker/>}
               {page==="coach"&&<div style={{height:"calc(100vh - 60px)"}}><AICoach user={user} results={results} scans={scans}/></div>}
-              {page==="settings"&&<Settings user={user} authUser={authUser} themePref={themePref} onThemeChange={saveTheme} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} theme={resolvedTheme}/>}
+              {page==="settings"&&<Settings user={user} authUser={authUser} themePref={themePref} onThemeChange={saveTheme} onLogout={handleLogout} onUpdateProfile={handleUpdateProfile} onDeleteAccount={handleDeleteAccount} theme={resolvedTheme}/>}
             </div>
           </div>
           <FloatingCompanion user={user} results={results} scans={scans}/>
