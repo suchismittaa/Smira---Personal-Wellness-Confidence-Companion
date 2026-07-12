@@ -793,10 +793,21 @@ Do not add extra explanations.
 Return the smallest valid JSON only.
 
 Every food choice must be realistic for the ${budget} budget tier and justified by their specific concerns — never generic "eat healthy" advice.`;
-  const cleaned = text
-    .replace(/```json/g,"")
-    .replace(/```/g,"")
-    .trim();
+const text = await callGemini(
+  [{ text: prompt }],
+  {
+    system,
+    maxTokens: 4096,
+    temperature: 0.4,
+    timeoutMs: 60000,
+    responseMimeType: "application/json"
+  }
+);
+
+const cleaned = text
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
 
 try {
     if (!cleaned.endsWith("}")) {
