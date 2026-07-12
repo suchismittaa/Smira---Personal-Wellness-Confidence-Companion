@@ -770,18 +770,27 @@ const generateDietPlan=async(user,results,dietType,budget)=>{
   const budgetGuide={Low:"very affordable, everyday local ingredients, no specialty/imported items",Medium:"moderate cost, some specialty items okay (nuts, specific oils)",Premium:"no cost constraint, can include imported superfoods and supplements"}[budget]||"moderate cost";
   const prompt=`Create a one-day ${dietType} meal plan for someone with these skin concerns: ${concerns}. Health conditions: ${conditions}. Skin type: ${results?.skinType||"unknown"}. Budget level: ${budget} (${budgetGuide}). Diet must be strictly ${dietType==="Vegetarian"?"vegetarian (no meat, fish, or eggs)":"non-vegetarian (can include meat, fish, eggs, and vegetarian items)"}.
 
-Return JSON: {
-summary:string(2 sentences on the overall approach for their specific concerns),
+Return JSON:
+{
+summary:string(1 sentence),
+
 meals:{
-breakfast:[{food:string,reason:string(specific skin benefit tied to their concerns)}](2-3 items),
-lunch:[{food,reason}](2-3 items),
-dinner:[{food,reason}](2-3 items),
-snacks:[{food,reason}](2 items),
-drinks:[{food,reason}](2 items, can include teas/infusions)
+breakfast:[{food,reason}](2 items),
+lunch:[{food,reason}](2 items),
+dinner:[{food,reason}](2 items),
+snacks:[{food,reason}](2 items)
 },
-avoid:[{food:string,reason:string(tied to their specific concerns/conditions)}](3-4 items),
-keyNutrients:[{nutrient:string,why:string,sources:string(comma-separated food sources within their budget)}](3-4 items)
+
+avoid:[{food,reason}](3 items),
+
+keyNutrients:[{nutrient,sources}](3 items)
 }
+
+Keep every "reason" under 12 words.
+Keep the summary under 20 words.
+Do not include drinks.
+Do not add extra explanations.
+Return the smallest valid JSON only.
 
 Every food choice must be realistic for the ${budget} budget tier and justified by their specific concerns — never generic "eat healthy" advice.`;
   const cleaned = text
