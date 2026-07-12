@@ -791,6 +791,7 @@ Keep the summary under 20 words.
 Do not include drinks.
 Do not add extra explanations.
 Return the smallest valid JSON only.
+If you cannot fit the full response, reduce the number of meal items, but always return complete valid JSON. Never return partial JSON.
 
 Every food choice must be realistic for the ${budget} budget tier and justified by their specific concerns — never generic "eat healthy" advice.`;
 const text = await callGemini(
