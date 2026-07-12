@@ -784,14 +784,35 @@ keyNutrients:[{nutrient:string,why:string,sources:string(comma-separated food so
 }
 
 Every food choice must be realistic for the ${budget} budget tier and justified by their specific concerns — never generic "eat healthy" advice.`;
-  const text=await callGemini([{text:prompt}],{system,maxTokens:2048,temperature:0.7,timeoutMs:45000,responseMimeType:"application/json"});
-  try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
-  catch{
-    const m=text.match(/\{[\s\S]*\}/);
-    if(m){try{return JSON.parse(m[0]);}catch{}}
-    console.error("[Smira Diet] Unparseable AI response:",text.slice(0,500));
-    const e=new Error("Could not generate your diet plan. Please try again.");e.code="PARSE";throw e;
-  }
+  const cleaned = text
+    .replace(/```json/g,"")
+    .replace(/```/g,"")
+    .trim();
+
+try {
+    if (!cleaned.endsWith("}")) {
+        const e = new Error("Gemini returned an incomplete response.");
+        e.code = "TRUNCATED";
+        throw e;
+    }
+
+    return JSON.parse(cleaned);
+
+} catch {
+    const m = cleaned.match(/\{[\s\S]*\}/);
+
+    if (m) {
+        try {
+            return JSON.parse(m[0]);
+        } catch {}
+    }
+
+    console.error("[Smira Diet] Unparseable AI response:", cleaned);
+
+    const e = new Error("Could not generate your diet plan. Please try again.");
+    e.code = "PARSE";
+    throw e;
+}
 };
 
 
