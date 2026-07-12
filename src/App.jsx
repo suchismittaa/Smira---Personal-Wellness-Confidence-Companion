@@ -36,6 +36,20 @@ const LS = {
   subscribe:(fn)=>{LS._listeners.add(fn);return()=>LS._listeners.delete(fn);},
 };
 
+/* Makes a custom clickable <div> behave like a real button for keyboard
+   users: focusable via Tab, activatable via Enter/Space, and announced
+   correctly by screen readers. Spread onto any div that currently only
+   has onClick. `label` is required when the div has no visible text
+   (icon-only controls) so screen readers have something to announce. */
+const kb=(onClick,label)=>({
+  role:"button",
+  tabIndex:0,
+  className:"kb-focusable",
+  onClick,
+  onKeyDown:(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onClick(e);}},
+  ...(label?{"aria-label":label}:{}),
+});
+
 /* ── THEME SYSTEM ───────────────────────────────────────────────────── */
 const DARK_T={dp:"#1A0B12",deep:"#2E0E1F",plum:"#4A1530",wine:"#6B2244",berry:"#8B3A57",rose:"#B55C79",blush:"#D4879A",petal:"#F0C4CC",mist:"#F5E6EA",card:"rgba(74,21,48,0.45)",border:"rgba(181,92,121,0.18)",txt:"#F5E6EA",muted:"#9A6677",soft:"#D4879A",bg:"#1A0B12",sbg:"rgba(18,6,14,.97)",topbar:"rgba(18,6,14,.88)",inpBg:"rgba(255,255,255,.04)",inpBorder:"rgba(181,92,121,.18)",gold:"#D8B36A",scrollThumb:"#6B2244",bodyBg:"linear-gradient(135deg,#1A0B12 0%,#200D16 55%,#160910 100%)"};
 const LIGHT_T={dp:"#FFFDFB",deep:"#FFF7F8",plum:"#F9EEF1",wine:"#E9D7DD",berry:"#8B3A57",rose:"#B55C79",blush:"#8B3A57",petal:"#6B2244",mist:"#2E0E1F",card:"rgba(255,247,248,0.94)",border:"#E9D7DD",txt:"#2E0E1F",muted:"#7A5060",soft:"#8B3A57",bg:"#FFFDFB",sbg:"#F9EEF1",topbar:"rgba(255,253,251,.95)",inpBg:"rgba(139,58,87,.05)",inpBorder:"#D4B5C0",gold:"#B8902A",scrollThumb:"#D4879A",bodyBg:"linear-gradient(135deg,#FFFDFB 0%,#FFF7F8 55%,#F9EEF1 100%)"};
@@ -159,6 +173,8 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sa
 .tag{background:rgba(181,92,121,.14);border:1px solid rgba(181,92,121,.28);color:#D4879A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@keyframes pageFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page-fade{animation:pageFade .25s ease;}
 @keyframes gPulse{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes scanLine{0%{top:0%}100%{top:98%}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -215,6 +231,22 @@ button,a,.tab-btn,.check-row,.floating-btn,.floating-mini-bar{-webkit-tap-highli
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
 .hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:#D4879A;flex-direction:column;gap:5px;}
 .hamburger span{display:block;width:22px;height:2px;background:#D4879A;border-radius:2px;}
+/* ── ACCESSIBILITY ─────────────────────────────────────────────────────
+   Keyboard users get a visible focus ring (mouse/touch users don't, since
+   :focus-visible only fires for keyboard/programmatic focus — this is the
+   modern, non-intrusive way to do this). Custom clickable divs throughout
+   the app (floating widgets, tab pills, check-rows) opt into the same ring
+   via .kb-focusable so keyboard nav is visibly trackable everywhere. */
+:focus-visible{outline:2px solid #D4879A;outline-offset:2px;border-radius:4px;}
+.kb-focusable:focus-visible{outline:2px solid #D4879A;outline-offset:2px;}
+.skip-link{position:fixed;top:-100px;left:12px;z-index:400;background:#8B3A57;color:#F5E6EA;padding:10px 18px;borderRadius:10px;border-radius:10px;font-size:13px;font-weight:600;transition:top .2s;text-decoration:none;}
+.skip-link:focus{top:12px;}
+/* Respect the OS-level "reduce motion" accessibility setting — disables
+   decorative animation/transition for users who've asked for it, without
+   touching functionality. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+}
 `}</style>
 );
 };
@@ -366,6 +398,37 @@ const Skeleton=({rows=3,height=16,gap=10,style={}})=>(
 const SkeletonCard=()=>(
   <div className="glass" style={{padding:20,borderRadius:18}}><Skeleton rows={4}/></div>
 );
+
+/* Tracks real connectivity via the browser's online/offline events, not
+   just a one-time navigator.onLine check at request time. Used to show a
+   persistent banner and to let screens disable network-dependent actions
+   proactively instead of only failing after the user tries. */
+const useOnlineStatus=()=>{
+  const [online,setOnline]=useState(typeof navigator!=="undefined"?navigator.onLine:true);
+  useEffect(()=>{
+    const goOnline=()=>setOnline(true);
+    const goOffline=()=>setOnline(false);
+    window.addEventListener("online",goOnline);
+    window.addEventListener("offline",goOffline);
+    return()=>{window.removeEventListener("online",goOnline);window.removeEventListener("offline",goOffline);};
+  },[]);
+  return online;
+};
+
+const OfflineBanner=({online})=>{
+  const [justReconnected,setJustReconnected]=useState(false);
+  const wasOffline=useRef(false);
+  useEffect(()=>{
+    if(!online)wasOffline.current=true;
+    else if(wasOffline.current){setJustReconnected(true);wasOffline.current=false;const t=setTimeout(()=>setJustReconnected(false),3000);return()=>clearTimeout(t);}
+  },[online]);
+  if(online&&!justReconnected)return null;
+  return(
+    <div role="status" aria-live="polite" style={{position:"fixed",top:0,left:0,right:0,zIndex:300,padding:"9px 16px",textAlign:"center",fontSize:12.5,fontWeight:600,color:online?"#0D2818":"#4A0E0E",background:online?"#A8E6C9":"#F5A3A3",transition:"background .3s"}}>
+      {online?"Back online — your data will sync now.":"You're offline. Some features (AI scan, coach, weather) need a connection — your local data is still safe."}
+    </div>
+  );
+};
 const ErrorBox=({message,onRetry})=>(
   <div style={{padding:"22px",background:"rgba(139,58,87,.1)",border:"1px solid rgba(212,135,154,.25)",borderRadius:18,textAlign:"center",marginBottom:16}}>
     <div style={{width:80,height:96,margin:"0 auto 14px",borderRadius:16,overflow:"hidden"}}>
@@ -508,7 +571,7 @@ const SkinTip=()=>{
   const [k,setK]=useState(0);
   const next=()=>{setIdx(i=>(i+1)%TIPS.length);setK(x=>x+1);};
   return(
-    <div style={{padding:"16px 20px",borderRadius:16,background:"linear-gradient(135deg,rgba(181,92,121,.14),rgba(107,34,68,.12))",border:"1px solid rgba(181,92,121,.22)",cursor:"pointer",display:"flex",gap:12,alignItems:"flex-start"}} onClick={next}>
+    <div role="button" tabIndex={0} aria-label="Get another skin tip" className="kb-focusable" style={{padding:"16px 20px",borderRadius:16,background:"linear-gradient(135deg,rgba(181,92,121,.14),rgba(107,34,68,.12))",border:"1px solid rgba(181,92,121,.22)",cursor:"pointer",display:"flex",gap:12,alignItems:"flex-start"}} onClick={next} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();next();}}}>
       <SmiraAvatar state="coach" size={34}/>
       <div style={{flex:1}}>
         <div style={{fontSize:10,color:"#D4879A",fontWeight:600,marginBottom:5,textTransform:"uppercase",letterSpacing:".07em"}}>Smira's Reminder · tap to refresh</div>
@@ -802,13 +865,23 @@ const AuthScreen=({onAuth,theme="dark"})=>{
             {mode==="login"?"Welcome back":"Create account"}
             {mode==="forgot"&&"Reset password"}
           </h2>
-          {err&&<div style={{background:"rgba(245,163,163,.1)",border:"1px solid rgba(245,163,163,.28)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#F5A3A3"}}>{err}</div>}
-          {msg&&<div style={{background:"rgba(168,230,201,.1)",border:"1px solid rgba(168,230,201,.25)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#A8E6C9"}}>{msg}</div>}
+          {err&&<div role="alert" aria-live="assertive" style={{background:"rgba(245,163,163,.1)",border:"1px solid rgba(245,163,163,.28)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#F5A3A3"}}>{err}</div>}
+          {msg&&<div role="status" aria-live="polite" style={{background:"rgba(168,230,201,.1)",border:"1px solid rgba(168,230,201,.25)",borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:"#A8E6C9"}}>{msg}</div>}
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            {mode==="signup"&&<input className="inp" placeholder="Full name" value={form.name} onChange={e=>upd("name",e.target.value)} style={{color:t.txt}}/>}
-            <input className="inp" placeholder="Email address" type="email" value={form.email} onChange={e=>upd("email",e.target.value)} style={{color:t.txt}}/>
-            {mode!=="forgot"&&<input className="inp" placeholder="Password" type="password" value={form.password} onChange={e=>upd("password",e.target.value)} style={{color:t.txt}} onKeyDown={e=>e.key==="Enter"&&submit()}/>}
-            {mode==="signup"&&<input className="inp" placeholder="Confirm password" type="password" value={form.confirm} onChange={e=>upd("confirm",e.target.value)} style={{color:t.txt}}/>}
+            {mode==="signup"&&<input className="inp" aria-label="Full name" placeholder="Full name" value={form.name} onChange={e=>upd("name",e.target.value)} style={{color:t.txt}}/>}
+            <input className="inp" aria-label="Email address" placeholder="Email address" type="email" value={form.email} onChange={e=>upd("email",e.target.value)} style={{color:t.txt}}/>
+            {mode!=="forgot"&&<input className="inp" aria-label="Password" placeholder="Password" type="password" value={form.password} onChange={e=>upd("password",e.target.value)} style={{color:t.txt}} onKeyDown={e=>e.key==="Enter"&&submit()}/>}
+            {mode==="signup"&&form.password.length>0&&(
+              <p style={{fontSize:11,marginTop:-6,color:form.password.length>=6?"#A8E6C9":"#9A6677",display:"flex",alignItems:"center",gap:5}}>
+                {form.password.length>=6?"✓":"○"} At least 6 characters
+              </p>
+            )}
+            {mode==="signup"&&<input className="inp" aria-label="Confirm password" placeholder="Confirm password" type="password" value={form.confirm} onChange={e=>upd("confirm",e.target.value)} style={{color:t.txt}}/>}
+            {mode==="signup"&&form.confirm.length>0&&(
+              <p style={{fontSize:11,marginTop:-6,color:form.confirm===form.password?"#A8E6C9":"#F5A3A3",display:"flex",alignItems:"center",gap:5}}>
+                {form.confirm===form.password?"✓ Passwords match":"○ Passwords don't match yet"}
+              </p>
+            )}
           </div>
           {mode==="login"&&<button onClick={()=>{setMode("forgot");setErr("");}} style={{background:"none",border:"none",color:t.soft,fontSize:12,cursor:"pointer",marginTop:8,padding:"2px 0",textDecoration:"underline",textUnderlineOffset:3}}>Forgot password?</button>}
           <button className="btn" onClick={submit} disabled={loading} style={{width:"100%",marginTop:18,fontSize:15,padding:"14px"}}>
@@ -855,7 +928,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
   const Card=({children,style={}})=><div style={{background:cardBg,border:`1px solid ${t.border}`,borderRadius:18,padding:"22px 24px",...style}}>{children}</div>;
   const Label=({children})=><div style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>{children}</div>;
   const Row=({label,children})=><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:`1px solid ${t.border}`}}><span style={{fontSize:14,color:t.txt}}>{label}</span>{children}</div>;
-  const Toggle=({on,onChange})=><div onClick={onChange} style={{width:46,height:26,borderRadius:13,background:on?"linear-gradient(135deg,#8B3A57,#B55C79)":"rgba(181,92,121,.2)",cursor:"pointer",position:"relative",transition:"background .3s",flexShrink:0}}><div style={{position:"absolute",top:3,left:on?22:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.3)"}}/></div>;
+  const Toggle=({on,onChange})=><div role="switch" aria-checked={on} tabIndex={0} className="kb-focusable" onClick={onChange} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onChange();}}} style={{width:46,height:26,borderRadius:13,background:on?"linear-gradient(135deg,#8B3A57,#B55C79)":"rgba(181,92,121,.2)",cursor:"pointer",position:"relative",transition:"background .3s",flexShrink:0}}><div style={{position:"absolute",top:3,left:on?22:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.3)"}}/></div>;
 
   const saveProfile=()=>{
     onUpdateProfile({...user,...profile});
@@ -912,7 +985,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
           <h3 style={{fontSize:16,fontWeight:600,color:t.txt,marginBottom:18}}>Appearance</h3>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {THEME_OPTS.map(opt=>(
-              <div key={opt.id} onClick={()=>onThemeChange(opt.id)} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",borderRadius:14,cursor:"pointer",background:themePref===opt.id?"rgba(181,92,121,.14)":"rgba(181,92,121,.04)",border:`1px solid ${themePref===opt.id?"#D4879A":t.border}`,transition:"all .2s"}}>
+              <div key={opt.id} role="radio" aria-checked={themePref===opt.id} tabIndex={0} className="kb-focusable" onClick={()=>onThemeChange(opt.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onThemeChange(opt.id);}}} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",borderRadius:14,cursor:"pointer",background:themePref===opt.id?"rgba(181,92,121,.14)":"rgba(181,92,121,.04)",border:`1px solid ${themePref===opt.id?"#D4879A":t.border}`,transition:"all .2s"}}>
                 <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${themePref===opt.id?"#D4879A":t.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{themePref===opt.id&&<div style={{width:10,height:10,borderRadius:"50%",background:"#D4879A"}}/>}</div>
                 <span style={{fontSize:20}}>{opt.icon}</span>
                 <span style={{fontSize:15,fontWeight:500,color:t.txt}}>{opt.label}</span>
@@ -1104,7 +1177,7 @@ const Onboarding=({onDone})=>{
           {step===3&&<div style={{display:"flex",flexDirection:"column",gap:9}}>
             <p style={{fontSize:12,color:"#9A6677",marginBottom:4}}>Select any that apply — or skip this step entirely:</p>
             {[{k:"pcos",l:"PCOS",desc:"Polycystic Ovary Syndrome — affects hormones & skin"},{k:"pcod",l:"PCOD",desc:"Similar to PCOS — hormonal skin effects"},{k:"thyroid",l:"Thyroid Disorder",desc:"Affects skin texture, hydration, and hair"},{k:"diabetes",l:"Diabetes",desc:"Affects skin barrier and healing speed"},{k:"menstrualTracking",l:"Track Menstrual Cycle",desc:"Get hormonal skin insights around your cycle"}].map(c=>(
-              <div key={c.k} onClick={()=>toggle(c.k)} style={{display:"flex",alignItems:"center",gap:13,padding:"12px 15px",borderRadius:12,cursor:"pointer",background:d[c.k]?"rgba(181,92,121,.18)":"rgba(255,255,255,.03)",border:`1px solid ${d[c.k]?"#D4879A":"rgba(181,92,121,.1)"}`,transition:"all .2s"}}>
+              <div key={c.k} role="checkbox" aria-checked={!!d[c.k]} tabIndex={0} className="kb-focusable" onClick={()=>toggle(c.k)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle(c.k);}}} style={{display:"flex",alignItems:"center",gap:13,padding:"12px 15px",borderRadius:12,cursor:"pointer",background:d[c.k]?"rgba(181,92,121,.18)":"rgba(255,255,255,.03)",border:`1px solid ${d[c.k]?"#D4879A":"rgba(181,92,121,.1)"}`,transition:"all .2s"}}>
                 <div style={{width:21,height:21,borderRadius:6,background:d[c.k]?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{d[c.k]&&<Ic n="ok" s={12} c="#fff"/>}</div>
                 <div><div style={{fontSize:14,fontWeight:500}}>{c.l}</div><div style={{fontSize:11,color:"#6B4455"}}>{c.desc}</div></div>
               </div>
@@ -1112,12 +1185,12 @@ const Onboarding=({onDone})=>{
           </div>}
           {step===4&&<div style={{display:"flex",flexWrap:"wrap",gap:9}}>
             {["Clear Acne","Fade Pigmentation","Deep Hydration","Anti-Aging","Even Skin Tone","Reduce Pores","Glow & Radiance","Soothe Redness","Dark Circles","Oil Control","Strengthen Barrier","Brighten Complexion"].map(g=>(
-              <div key={g} onClick={()=>toggleGoal(g,"skinGoal")} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.skinGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.skinGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.skinGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
+              <div key={g} role="checkbox" aria-checked={d.skinGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"skinGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"skinGoal");}}} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.skinGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.skinGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.skinGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
             ))}
           </div>}
           {step===5&&<div style={{display:"flex",flexWrap:"wrap",gap:9}}>
             {["Build Confidence","Improve Sleep","Reduce Stress","Better Nutrition","Consistent Habits","Hormonal Balance","Mental Wellness","Track Progress","Self-Care Rituals","Body Positivity","Mindful Living"].map(g=>(
-              <div key={g} onClick={()=>toggleGoal(g,"wellnessGoal")} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.wellnessGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.wellnessGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.wellnessGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
+              <div key={g} role="checkbox" aria-checked={d.wellnessGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"wellnessGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"wellnessGoal");}}} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.wellnessGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.wellnessGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.wellnessGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
             ))}
           </div>}
           <div style={{display:"flex",gap:11,marginTop:26}}>
@@ -1237,7 +1310,7 @@ const SkinScan=({onResult,user,existingScans})=>{
       </div>
       <input ref={fileRef} type="file" accept="image/*" onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{setImg(ev.target.result);setMode("preview");};r.readAsDataURL(f);}} style={{display:"none"}}/>
       {(mode==="upload"||mode==="preview")&&(
-        <div onClick={()=>!img&&fileRef.current?.click()} style={{border:`2px dashed ${img?"rgba(181,92,121,.35)":"rgba(181,92,121,.2)"}`,borderRadius:20,padding:"44px 24px",textAlign:"center",cursor:img?"default":"pointer",background:"rgba(181,92,121,.04)",minHeight:200}}>
+        <div role="button" tabIndex={0} aria-label="Upload a photo" className="kb-focusable" onClick={()=>!img&&fileRef.current?.click()} onKeyDown={e=>{if((e.key==="Enter"||e.key===" ")&&!img){e.preventDefault();fileRef.current?.click();}}} style={{border:`2px dashed ${img?"rgba(181,92,121,.35)":"rgba(181,92,121,.2)"}`,borderRadius:20,padding:"44px 24px",textAlign:"center",cursor:img?"default":"pointer",background:"rgba(181,92,121,.04)",minHeight:200}}>
           {img?(
             <div>
               <img src={img} alt="preview" style={{maxWidth:"100%",maxHeight:320,borderRadius:16,objectFit:"contain"}}/>
@@ -1567,7 +1640,7 @@ const Dashboard=({user,results,onNav,scans})=>{
           {label:"Habits",value:`${done}/${habits.length}`,unit:"",sub:"Completed today",color:"#A8E6C9",page:null},
           {label:"Water",value:water,unit:"/8",sub:"Glasses today",color:"#7EC8E3",page:null},
         ].map(card=>(
-          <div key={card.label} className="glass" style={{padding:"16px 14px",borderRadius:18,cursor:card.page?"pointer":"default",transition:"transform .2s"}} onClick={()=>card.page&&onNav(card.page)} onMouseEnter={e=>card.page&&(e.currentTarget.style.transform="translateY(-2px)")} onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
+          <div key={card.label} className="glass kb-focusable" role={card.page?"button":undefined} tabIndex={card.page?0:undefined} style={{padding:"16px 14px",borderRadius:18,cursor:card.page?"pointer":"default",transition:"transform .2s"}} onClick={()=>card.page&&onNav(card.page)} onKeyDown={e=>{if(card.page&&(e.key==="Enter"||e.key===" ")){e.preventDefault();onNav(card.page);}}} onMouseEnter={e=>card.page&&(e.currentTarget.style.transform="translateY(-2px)")} onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
             <div style={{fontSize:11,color:"#9A6677",marginBottom:5}}>{card.label}</div>
             <div style={{fontSize:22,fontWeight:700,color:card.color,lineHeight:1}}>{card.value}<span style={{fontSize:12,color:"#6B4455",fontWeight:400}}>{card.unit}</span></div>
             <div style={{fontSize:11,color:"#6B4455",marginTop:4}}>{card.sub}</div>
@@ -1583,7 +1656,7 @@ const Dashboard=({user,results,onNav,scans})=>{
             <SmiraAvatar state="coach" size={28}/>
           </div>
           {habits.map(habit=>(
-            <div key={habit.id} className="check-row" style={{cursor:"pointer"}} onClick={()=>toggleHabit(habit.id)}>
+            <div key={habit.id} className="check-row kb-focusable" role="checkbox" aria-checked={habit.done} tabIndex={0} style={{cursor:"pointer"}} onClick={()=>toggleHabit(habit.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleHabit(habit.id);}}}>
               <div style={{width:22,height:22,borderRadius:6,background:habit.done?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",border:`1px solid ${habit.done?"transparent":"rgba(181,92,121,.25)"}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
                 {habit.done&&<Ic n="ok" s={11} c="#fff"/>}
               </div>
@@ -1629,7 +1702,7 @@ const Dashboard=({user,results,onNav,scans})=>{
         </div>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
           {Array.from({length:8},(_,i)=>(
-            <div key={i} onClick={()=>{setWater(i+1);recordActivity("hydration");}} style={{width:44,height:44,borderRadius:12,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:18}}>
+            <div key={i} role="button" aria-label={`Set water intake to ${i+1} glasses`} tabIndex={0} className="kb-focusable" onClick={()=>{setWater(i+1);recordActivity("hydration");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i+1);recordActivity("hydration");}}} style={{width:44,height:44,borderRadius:12,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:18}}>
               {i<water?"💧":"○"}
             </div>
           ))}
@@ -1911,7 +1984,7 @@ const Nutrition=({user,results})=>{
         <h3 style={{fontSize:14,fontWeight:600,marginBottom:14,display:"flex",alignItems:"center",gap:8}}><Ic n="leaf" s={16} c="#7EC8E3"/>Water Intake</h3>
         <div style={{display:"flex",flexWrap:"wrap",gap:9,marginBottom:12}}>
           {Array.from({length:8},(_,i)=>(
-            <div key={i} onClick={()=>{setWater(i+1);recordActivity("hydration");}} style={{width:46,height:46,borderRadius:13,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:20}}>
+            <div key={i} role="button" aria-label={`Set water intake to ${i+1} glasses`} tabIndex={0} className="kb-focusable" onClick={()=>{setWater(i+1);recordActivity("hydration");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i+1);recordActivity("hydration");}}} style={{width:46,height:46,borderRadius:13,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:20}}>
               {i<water?"💧":"○"}
             </div>
           ))}
@@ -2477,8 +2550,13 @@ const SkinForecast=({user,results})=>{
         </div>
       )}
       {(status==="locating"||status==="loading")&&(
-        <div className="glass" style={{padding:"28px 24px",borderRadius:20,textAlign:"center"}}>
-          <p style={{fontSize:13,color:"#9A6677"}}>{status==="locating"?"Getting your location...":"Loading today's forecast..."}</p>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div className="glass" style={{padding:"20px 22px",borderRadius:20}}>
+            <p style={{fontSize:12,color:"#9A6677",marginBottom:14}}>{status==="locating"?"Getting your location...":"Loading today's forecast..."}</p>
+            <Skeleton rows={2} height={20}/>
+          </div>
+          <SkeletonCard/>
+          <SkeletonCard/>
         </div>
       )}
       {status==="manual"&&(
@@ -2699,7 +2777,7 @@ const FloatingCompanion=({user,results,scans})=>{
   return(
     <>
       {showBubble&&!open&&(
-        <div style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"rgba(16,5,12,.95)",border:"1px solid rgba(181,92,121,.3)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setMinimized(false);setShowBubble(false);}}>
+        <div role="button" tabIndex={0} aria-label="Open Smira chat" className="kb-focusable" style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"rgba(16,5,12,.95)",border:"1px solid rgba(181,92,121,.3)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(true);setMinimized(false);setShowBubble(false);}}}>
           <p style={{fontSize:12,color:"#F0C4CC",lineHeight:1.65,fontStyle:"italic"}}>"{msg}"</p>
           <div style={{fontSize:10,color:"#6B4455",marginTop:4,textAlign:"right"}}>— Smira</div>
         </div>
@@ -2710,14 +2788,14 @@ const FloatingCompanion=({user,results,scans})=>{
         </div>
       )}
       {open&&minimized&&(
-        <div className="floating-mini-bar" onClick={()=>setMinimized(false)}>
+        <div className="floating-mini-bar kb-focusable" role="button" tabIndex={0} aria-label="Reopen Smira chat" onClick={()=>setMinimized(false)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setMinimized(false);}}}>
           <div style={{width:26,height:26,borderRadius:"50%",overflow:"hidden",flexShrink:0}}><img src={AV.welcome} alt="" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}}/></div>
           <span style={{fontSize:13,color:"#F0C4CC",flex:1}}>Smira — tap to reopen</span>
           <button onClick={e=>{e.stopPropagation();setOpen(false);setMinimized(false);}} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:4}}><Ic n="x" s={16} c="#9A6677"/></button>
         </div>
       )}
       {!(open&&minimized)&&(
-        <div ref={btnRef} className="floating-btn" onClick={()=>{setOpen(o=>!o);setMinimized(false);setShowBubble(false);}}>
+        <div ref={btnRef} className="floating-btn kb-focusable" role="button" tabIndex={0} aria-label={open?"Close Smira chat":"Open Smira chat"} onClick={()=>{setOpen(o=>!o);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(o=>!o);setMinimized(false);setShowBubble(false);}}}>
           <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Cormorant Garamond,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
         </div>
       )}
@@ -2761,9 +2839,9 @@ const Sidebar=({active,onNav,user,open,onClose})=>{
             </div>
           )}
         </div>
-        <nav style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:2}}>
+        <nav aria-label="Main navigation" style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:2}}>
           {nav.map(n=>(
-            <button key={n.id} className={`nav-link${active===n.id?" act":""}`} onClick={()=>{onNav(n.id);onClose();}}>
+            <button key={n.id} className={`nav-link${active===n.id?" act":""}`} aria-current={active===n.id?"page":undefined} onClick={()=>{onNav(n.id);onClose();}}>
               <Ic n={n.icon} s={15} c={active===n.id?"#D4879A":"#9A6677"}/>
               {n.label}
             </button>
@@ -2786,6 +2864,8 @@ export default function App(){
   const resolvedTheme=resolveTheme(themePref);
   const T=resolvedTheme==="light"?LIGHT_T:DARK_T;
   const saveTheme=(p)=>{setThemePref(p);LS.set("theme_pref",p);};
+
+  const isOnline=useOnlineStatus();
 
   /* ── Auth ── */
   const [authUser,setAuthUser]=useState(()=>AUTH.getUser()); // instant cache for first paint
@@ -2963,6 +3043,7 @@ export default function App(){
     <div style={{minHeight:"100vh",background:T.bodyBg,transition:"background .35s"}}>
       <GlobalStyles theme={resolvedTheme}/>
       <style>{spinStyle}</style>
+      <OfflineBanner online={isOnline}/>
 
       {screen==="splash"&&<Splash onDone={handleSplashDone} theme={resolvedTheme}/>}
       {screen==="auth"&&<AuthScreen onAuth={handleAuth} theme={resolvedTheme}/>}
@@ -2970,8 +3051,9 @@ export default function App(){
 
       {screen==="app"&&(
         <div style={{display:"flex",minHeight:"100vh"}}>
+          <a href="#main-content" className="skip-link">Skip to main content</a>
           <Sidebar active={page} onNav={nav} user={user} open={sideOpen} onClose={()=>setSideOpen(false)}/>
-          <div className="app-main" style={{flex:1,marginLeft:0,minWidth:0,background:T.bodyBg}}>
+          <div className="app-main" id="main-content" role="main" tabIndex={-1} style={{flex:1,marginLeft:0,minWidth:0,background:T.bodyBg}}>
             {/* Top bar */}
             <div style={{padding:"12px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",background:T.topbar,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(14px)",transition:"background .35s"}}>
               <button className="hamburger" onClick={()=>setSideOpen(s=>!s)} aria-label="Menu"><span/><span/><span/></button>
@@ -2984,7 +3066,7 @@ export default function App(){
                 {user?.name&&<span style={{fontSize:12,color:T.muted,display:"none"}} className="hide-mobile">{user.name.split(" ")[0]}</span>}
               </button>
             </div>
-            <div style={{padding:"0"}}>
+            <div key={page} className="page-fade" style={{padding:"0"}}>
               {page==="dashboard"&&<Dashboard user={user} results={results} onNav={nav} scans={scans}/>}
               {page==="scan"&&<SkinScan onResult={handleResult} user={user} existingScans={scans}/>}
               {page==="results"&&<Results results={results} img={scanImg} user={user} onNav={nav} scans={scans}/>}
