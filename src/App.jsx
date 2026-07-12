@@ -667,9 +667,13 @@ const callGeminiRaw=async(contents,{system,maxTokens=1000,temperature=0.7,timeou
   /* Gemini 3.x "thinking" models can return internal reasoning as separate
      parts flagged `thought:true` — exclude those, we only want the final answer. */
   const text=(candidate?.content?.parts||[]).filter(p=>!p.thought).map(p=>p.text||"").join("");
-  if(candidate?.finishReason==="MAX_TOKENS"&&(!text||text.trim().length<20)){
-    const e=new Error("The AI's response was cut off before finishing. Please try again.");e.code="TRUNCATED";throw e;
-  }
+  if(candidate?.finishReason==="MAX_TOKENS"){
+    const e = new Error(
+        "The AI response was truncated because it exceeded the maximum output length."
+    );
+    e.code = "TRUNCATED";
+    throw e;
+}
   if(!text){const e=new Error("Received an empty response from the AI.");e.code="EMPTY";throw e;}
   return text;
 };
@@ -725,14 +729,38 @@ Every recommendation must be justified by something specific in this person's pr
     {inlineData:{mimeType:mediaType,data:base64Data}},
     {text:prompt},
   ];
-  const text=await callGemini(parts,{system,maxTokens:2560,temperature:0.6,timeoutMs:65000,responseMimeType:"application/json"});
-  try{return JSON.parse(text.replace(/```json|```/g,"").trim());}
-  catch{
-    const m=text.match(/\{[\s\S]*\}/);
-    if(m){try{return JSON.parse(m[0]);}catch{}}
-    console.error("[Smira Scan] Unparseable AI response:",text.slice(0,500));
-    const e=new Error("Could not parse the analysis response. Please try again.");e.code="PARSE";throw e;
+  const text=await callGemini(parts,{system,maxTokens:4096,temperature:0.4,timeoutMs:65000,responseMimeType:"application/json"});
+  const cleaned = text
+  .replace(/```json/g, "")
+  .replace(/```/g, "")
+  .trim();
+
+try {
+  if (!cleaned.endsWith("}")) {
+    console.error("[Smira Scan] Incomplete JSON:", cleaned);
+
+    const e = new Error("Gemini returned an incomplete response.");
+    e.code = "TRUNCATED";
+    throw e;
   }
+
+  return JSON.parse(cleaned);
+
+} catch {
+  const m = cleaned.match(/\{[\s\S]*\}/);
+
+  if (m) {
+    try {
+      return JSON.parse(m[0]);
+    } catch {}
+  }
+
+  console.error("[Smira Scan] Unparseable AI response:", cleaned);
+
+  const e = new Error("Could not parse the analysis response. Please try again.");
+  e.code = "PARSE";
+  throw e;
+}
 };
 
 const generateDietPlan=async(user,results,dietType,budget)=>{
