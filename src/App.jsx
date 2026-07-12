@@ -51,8 +51,10 @@ const kb=(onClick,label)=>({
 });
 
 /* ── THEME SYSTEM ───────────────────────────────────────────────────── */
-const DARK_T={dp:"#1A0B12",deep:"#2E0E1F",plum:"#4A1530",wine:"#6B2244",berry:"#8B3A57",rose:"#B55C79",blush:"#D4879A",petal:"#F0C4CC",mist:"#F5E6EA",card:"rgba(74,21,48,0.45)",border:"rgba(181,92,121,0.18)",txt:"#F5E6EA",muted:"#9A6677",soft:"#D4879A",bg:"#1A0B12",sbg:"rgba(18,6,14,.97)",topbar:"rgba(18,6,14,.88)",inpBg:"rgba(255,255,255,.04)",inpBorder:"rgba(181,92,121,.18)",gold:"#D8B36A",scrollThumb:"#6B2244",bodyBg:"linear-gradient(135deg,#1A0B12 0%,#200D16 55%,#160910 100%)"};
-const LIGHT_T={dp:"#FFFDFB",deep:"#FFF7F8",plum:"#F9EEF1",wine:"#E9D7DD",berry:"#8B3A57",rose:"#B55C79",blush:"#8B3A57",petal:"#6B2244",mist:"#2E0E1F",card:"rgba(255,247,248,0.94)",border:"#E9D7DD",txt:"#2E0E1F",muted:"#7A5060",soft:"#8B3A57",bg:"#FFFDFB",sbg:"#F9EEF1",topbar:"rgba(255,253,251,.95)",inpBg:"rgba(139,58,87,.05)",inpBorder:"#D4B5C0",gold:"#B8902A",scrollThumb:"#D4879A",bodyBg:"linear-gradient(135deg,#FFFDFB 0%,#FFF7F8 55%,#F9EEF1 100%)"};
+/* SMIRA V5 — "Magical Garden" palette. Soft rose, blush, champagne, cream,
+   pastel green and a whisper of gold — never harsh black, always warm. */
+const DARK_T={dp:"#241420",deep:"#2E1826",plum:"#3B1F30",wine:"#7A3455",berry:"#9A4864",rose:"#CC7F98",blush:"#E8B8C4",petal:"#F3DCE1",mist:"#F6E6EB",card:"rgba(59,31,48,0.5)",border:"rgba(201,125,149,0.22)",txt:"#F6E6EB",muted:"#B491A0",soft:"#CC7F98",bg:"#241420",sbg:"rgba(28,15,24,.97)",topbar:"rgba(28,15,24,.85)",inpBg:"rgba(255,255,255,.05)",inpBorder:"rgba(201,125,149,.22)",gold:"#D9B65C",scrollThumb:"#7A3455",bodyBg:"linear-gradient(150deg,#241420 0%,#2E1a28 45%,#22271E 100%)",green:"#8FA88C",cream:"#F6E6EB"};
+const LIGHT_T={dp:"#FFFBF6",deep:"#FFF6F1",plum:"#FDF1F3",wine:"#C9577B",berry:"#B5476B",rose:"#D98CA3",blush:"#F3D3DC",petal:"#FBE9ED",mist:"#4A2A35",card:"rgba(255,252,249,0.72)",border:"rgba(197,120,140,0.22)",txt:"#3B2430",muted:"#8C6373",soft:"#B5476B",bg:"#FFF8F3",sbg:"#FDF1F3",topbar:"rgba(255,251,247,.82)",inpBg:"rgba(181,71,107,.045)",inpBorder:"rgba(197,120,140,.3)",gold:"#B8902A",scrollThumb:"#D98CA3",bodyBg:"linear-gradient(150deg,#FFF8F3 0%,#FDF1F3 45%,#F3F7EE 100%)",green:"#9CB596",cream:"#FFF8F3"};
 const getSystemTheme=()=>window.matchMedia?.("(prefers-color-scheme:dark)").matches?"dark":"light";
 const resolveTheme=(p)=>p==="system"?getSystemTheme():p;
 const ThemeCtx=typeof window!=="undefined"?window.__smiraThemeCtx||(window.__smiraThemeCtx={t:DARK_T}):{t:DARK_T};
@@ -153,44 +155,59 @@ const GlobalStyles=({theme="dark"})=>{
 const t=theme==="light"?LIGHT_T:DARK_T;
 return(
 <style>{`
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--dp:${t.dp};--deep:${t.deep};--plum:${t.plum};--wine:${t.wine};--berry:${t.berry};--rose:${t.rose};--blush:${t.blush};--petal:${t.petal};--mist:${t.mist};--card:${t.card};--border:${t.border};--txt:${t.txt};--muted:${t.muted};--soft:${t.soft};--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;--gold:${t.gold};}
-html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sans-serif;overflow-x:hidden;transition:background .35s,color .35s;}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:${t.bg}}::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:2px}
-.cf{font-family:'Cormorant Garamond',serif}
-.glass{background:${t.card};backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid ${t.border};border-radius:20px;}
-.glow{box-shadow:0 0 32px rgba(181,92,121,0.22);}
-.btn{background:linear-gradient(135deg,#8B3A57,#B55C79);border:none;color:#F5E6EA;padding:12px 28px;border-radius:50px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .3s;letter-spacing:.3px;}
-.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(139,58,87,.55);}
+:root{--dp:${t.dp};--deep:${t.deep};--plum:${t.plum};--wine:${t.wine};--berry:${t.berry};--rose:${t.rose};--blush:${t.blush};--petal:${t.petal};--mist:${t.mist};--card:${t.card};--border:${t.border};--txt:${t.txt};--muted:${t.muted};--soft:${t.soft};--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;--gold:${t.gold};--green:${t.green};--cream:${t.cream};}
+html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'Poppins',sans-serif;overflow-x:hidden;transition:background .35s,color .35s;}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:4px}
+.cf{font-family:'Playfair Display',serif}
+/* ── Glass system ── */
+.glass{background:${t.card};backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid ${t.border};border-radius:26px;box-shadow:0 8px 40px rgba(120,50,75,.10),inset 0 1px 0 rgba(255,255,255,.35);}
+.glow{box-shadow:0 0 40px rgba(201,87,123,0.20),0 8px 40px rgba(120,50,75,.12);}
+.glass-nav{background:${theme==="light"?"rgba(255,251,247,.65)":"rgba(36,20,32,.55)"};backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border:1px solid ${t.border};border-radius:100px;box-shadow:0 6px 28px rgba(120,50,75,.10);}
+.btn{background:linear-gradient(135deg,${t.wine},${t.rose});border:none;color:#fff;padding:13px 30px;border-radius:50px;font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .3s;letter-spacing:.3px;box-shadow:0 6px 22px rgba(154,72,100,.35);}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rgba(154,72,100,.5);}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
-.btn-o{background:transparent;border:1px solid rgba(181,92,121,.35);color:#D4879A;padding:10px 22px;border-radius:50px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .3s;}
-.btn-o:hover{background:rgba(181,92,121,.1);}
-.inp{background:var(--inp-bg);border:1px solid var(--inp-border);border-radius:12px;padding:12px 16px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;transition:border .3s;}
-.inp:focus{border-color:#D4879A;background:rgba(181,92,121,.09);}
-.inp::placeholder{color:${theme==="light"?"#9A7080":"#6B4455"};}
-.sel{background:${theme==="light"?"rgba(249,238,241,.98)":"rgba(20,8,15,.95)"};border:1px solid rgba(181,92,121,.18);border-radius:12px;padding:12px 16px;color:#F5E6EA;font-family:'DM Sans',sans-serif;font-size:14px;width:100%;outline:none;cursor:pointer;}
-.tag{background:rgba(181,92,121,.14);border:1px solid rgba(181,92,121,.28);color:#D4879A;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.btn-o{background:${theme==="light"?"rgba(255,255,255,.5)":"rgba(255,255,255,.04)"};border:1px solid ${t.border};color:${t.soft};padding:11px 24px;border-radius:50px;font-family:'Poppins',sans-serif;font-weight:500;font-size:14px;cursor:pointer;transition:all .3s;backdrop-filter:blur(10px);}
+.btn-o:hover{background:${theme==="light"?"rgba(255,255,255,.8)":"rgba(255,255,255,.08)"};transform:translateY(-1px);}
+.inp{background:var(--inp-bg);border:1px solid var(--inp-border);border-radius:16px;padding:14px 18px;color:var(--txt);font-family:'Poppins',sans-serif;font-size:14px;width:100%;outline:none;transition:all .25s;}
+.inp:focus{border-color:${t.rose};background:${theme==="light"?"rgba(255,255,255,.9)":"rgba(255,255,255,.07)"};box-shadow:0 0 0 4px rgba(201,125,149,.14);}
+.inp::placeholder{color:${theme==="light"?"#B08A96":"#8C6373"};}
+.sel{background:${theme==="light"?"rgba(255,255,255,.85)":"rgba(255,255,255,.06)"};border:1px solid var(--inp-border);border-radius:16px;padding:14px 18px;color:var(--txt);font-family:'Poppins',sans-serif;font-size:14px;width:100%;outline:none;cursor:pointer;transition:all .25s;}
+.sel:focus{border-color:${t.rose};}
+.tag{background:${theme==="light"?"rgba(181,71,107,.08)":"rgba(201,125,149,.14)"};border:1px solid ${t.border};color:${t.soft};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
-@keyframes pageFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.page-fade{animation:pageFade .25s ease;}
+@keyframes pageFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-fade{animation:pageFade .3s ease;}
 @keyframes gPulse{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes scanLine{0%{top:0%}100%{top:98%}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 @keyframes slideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-@keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 rgba(181,92,121,.45)}70%{box-shadow:0 0 0 10px rgba(181,92,121,0)}}
+@keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 rgba(201,125,149,.4)}70%{box-shadow:0 0 0 10px rgba(201,125,149,0)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+/* ── Magical garden motion kit ── */
+@keyframes bubbleFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-16px) rotate(1deg)}}
+@keyframes petalFall{0%{transform:translateY(-10vh) translateX(0) rotate(0deg);opacity:0}10%{opacity:.85}90%{opacity:.6}100%{transform:translateY(110vh) translateX(40px) rotate(220deg);opacity:0}}
+@keyframes butterflyDrift{0%{transform:translate(0,0) rotate(-4deg)}25%{transform:translate(18px,-22px) rotate(4deg)}50%{transform:translate(-6px,-40px) rotate(-6deg)}75%{transform:translate(-22px,-14px) rotate(3deg)}100%{transform:translate(0,0) rotate(-4deg)}}
+@keyframes wingFlap{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.68)}}
+@keyframes sparkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes ripple{0%{transform:scale(.8);opacity:.6}100%{transform:scale(2.6);opacity:0}}
+.garden-scene{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.petal{position:absolute;top:-5%;font-size:16px;animation:petalFall linear infinite;filter:drop-shadow(0 2px 4px rgba(154,72,100,.2));}
+.butterfly-wrap{position:absolute;animation:butterflyDrift ease-in-out infinite;}
+.sparkle-dot{position:absolute;border-radius:50%;background:radial-gradient(circle,#fff,transparent 70%);animation:sparkle ease-in-out infinite;}
 .fade-up{animation:fadeUp .5s ease forwards;}
 .orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:gPulse 5s ease-in-out infinite;}
-.scan-anim{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#D4879A,transparent);animation:scanLine 1.8s linear infinite;}
+.scan-anim{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${t.rose},transparent);animation:scanLine 1.8s linear infinite;}
 .shimmer-bg{background:linear-gradient(90deg,rgba(255,255,255,.03) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 75%);background-size:200% 100%;animation:shimmer 1.8s infinite;}
-.nav-link{color:#9A6677;font-size:13px;font-weight:500;cursor:pointer;padding:9px 14px;border-radius:10px;transition:all .2s;display:flex;align-items:center;gap:9px;border:none;background:transparent;width:100%;text-align:left;}
-.nav-link:hover,.nav-link.act{color:#D4879A;background:rgba(181,92,121,.13);}
-.pbar{height:5px;background:rgba(181,92,121,.1);border-radius:3px;overflow:hidden;}
-.pfill{height:100%;border-radius:3px;transition:width 1.2s ease;}
+.nav-link{color:${t.muted};font-size:13.5px;font-weight:500;cursor:pointer;padding:10px 14px;border-radius:14px;transition:all .2s;display:flex;align-items:center;gap:10px;border:none;background:transparent;width:100%;text-align:left;font-family:'Poppins',sans-serif;}
+.nav-link:hover{color:${t.soft};background:${theme==="light"?"rgba(181,71,107,.06)":"rgba(201,125,149,.08)"};}
+.nav-link.act{color:${theme==="light"?"#fff":t.mist};background:linear-gradient(135deg,${t.wine},${t.rose});box-shadow:0 4px 16px rgba(154,72,100,.35);}
+.nav-group-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${t.muted};opacity:.65;padding:14px 14px 6px;font-weight:600;}
+.pbar{height:6px;background:${theme==="light"?"rgba(181,71,107,.1)":"rgba(255,255,255,.08)"};border-radius:4px;overflow:hidden;}
+.pfill{height:100%;border-radius:4px;transition:width 1.2s ease;}
 .tab-btn{padding:9px 17px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:#9A6677;border:none;background:transparent;white-space:nowrap;}
 .tab-btn.act{background:rgba(181,92,121,.18);color:#D4879A;}
 .check-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(181,92,121,.07);}
@@ -205,6 +222,7 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sa
 .mood-btn{padding:10px 14px;border-radius:14px;border:1px solid rgba(181,92,121,.22);background:rgba(181,92,121,.06);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .mood-btn.sel,.mood-btn:hover{background:rgba(181,92,121,.2);border-color:#D4879A;transform:scale(1.05);}
 @media(max-width:768px){
+  .hide-mobile{display:none!important;}
   .sidebar-overlay{display:block!important;}
   .app-sidebar{transform:translateX(-100%);transition:transform .3s;position:fixed;z-index:100;height:100vh;}
   .app-sidebar.open{transform:translateX(0);}
@@ -230,6 +248,7 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'DM Sans',sa
 button,a,.tab-btn,.check-row,.floating-btn,.floating-mini-bar{-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
 .hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;color:#D4879A;flex-direction:column;gap:5px;}
+.show-mobile{display:none;}
 .hamburger span{display:block;width:22px;height:2px;background:#D4879A;border-radius:2px;}
 /* ── ACCESSIBILITY ─────────────────────────────────────────────────────
    Keyboard users get a visible focus ring (mouse/touch users don't, since
@@ -284,10 +303,10 @@ const SmiraAvatar=({state="neutral",size=80,portrait=false,animate=false})=>{
   const [err,setErr]=useState(false);
   const src=AV[state]||AV.neutral;
   if(portrait){
-    if(err)return<div style={{width:"100%",height:size,background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:20}}><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:60,color:"#F5E6EA",fontWeight:600}}>S</span></div>;
+    if(err)return<div style={{width:"100%",height:size,background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:20}}><span style={{fontFamily:"Playfair Display,serif",fontSize:60,color:"#F5E6EA",fontWeight:600}}>S</span></div>;
     return<img src={src} alt="Smira" style={{width:"100%",height:size,objectFit:"cover",objectPosition:"50% 12%",borderRadius:20,display:"block"}} onError={()=>setErr(true)}/>;
   }
-  if(err)return<div style={{width:size,height:size,borderRadius:"50%",background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:"2px solid rgba(212,135,154,.3)",animation:animate?"heartbeat 2.5s ease-in-out infinite":"none"}}><span style={{fontFamily:"Cormorant Garamond,serif",fontSize:size*.38,color:"#F5E6EA",fontWeight:600}}>S</span></div>;
+  if(err)return<div style={{width:size,height:size,borderRadius:"50%",background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:"2px solid rgba(212,135,154,.3)",animation:animate?"heartbeat 2.5s ease-in-out infinite":"none"}}><span style={{fontFamily:"Playfair Display,serif",fontSize:size*.38,color:"#F5E6EA",fontWeight:600}}>S</span></div>;
   return<img src={src} alt="Smira" style={{width:size,height:size,borderRadius:"50%",objectFit:"cover",objectPosition:"50% 12%",flexShrink:0,border:"2px solid rgba(212,135,154,.3)",animation:animate?"heartbeat 2.5s ease-in-out infinite":"none"}} onError={()=>setErr(true)}/>;
 };
 
@@ -361,8 +380,8 @@ const Ring=({score,size=110,label="",color="#D4879A",subtitle=""})=>{
       <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(181,92,121,.1)" strokeWidth="6"/>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="6" strokeDasharray={circ} strokeDashoffset={off} strokeLinecap="round" style={{transition:"stroke-dashoffset 1.4s ease"}}/>
-        <text x={size/2} y={size/2+1} textAnchor="middle" dominantBaseline="middle" style={{fill:"#F5E6EA",fontSize:size/5,fontWeight:700,fontFamily:"DM Sans",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>{s}</text>
-        <text x={size/2} y={size/2+size/5.5} textAnchor="middle" dominantBaseline="middle" style={{fill:"#9A6677",fontSize:size/10,fontFamily:"DM Sans",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>/100</text>
+        <text x={size/2} y={size/2+1} textAnchor="middle" dominantBaseline="middle" style={{fill:"#F5E6EA",fontSize:size/5,fontWeight:700,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>{s}</text>
+        <text x={size/2} y={size/2+size/5.5} textAnchor="middle" dominantBaseline="middle" style={{fill:"#9A6677",fontSize:size/10,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>/100</text>
       </svg>
       {label&&<span style={{fontSize:12,color:"#9A6677",fontWeight:500}}>{label}</span>}
       {subtitle&&<span style={{fontSize:10,color:"#6B4455"}}>{subtitle}</span>}
@@ -839,13 +858,13 @@ try {
 
 /* ── AURA S LOGO (SVG, always circular) ──────────────────────────────────── */
 const AuraLogo=({size=56,gold="#D8B36A",bg="#1A0B12"})=>(
-  <div style={{width:size,height:size,borderRadius:"50%",background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,border:`1.5px solid ${gold}40`,boxShadow:`0 0 ${size*.35}px ${gold}22`,overflow:"hidden"}}>
+  <div style={{width:size,height:size,borderRadius:"50%",background:`radial-gradient(circle,rgba(255,255,255,.5),rgba(255,255,255,0) 70%)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,filter:`drop-shadow(0 2px ${size*.18}px rgba(154,72,100,.28))`,overflow:"visible"}}>
     <img
       src="/smira-logo.png"
       alt="Smira"
       width={size}
       height={size}
-      style={{width:"100%",height:"100%",objectFit:"cover"}}
+      style={{width:"100%",height:"100%",objectFit:"contain"}}
       onError={e=>{
         /* Fallback to the original drawn mark if the logo file is missing,
            so the app never shows a broken image icon. */
@@ -860,6 +879,53 @@ const LogoBrand=({size=56,gold="#D8B36A",bg="#1A0B12",showTagline=true,textColor
     <AuraLogo size={size} gold={gold} bg={bg}/>
     <span className="cf" style={{fontSize:size*.48,fontWeight:300,letterSpacing:".08em",color:textColor,lineHeight:1}}>SMIRA</span>
     {showTagline&&<span style={{fontSize:size*.2,color:gold,letterSpacing:".12em",fontWeight:400,opacity:.85}}>Glow with Confidence.</span>}
+  </div>
+);
+
+/* ── GARDEN DECORATION KIT ─────────────────────────────────────────────────
+   Lightweight, dependency-free SVG butterflies + falling petals + sparkles,
+   reused across Landing, Onboarding and anywhere the "magical garden" world
+   needs to continue. Pure CSS animation — no framer-motion dependency. */
+const Butterfly=({size=22,color="#D98CA3",style={},duration=7})=>(
+  <div className="butterfly-wrap" style={{width:size,height:size,animationDuration:`${duration}s`,...style}}>
+    <svg width={size} height={size} viewBox="0 0 40 40" style={{display:"block"}}>
+      <g style={{transformOrigin:"20px 20px",animation:`wingFlap ${duration*.35}s ease-in-out infinite`}}>
+        <path d="M19 18C15 8 4 6 3 12c-1 7 8 12 16 10z" fill={color} opacity=".92"/>
+        <path d="M19 22C15 32 4 34 3 28c-1-7 8-12 16-10z" fill={color} opacity=".75"/>
+      </g>
+      <g style={{transformOrigin:"20px 20px",animation:`wingFlap ${duration*.35}s ease-in-out infinite reverse`}}>
+        <path d="M21 18C25 8 36 6 37 12c1 7-8 12-16 10z" fill={color} opacity=".92"/>
+        <path d="M21 22C25 32 36 34 37 28c1-7-8-12-16-10z" fill={color} opacity=".75"/>
+      </g>
+      <ellipse cx="20" cy="20" rx="1.4" ry="7" fill="#5C2C48"/>
+    </svg>
+  </div>
+);
+const PETALS="🌸🌸🌷✿".split("");
+const GardenScene=({butterflies=4,petals=6,sparkles=8,tint})=>{
+  const seeds=useRef(Array.from({length:Math.max(butterflies,petals,sparkles)},(_,i)=>i));
+  return(
+    <div className="garden-scene">
+      {tint&&<div style={{position:"absolute",inset:0,background:tint}}/>}
+      {seeds.current.slice(0,petals).map(i=>(
+        <span key={"p"+i} className="petal" style={{left:`${(i*17+7)%100}%`,animationDuration:`${9+(i%5)*2.4}s`,animationDelay:`${i*1.3}s`,fontSize:12+((i*7)%10)}}>{PETALS[i%PETALS.length]}</span>
+      ))}
+      {seeds.current.slice(0,butterflies).map(i=>(
+        <Butterfly key={"b"+i} size={16+((i*5)%14)} duration={6+(i%4)*1.8} color={i%2?"#D98CA3":"#F0C4CC"} style={{top:`${12+((i*19)%60)}%`,left:`${8+((i*23)%80)}%`,animationDelay:`${i*.9}s`}}/>
+      ))}
+      {seeds.current.slice(0,sparkles).map(i=>(
+        <span key={"s"+i} className="sparkle-dot" style={{width:3+((i*3)%4),height:3+((i*3)%4),top:`${(i*13+5)%100}%`,left:`${(i*29+11)%100}%`,animationDuration:`${2+(i%3)}s`,animationDelay:`${i*.4}s`}}/>
+      ))}
+    </div>
+  );
+};
+/* Central glass bubble used on Landing — a translucent sphere holding the
+   Smira mark, echoing the reference art without shipping it as a raster. */
+const GlassBubble=({size=340,children})=>(
+  <div style={{position:"relative",width:size,height:size,margin:"0 auto",animation:"bubbleFloat 7s ease-in-out infinite"}}>
+    <div style={{position:"absolute",inset:0,borderRadius:"50%",background:"radial-gradient(circle at 32% 28%,rgba(255,255,255,.9),rgba(255,255,255,.15) 45%,rgba(255,255,255,.35) 100%)",boxShadow:"0 30px 80px rgba(154,72,100,.25),inset 0 0 0 1px rgba(255,255,255,.6),inset -14px -18px 40px rgba(201,125,149,.18),inset 14px 18px 30px rgba(255,255,255,.5)",backdropFilter:"blur(2px)"}}/>
+    <div style={{position:"absolute",top:"12%",left:"18%",width:"26%",height:"14%",borderRadius:"50%",background:"rgba(255,255,255,.85)",filter:"blur(6px)",transform:"rotate(-18deg)"}}/>
+    <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{children}</div>
   </div>
 );
 
@@ -964,7 +1030,7 @@ const AuthScreen=({onAuth,theme="dark"})=>{
                 <span style={{fontSize:12,color:t.muted}}>or</span>
                 <div style={{flex:1,height:1,background:t.border}}/>
               </div>
-              <button onClick={googleAuth} disabled={loading} style={{width:"100%",padding:"13px",borderRadius:50,border:`1px solid ${t.border}`,background:theme==="light"?"rgba(139,58,87,.06)":"rgba(255,255,255,.04)",color:t.txt,fontSize:14,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all .2s",fontFamily:"DM Sans,sans-serif"}}>
+              <button onClick={googleAuth} disabled={loading} style={{width:"100%",padding:"13px",borderRadius:50,border:`1px solid ${t.border}`,background:theme==="light"?"rgba(139,58,87,.06)":"rgba(255,255,255,.04)",color:t.txt,fontSize:14,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all .2s",fontFamily:"Poppins,sans-serif"}}>
                 <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                 Continue with Google
               </button>
@@ -1096,7 +1162,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
             <Row label="Sign-in method"><span style={{fontSize:13,color:t.muted,textTransform:"capitalize"}}>{authUser?.provider||"email"}</span></Row>
           </Card>
           <Card>
-            <button onClick={onLogout} style={{width:"100%",padding:"13px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"rgba(245,163,163,.07)",color:"#F5A3A3",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif",transition:"all .2s"}}>Sign Out</button>
+            <button onClick={onLogout} style={{width:"100%",padding:"13px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"rgba(245,163,163,.07)",color:"#F5A3A3",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif",transition:"all .2s"}}>Sign Out</button>
             <p style={{textAlign:"center",fontSize:11,color:t.muted,marginTop:12,lineHeight:1.6}}>Signing out will keep your skin data saved locally on this device.</p>
           </Card>
           <Card>
@@ -1121,21 +1187,21 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
               a.href=url;a.download=`smira-data-export-${new Date().toISOString().slice(0,10)}.json`;
               document.body.appendChild(a);a.click();document.body.removeChild(a);
               URL.revokeObjectURL(url);
-            }} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(181,92,121,.3)",background:"transparent",color:"#D4879A",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Export My Data (JSON)</button>
+            }} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(181,92,121,.3)",background:"transparent",color:"#D4879A",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>Export My Data (JSON)</button>
           </Card>
           {onDeleteAccount&&(
             <Card style={{border:"1px solid rgba(245,163,163,.25)"}}>
               <h3 style={{fontSize:15,fontWeight:600,color:"#F5A3A3",marginBottom:8}}>Danger Zone</h3>
               <p style={{fontSize:12,color:t.muted,lineHeight:1.7,marginBottom:14}}>Permanently deletes your account, scan history, journal, habits, and all cloud data. This cannot be undone.</p>
               {!confirmDelete?(
-                <button onClick={()=>setConfirmDelete(true)} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"transparent",color:"#F5A3A3",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Delete My Account</button>
+                <button onClick={()=>setConfirmDelete(true)} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(245,163,163,.35)",background:"transparent",color:"#F5A3A3",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>Delete My Account</button>
               ):(
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
                   {deleteErr&&<div style={{background:"rgba(245,163,163,.1)",border:"1px solid rgba(245,163,163,.28)",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#F5A3A3"}}>{deleteErr}</div>}
                   <p style={{fontSize:12,color:"#F5A3A3",fontWeight:600}}>Are you absolutely sure? This is permanent.</p>
                   <div style={{display:"flex",gap:8}}>
-                    <button onClick={()=>{setConfirmDelete(false);setDeleteErr("");}} style={{flex:1,padding:"11px",borderRadius:50,border:`1px solid ${t.border}`,background:"transparent",color:t.muted,fontSize:13,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>Cancel</button>
-                    <button onClick={async()=>{setDeleting(true);setDeleteErr("");try{await onDeleteAccount();}catch(e){setDeleteErr(e.message||"Could not delete account. Please sign out and back in, then try again.");setDeleting(false);}}} disabled={deleting} style={{flex:1,padding:"11px",borderRadius:50,border:"none",background:"linear-gradient(135deg,#C4506A,#8B3A57)",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"DM Sans,sans-serif"}}>{deleting?"Deleting...":"Yes, Delete Everything"}</button>
+                    <button onClick={()=>{setConfirmDelete(false);setDeleteErr("");}} style={{flex:1,padding:"11px",borderRadius:50,border:`1px solid ${t.border}`,background:"transparent",color:t.muted,fontSize:13,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>Cancel</button>
+                    <button onClick={async()=>{setDeleting(true);setDeleteErr("");try{await onDeleteAccount();}catch(e){setDeleteErr(e.message||"Could not delete account. Please sign out and back in, then try again.");setDeleting(false);}}} disabled={deleting} style={{flex:1,padding:"11px",borderRadius:50,border:"none",background:"linear-gradient(135deg,#C4506A,#8B3A57)",color:"#fff",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>{deleting?"Deleting...":"Yes, Delete Everything"}</button>
                   </div>
                 </div>
               )}
@@ -1165,32 +1231,55 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
 };
 
 const Landing=({onEnter})=>{
-  const h=new Date().getHours();
-  const avState=h<12?"morning":h<20?"welcome":"night";
+  const [navOpen,setNavOpen]=useState(false);
+  const links=["Home","Features","Science","Testimonials"];
   return(
-    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden",padding:"24px 24px 60px",textAlign:"center"}}>
-      <div className="orb" style={{width:500,height:500,background:"rgba(139,58,87,.2)",top:"-10%",left:"-10%"}}/>
-      <div className="orb" style={{width:400,height:400,background:"rgba(74,21,48,.3)",bottom:"-5%",right:"-5%",animationDelay:"2.5s"}}/>
-      <div className="orb" style={{width:300,height:300,background:"rgba(181,92,121,.14)",top:"30%",right:"8%",animationDelay:"1.2s"}}/>
-      <div style={{zIndex:10,maxWidth:560,position:"relative"}}>
-        <div style={{marginBottom:20,display:"flex",justifyContent:"center"}}><AuraLogo size={72} gold="#D8B36A" bg="#1A0B12"/></div>
-        <div style={{width:200,height:240,margin:"0 auto 16px",borderRadius:26,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",boxShadow:"0 20px 60px rgba(0,0,0,.5), 0 0 50px rgba(181,92,121,.25)",animation:"floatY 5s ease-in-out infinite"}}>
-          <SmiraAvatar state={avState} portrait size={240}/>
+    <div style={{minHeight:"100vh",position:"relative",overflow:"hidden",background:"linear-gradient(160deg,#FFF6F1 0%,#FDEFE9 35%,#FBE9ED 65%,#F3F7EE 100%)",color:"#4A2A35"}}>
+      {/* soft light wash + garden atmosphere */}
+      <div style={{position:"absolute",top:"-10%",right:"-8%",width:560,height:560,borderRadius:"50%",background:"radial-gradient(circle,rgba(255,247,224,.9),transparent 70%)",filter:"blur(10px)"}}/>
+      <GardenScene butterflies={7} petals={10} sparkles={14}/>
+      <div className="garden-scene" aria-hidden style={{opacity:.5}}>
+        {[6,20,78,92].map((l,i)=>(
+          <div key={i} style={{position:"absolute",left:`${l}%`,top:0,bottom:i%2?"38%":"0%",width:i%2?90:130,background:i<2?"linear-gradient(180deg,rgba(230,150,170,.28),transparent 70%)":"linear-gradient(0deg,rgba(230,150,170,.28),transparent 70%)"}}/>
+        ))}
+      </div>
+
+      {/* glass nav */}
+      <div style={{position:"relative",zIndex:20,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"18px 28px",maxWidth:1240,margin:"0 auto"}}>
+        <div style={{display:"flex",alignItems:"center",gap:9}}>
+          <AuraLogo size={34} gold="#B8902A"/>
+          <span className="cf" style={{fontSize:20,letterSpacing:".1em",color:"#B5476B",fontWeight:600}}>SMIRA</span>
         </div>
-        <span className="cf" style={{fontSize:"clamp(44px,7vw,66px)",fontWeight:300,letterSpacing:".08em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:4}}>SMIRA</span>
-        <p style={{color:"#D8B36A",fontSize:13,fontWeight:500,marginBottom:20,letterSpacing:".14em",textTransform:"uppercase",opacity:.9}}>Glow with Confidence.</p>
-        <h1 className="cf" style={{fontSize:"clamp(26px,4.5vw,42px)",fontWeight:300,lineHeight:1.3,marginBottom:22}}>
-          You're already <em style={{background:"linear-gradient(135deg,#F0C4CC,#B55C79)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>beautiful.</em><br/>
-          Let's also make you <em style={{background:"linear-gradient(135deg,#D4879A,#6B2244)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>feel it.</em>
-        </h1>
-        <p style={{color:"#9A6677",fontSize:14,lineHeight:1.85,maxWidth:420,margin:"0 auto 36px"}}>AI-powered skin analysis, wellness tracking, confidence building, and personalized self-care guidance — all in one place.</p>
-        <button className="btn" onClick={onEnter} style={{padding:"16px 48px",fontSize:15}}>Begin Your Journey</button>
-        <div style={{display:"flex",gap:9,justifyContent:"center",flexWrap:"wrap",marginTop:32}}>
+        <div className="glass-nav hide-mobile" style={{display:"flex",gap:4,padding:"8px 10px"}}>
+          {links.map(l=>(
+            <a key={l} href="#" onClick={e=>e.preventDefault()} style={{padding:"9px 16px",borderRadius:100,fontSize:12.5,letterSpacing:".06em",textTransform:"uppercase",color:"#8C6373",textDecoration:"none",fontWeight:500}}>{l}</a>
+          ))}
+        </div>
+        <button className="btn-o hide-mobile" onClick={onEnter} style={{fontSize:12.5,letterSpacing:".04em"}}>Get Started →</button>
+        <button className="hamburger show-mobile" onClick={()=>setNavOpen(s=>!s)} aria-label="Menu" style={{color:"#B5476B",display:"none"}}><span style={{background:"#B5476B"}}/><span style={{background:"#B5476B"}}/><span style={{background:"#B5476B"}}/></button>
+      </div>
+
+      {/* hero */}
+      <div style={{position:"relative",zIndex:10,maxWidth:640,margin:"0 auto",padding:"18px 24px 70px",textAlign:"center"}}>
+        <span className="cf" style={{fontSize:"clamp(46px,8vw,74px)",fontWeight:600,letterSpacing:".06em",color:"#B5476B",display:"block",lineHeight:1.05,marginTop:8}}>SMIRA</span>
+        <p style={{color:"#B8902A",fontSize:13,fontWeight:600,margin:"6px 0 30px",letterSpacing:".22em",textTransform:"uppercase"}}>✦ Glow with Confidence ✦</p>
+
+        <GlassBubble size={280}>
+          <AuraLogo size={150} gold="#B8902A"/>
+          <Butterfly size={40} color="#D9738F" style={{position:"absolute",top:"14%",right:"6%",animationDuration:"6s"}}/>
+          <Butterfly size={22} color="#F0C4CC" style={{position:"absolute",bottom:"18%",left:"10%",animationDuration:"8s",animationDelay:"1.5s"}}/>
+        </GlassBubble>
+
+        <p style={{color:"#8C6373",fontSize:13,letterSpacing:".08em",textTransform:"uppercase",margin:"34px 0 18px"}}>Your Skin. Your Story. Your Confidence.</p>
+        <button className="btn" onClick={onEnter} style={{padding:"16px 44px",fontSize:14.5,letterSpacing:".04em"}}>Begin Your Glow Journey →</button>
+
+        <div style={{display:"flex",gap:9,justifyContent:"center",flexWrap:"wrap",marginTop:36}}>
           {["AI Skin Analysis","Confidence Score","Glow Journal","Wellness Coach","Skin Forecast"].map(t=>(
-            <span key={t} style={{fontSize:11,color:"#9A6677",background:"rgba(181,92,121,.1)",border:"1px solid rgba(181,92,121,.18)",padding:"5px 13px",borderRadius:20}}>{t}</span>
+            <span key={t} style={{fontSize:11,color:"#B5476B",background:"rgba(255,255,255,.55)",border:"1px solid rgba(197,120,140,.25)",padding:"6px 14px",borderRadius:20,backdropFilter:"blur(6px)"}}>{t}</span>
           ))}
         </div>
       </div>
+      <style>{`@media(max-width:768px){.show-mobile{display:flex!important}}`}</style>
     </div>
   );
 };
@@ -1210,22 +1299,41 @@ const Onboarding=({onDone})=>{
     {avatar:"happy",title:"Your wellness vision",greeting:"Smira isn't just about skin — it's about building confidence, healthy habits, and feeling genuinely good from the inside out. What matters to you?",why:"Your wellness goals shape how I coach you daily. Whether it's sleep, stress, or confidence, I'll weave these into your whole experience."},
   ];
   const cur=steps[step];
+  /* Left-panel scenery evolves per step, per the V5 brief — cherry blossoms,
+     butterflies, sunrise, glowing flowers, bubbles, golden sunset. */
+  const scenery=[
+    {bg:"linear-gradient(160deg,#FBE2E8,#F6C9D3 60%,#F0B4C2)",caption:"Cherry blossoms drifting in",butterflies:3,petals:9},
+    {bg:"linear-gradient(160deg,#F3D9E2,#E9B9CA 60%,#D9A0BA)",caption:"Butterflies finding their way",butterflies:8,petals:4},
+    {bg:"linear-gradient(160deg,#FDEBD3,#F7CFB0 60%,#F0B490)",caption:"Morning sunlight breaking through",butterflies:4,petals:5},
+    {bg:"linear-gradient(160deg,#E7E6C9,#D3D6A8 60%,#B9C98F)",caption:"Tiny flowers beginning to glow",butterflies:3,petals:6},
+    {bg:"linear-gradient(160deg,#DCEEF0,#B9DEE3 60%,#9BC8D2)",caption:"Bubbles floating gently upward",butterflies:2,petals:3},
+    {bg:"linear-gradient(160deg,#F6D9A8,#EFAE7C 60%,#D97F6B)",caption:"A golden sunset settling in",butterflies:5,petals:5},
+  ][step]||{bg:"linear-gradient(160deg,#FBE2E8,#F0B4C2)",caption:"",butterflies:4,petals:6};
   return(
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
-      <div className="orb" style={{width:380,height:380,background:"rgba(139,58,87,.18)",top:"5%",right:"3%"}}/>
-      <div style={{width:"100%",maxWidth:520,zIndex:10}}>
-        <div style={{marginBottom:26}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
-            <span style={{fontSize:12,color:"#9A6677"}}>Step {step+1} of {steps.length}</span>
-            <span style={{fontSize:12,color:"#D4879A",fontWeight:600}}>{Math.round(((step+1)/steps.length)*100)}%</span>
-          </div>
-          <div className="pbar"><div className="pfill" style={{width:`${((step+1)/steps.length)*100}%`,background:"linear-gradient(90deg,#6B2244,#D4879A)"}}/></div>
+    <div style={{minHeight:"100vh",display:"flex",background:"#FFF8F3"}}>
+      {/* Left — evolving illustrated scenery (desktop only) */}
+      <div className="onboard-scenery hide-mobile" style={{width:"44%",position:"relative",overflow:"hidden",background:scenery.bg,transition:"background 1.2s ease",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+        <GardenScene butterflies={scenery.butterflies} petals={scenery.petals} sparkles={10}/>
+        <div style={{position:"relative",zIndex:5,textAlign:"center",padding:24}}>
+          <GlassBubble size={190}><AuraLogo size={100} gold="#B8902A"/></GlassBubble>
+          <p className="cf" style={{marginTop:26,fontSize:19,color:"#5A2E3D",fontStyle:"italic",opacity:.85}}>{scenery.caption}</p>
         </div>
-        <div className="glass glow" style={{padding:"34px 30px",borderRadius:26}}>
-          <div style={{marginBottom:20}}><SmiraMsg state={cur.avatar} text={cur.greeting} size={52}/></div>
-          <h2 className="cf" style={{fontSize:26,marginBottom:cur.why?8:20,fontWeight:400}}>{cur.title}</h2>
-          {cur.why&&<div style={{background:"rgba(181,92,121,.08)",border:"1px solid rgba(181,92,121,.15)",borderRadius:10,padding:"9px 13px",marginBottom:18}}><p style={{fontSize:12,color:"#9A6677",lineHeight:1.65}}>Why I'm asking: {cur.why}</p></div>}
-          {step===0&&<div style={{display:"flex",flexDirection:"column",gap:9}}>{["Real AI vision skin analysis","Confidence Score — measuring self-care, not appearance","Glow Journal for emotional growth & patterns","Skin Forecast & 30-day trend predictions","Emotionally intelligent AI companion","Monthly personalized story recap"].map(t=><div key={t} style={{fontSize:13,color:"#F0C4CC",padding:"9px 14px",background:"rgba(181,92,121,.08)",borderRadius:10,border:"1px solid rgba(181,92,121,.12)",display:"flex",gap:10,alignItems:"center"}}><div style={{width:6,height:6,borderRadius:"50%",background:"#D4879A",flexShrink:0}}/>{t}</div>)}</div>}
+      </div>
+
+      {/* Right — glass onboarding card */}
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
+        <div className="show-mobile" style={{position:"absolute",inset:0}}><GardenScene butterflies={2} petals={4} sparkles={5} tint="linear-gradient(160deg,#FDEFE9,#FBE9ED)"/></div>
+        <div style={{width:"100%",maxWidth:520,zIndex:10}}>
+          <div style={{marginBottom:22,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{fontSize:12,color:"#8C6373"}}>Step {step+1} of {steps.length}</span>
+            <span style={{fontSize:12,color:"#B5476B",fontWeight:700}}>{Math.round(((step+1)/steps.length)*100)}%</span>
+          </div>
+          <div className="pbar" style={{marginBottom:24}}><div className="pfill" style={{width:`${((step+1)/steps.length)*100}%`,background:"linear-gradient(90deg,#C9577B,#D98CA3)"}}/></div>
+          <div className="glass glow" style={{padding:"32px 30px",borderRadius:28,background:"rgba(255,252,249,.85)"}}>
+            <div style={{marginBottom:20}}><SmiraMsg state={cur.avatar} text={cur.greeting} size={52}/></div>
+            <h2 className="cf" style={{fontSize:27,marginBottom:cur.why?8:20,fontWeight:600,color:"#4A2A35"}}>{cur.title}</h2>
+            {cur.why&&<div style={{background:"rgba(181,71,107,.06)",border:"1px solid rgba(197,120,140,.18)",borderRadius:12,padding:"10px 14px",marginBottom:18}}><p style={{fontSize:12,color:"#8C6373",lineHeight:1.65}}>Why I'm asking: {cur.why}</p></div>}
+            {step===0&&<div style={{display:"flex",flexDirection:"column",gap:9}}>{["Real AI vision skin analysis","Confidence Score — measuring self-care, not appearance","Glow Journal for emotional growth & patterns","Skin Forecast & 30-day trend predictions","Emotionally intelligent AI companion","Monthly personalized story recap"].map(t=><div key={t} style={{fontSize:13,color:"#8B3A57",padding:"10px 14px",background:"rgba(181,71,107,.06)",borderRadius:12,border:"1px solid rgba(197,120,140,.16)",display:"flex",gap:10,alignItems:"center"}}><div style={{width:6,height:6,borderRadius:"50%",background:"#C9577B",flexShrink:0}}/>{t}</div>)}</div>}
           {step===1&&<div style={{display:"flex",flexDirection:"column",gap:14}}>
             <input className="inp" placeholder="Your name *" value={d.name} onChange={e=>upd("name",e.target.value)}/>
             <input className="inp" placeholder="Email address" type="email" value={d.email} onChange={e=>upd("email",e.target.value)}/>
@@ -1247,27 +1355,28 @@ const Onboarding=({onDone})=>{
           {step===3&&<div style={{display:"flex",flexDirection:"column",gap:9}}>
             <p style={{fontSize:12,color:"#9A6677",marginBottom:4}}>Select any that apply — or skip this step entirely:</p>
             {[{k:"pcos",l:"PCOS",desc:"Polycystic Ovary Syndrome — affects hormones & skin"},{k:"pcod",l:"PCOD",desc:"Similar to PCOS — hormonal skin effects"},{k:"thyroid",l:"Thyroid Disorder",desc:"Affects skin texture, hydration, and hair"},{k:"diabetes",l:"Diabetes",desc:"Affects skin barrier and healing speed"},{k:"menstrualTracking",l:"Track Menstrual Cycle",desc:"Get hormonal skin insights around your cycle"}].map(c=>(
-              <div key={c.k} role="checkbox" aria-checked={!!d[c.k]} tabIndex={0} className="kb-focusable" onClick={()=>toggle(c.k)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle(c.k);}}} style={{display:"flex",alignItems:"center",gap:13,padding:"12px 15px",borderRadius:12,cursor:"pointer",background:d[c.k]?"rgba(181,92,121,.18)":"rgba(255,255,255,.03)",border:`1px solid ${d[c.k]?"#D4879A":"rgba(181,92,121,.1)"}`,transition:"all .2s"}}>
-                <div style={{width:21,height:21,borderRadius:6,background:d[c.k]?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{d[c.k]&&<Ic n="ok" s={12} c="#fff"/>}</div>
-                <div><div style={{fontSize:14,fontWeight:500}}>{c.l}</div><div style={{fontSize:11,color:"#6B4455"}}>{c.desc}</div></div>
+              <div key={c.k} role="checkbox" aria-checked={!!d[c.k]} tabIndex={0} className="kb-focusable" onClick={()=>toggle(c.k)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle(c.k);}}} style={{display:"flex",alignItems:"center",gap:13,padding:"12px 15px",borderRadius:14,cursor:"pointer",background:d[c.k]?"rgba(181,71,107,.1)":"rgba(181,71,107,.03)",border:`1px solid ${d[c.k]?"#C9577B":"rgba(197,120,140,.16)"}`,transition:"all .2s"}}>
+                <div style={{width:21,height:21,borderRadius:7,background:d[c.k]?"linear-gradient(135deg,#B5476B,#D98CA3)":"rgba(181,71,107,.1)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{d[c.k]&&<Ic n="ok" s={12} c="#fff"/>}</div>
+                <div><div style={{fontSize:14,fontWeight:500,color:"#4A2A35"}}>{c.l}</div><div style={{fontSize:11,color:"#8C6373"}}>{c.desc}</div></div>
               </div>
             ))}
           </div>}
           {step===4&&<div style={{display:"flex",flexWrap:"wrap",gap:9}}>
             {["Clear Acne","Fade Pigmentation","Deep Hydration","Anti-Aging","Even Skin Tone","Reduce Pores","Glow & Radiance","Soothe Redness","Dark Circles","Oil Control","Strengthen Barrier","Brighten Complexion"].map(g=>(
-              <div key={g} role="checkbox" aria-checked={d.skinGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"skinGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"skinGoal");}}} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.skinGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.skinGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.skinGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
+              <div key={g} role="checkbox" aria-checked={d.skinGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"skinGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"skinGoal");}}} style={{padding:"9px 17px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.skinGoal.includes(g)?"linear-gradient(135deg,#B5476B,#D98CA3)":"rgba(181,71,107,.06)",color:d.skinGoal.includes(g)?"#fff":"#B5476B",border:`1px solid ${d.skinGoal.includes(g)?"transparent":"rgba(197,120,140,.25)"}`}}>{g}</div>
             ))}
           </div>}
           {step===5&&<div style={{display:"flex",flexWrap:"wrap",gap:9}}>
             {["Build Confidence","Improve Sleep","Reduce Stress","Better Nutrition","Consistent Habits","Hormonal Balance","Mental Wellness","Track Progress","Self-Care Rituals","Body Positivity","Mindful Living"].map(g=>(
-              <div key={g} role="checkbox" aria-checked={d.wellnessGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"wellnessGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"wellnessGoal");}}} style={{padding:"8px 16px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.wellnessGoal.includes(g)?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:d.wellnessGoal.includes(g)?"#fff":"#D4879A",border:`1px solid ${d.wellnessGoal.includes(g)?"transparent":"rgba(181,92,121,.2)"}`}}>{g}</div>
+              <div key={g} role="checkbox" aria-checked={d.wellnessGoal.includes(g)} tabIndex={0} className="kb-focusable" onClick={()=>toggleGoal(g,"wellnessGoal")} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleGoal(g,"wellnessGoal");}}} style={{padding:"9px 17px",borderRadius:24,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",background:d.wellnessGoal.includes(g)?"linear-gradient(135deg,#B5476B,#D98CA3)":"rgba(181,71,107,.06)",color:d.wellnessGoal.includes(g)?"#fff":"#B5476B",border:`1px solid ${d.wellnessGoal.includes(g)?"transparent":"rgba(197,120,140,.25)"}`}}>{g}</div>
             ))}
           </div>}
-          <div style={{display:"flex",gap:11,marginTop:26}}>
-            {step>0&&<button className="btn-o" onClick={()=>setStep(s=>s-1)} style={{flex:1}}>Back</button>}
-            <button className="btn" onClick={()=>step<steps.length-1?setStep(s=>s+1):onDone(d)} style={{flex:2}} disabled={step===1&&!d.name}>
-              {step===steps.length-1?"Start My Journey":"Continue"}
-            </button>
+            <div style={{display:"flex",gap:11,marginTop:26}}>
+              {step>0&&<button className="btn-o" onClick={()=>setStep(s=>s-1)} style={{flex:1}}>Back</button>}
+              <button className="btn" onClick={()=>step<steps.length-1?setStep(s=>s+1):onDone(d)} style={{flex:2}} disabled={step===1&&!d.name}>
+                {step===steps.length-1?"Start My Journey":"Continue"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1445,7 +1554,7 @@ const Results=({results,img,user,onNav,scans})=>{
         <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.elasticity||71} size={90} label="Elasticity" color="#A8E6C9"/></div>
         <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.brightness||60} size={90} label="Brightness" color="#F0C4CC"/></div>
         <div className="glass" style={{padding:"18px 14px",borderRadius:18,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:5}}>
-          <div style={{fontSize:28,fontWeight:700,background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{results.skinAge||"--"}</div>
+          <div style={{fontSize:28,fontWeight:700,background:"linear-gradient(135deg,var(--wine),var(--rose))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{results.skinAge||"--"}</div>
           <div style={{fontSize:11,color:"#9A6677"}}>Skin Age</div>
           <span style={{fontSize:10,color:"#A8E6C9",background:"rgba(168,230,201,.1)",padding:"2px 8px",borderRadius:10}}>Actual: {user?.age||"–"}</span>
         </div>
@@ -1991,7 +2100,7 @@ const Products=({results})=>{
       <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:400}}>Product Recommendations</h1>
       <div style={{marginBottom:20}}><SmiraMsg state="coach" text={`These products were curated for your ${skinType} skin. I've included options across every budget — great skin doesn't require expensive products, just the right ones.`} size={44}/></div>
       {!results&&<div style={{background:"rgba(181,92,121,.1)",border:"1px solid rgba(181,92,121,.2)",borderRadius:14,padding:"12px 16px",marginBottom:18,display:"flex",gap:10,alignItems:"center"}}><Ic n="alert" s={15} c="#D4879A"/><p style={{fontSize:13,color:"#D4879A"}}>Complete a skin analysis to get recommendations tailored to your specific skin type and concerns.</p></div>}
-      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by ingredient or product name..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"DM Sans,sans-serif",marginBottom:14,boxSizing:"border-box"}}/>
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by ingredient or product name..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif",marginBottom:14,boxSizing:"border-box"}}/>
       <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
         {cats.map(c=><button key={c} onClick={()=>setCat(c)} style={{padding:"9px 20px",borderRadius:24,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,textTransform:"capitalize",background:cat===c?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:cat===c?"#fff":"#D4879A",transition:"all .2s"}}>{c}</button>)}
       </div>
@@ -2347,7 +2456,7 @@ const MonthlyStory=({user,scans,habits,journalEntries})=>{
         <div style={{width:140,height:168,margin:"0 auto 18px",borderRadius:24,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",boxShadow:"0 16px 48px rgba(0,0,0,.4)"}}>
           <SmiraAvatar state="achievement" portrait size={168}/>
         </div>
-        <span className="cf" style={{fontSize:"clamp(28px,5vw,44px)",fontWeight:300,background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:8}}>Your Smira Story</span>
+        <span className="cf" style={{fontSize:"clamp(28px,5vw,44px)",fontWeight:300,background:"linear-gradient(135deg,var(--wine),var(--rose))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:8}}>Your Smira Story</span>
         <p style={{color:"#D4879A",fontSize:15,fontWeight:500}}>{month}</p>
       </div>
       <div className="glass glow" style={{padding:28,borderRadius:26,marginBottom:18,background:"linear-gradient(135deg,rgba(139,58,87,.25),rgba(46,14,31,.6))"}}>
@@ -2476,7 +2585,7 @@ const MenstrualTracker=({scans,journalEntries})=>{
 
       {showLog&&(
         <div className="glass" style={{padding:"18px 20px",borderRadius:16,marginBottom:18,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-          <input type="date" value={logDate} onChange={e=>setLogDate(e.target.value)} max={new Date().toISOString().slice(0,10)} style={{padding:"9px 12px",borderRadius:10,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"DM Sans,sans-serif"}}/>
+          <input type="date" value={logDate} onChange={e=>setLogDate(e.target.value)} max={new Date().toISOString().slice(0,10)} style={{padding:"9px 12px",borderRadius:10,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
           <button className="btn" onClick={logPeriod} style={{padding:"9px 18px"}}>Save</button>
           <button onClick={()=>setShowLog(false)} style={{padding:"9px 14px",borderRadius:20,border:"none",background:"transparent",color:"#9A6677",cursor:"pointer",fontSize:13}}>Cancel</button>
         </div>
@@ -2634,7 +2743,7 @@ const SkinForecast=({user,results})=>{
           {err&&<p style={{fontSize:12,color:"#F5A3A3",marginBottom:12}}>{err}</p>}
           <p style={{fontSize:13,color:"#9A6677",marginBottom:12}}>Enter your city:</p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <input value={cityInput} onChange={e=>setCityInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitCity()} placeholder="e.g. Kolkata" style={{flex:1,minWidth:160,padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"DM Sans,sans-serif"}}/>
+            <input value={cityInput} onChange={e=>setCityInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitCity()} placeholder="e.g. Kolkata" style={{flex:1,minWidth:160,padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
             <button className="btn" onClick={submitCity} style={{padding:"10px 20px"}}>Get Forecast</button>
           </div>
         </div>
@@ -2866,7 +2975,7 @@ const FloatingCompanion=({user,results,scans})=>{
       )}
       {!(open&&minimized)&&(
         <div ref={btnRef} className="floating-btn kb-focusable" role="button" tabIndex={0} aria-label={open?"Close Smira chat":"Open Smira chat"} onClick={()=>{setOpen(o=>!o);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(o=>!o);setMinimized(false);setShowBubble(false);}}}>
-          <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Cormorant Garamond,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
+          <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Playfair Display,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
         </div>
       )}
     </>
@@ -2874,53 +2983,64 @@ const FloatingCompanion=({user,results,scans})=>{
 };
 
 const Sidebar=({active,onNav,user,open,onClose})=>{
-  const nav=[
-    {id:"dashboard",icon:"home",label:"Dashboard"},
-    {id:"scan",icon:"scan",label:"Skin Analysis"},
-    {id:"results",icon:"chart",label:"My Results"},
-    {id:"confidence",icon:"heart",label:"Confidence Score"},
-    {id:"journal",icon:"book",label:"Glow Journal"},
-    {id:"products",icon:"bag",label:"Products"},
-    {id:"nutrition",icon:"leaf",label:"Nutrition"},
-    {id:"challenges",icon:"trophy",label:"Challenges"},
-    {id:"analytics",icon:"chart",label:"Analytics"},
-    {id:"journey",icon:"spark",label:"My Journey"},
-    {id:"story",icon:"star",label:"Monthly Story"},
-    {id:"forecast",icon:"forecast",label:"Skin Forecast"},
-    {id:"menstrual",icon:"cycle",label:"Cycle Tracker"},
-    {id:"settings",icon:"gear",label:"Settings"},
+  const groups=[
+    {label:null,items:[{id:"dashboard",icon:"home",label:"Home"}]},
+    {label:"Skin",items:[
+      {id:"scan",icon:"scan",label:"Skin Analysis"},
+      {id:"results",icon:"chart",label:"My Results"},
+      {id:"forecast",icon:"forecast",label:"Skin Forecast"},
+    ]},
+    {label:"Wellness",items:[
+      {id:"confidence",icon:"heart",label:"Confidence Score"},
+      {id:"journal",icon:"book",label:"Glow Journal"},
+      {id:"nutrition",icon:"leaf",label:"Nutrition"},
+      {id:"products",icon:"bag",label:"Products"},
+      {id:"challenges",icon:"trophy",label:"Challenges"},
+    ]},
+    {label:"Cycle",items:[{id:"menstrual",icon:"cycle",label:"Cycle Tracker"}]},
+    {label:"Progress",items:[
+      {id:"journey",icon:"spark",label:"My Journey"},
+      {id:"story",icon:"star",label:"Monthly Story"},
+      {id:"analytics",icon:"chart",label:"Analytics"},
+    ]},
+    {label:"Settings",items:[{id:"settings",icon:"gear",label:"Settings"}]},
   ];
   return(
     <>
       <div className="sidebar-overlay" onClick={onClose}/>
-      <div className={`app-sidebar glass${open?" open":""}`} style={{width:220,height:"100vh",display:"flex",flexDirection:"column",padding:"18px 12px",position:"sticky",top:0,flexShrink:0,borderRight:"1px solid rgba(181,92,121,.12)",borderRadius:0,background:"rgba(18,6,14,.95)"}}>
-        <div style={{padding:"14px 8px 20px",borderBottom:"1px solid rgba(181,92,121,.12)",marginBottom:12}}>
+      <div className={`app-sidebar${open?" open":""}`} style={{width:236,height:"100vh",display:"flex",flexDirection:"column",padding:"20px 14px",position:"sticky",top:0,flexShrink:0,borderRight:"1px solid var(--border)",background:"var(--card)",backdropFilter:"blur(22px) saturate(160%)"}}>
+        <div style={{padding:"6px 8px 18px",borderBottom:"1px solid var(--border)",marginBottom:10}}>
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,paddingBottom:4}}>
-            <AuraLogo size={50} gold="#D8B36A" bg="#1A0B12"/>
+            <AuraLogo size={48} gold="var(--gold)"/>
             <div style={{textAlign:"center"}}>
-              <div className="cf" style={{fontSize:22,fontWeight:300,letterSpacing:".06em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1.1}}>SMIRA</div>
-              <div style={{fontSize:9,color:"#D8B36A",letterSpacing:".12em",opacity:.8,marginTop:2}}>Glow with Confidence.</div>
+              <div className="cf" style={{fontSize:21,fontWeight:600,letterSpacing:".06em",color:"var(--soft)",lineHeight:1.1}}>SMIRA</div>
+              <div style={{fontSize:9,color:"var(--gold)",letterSpacing:".12em",opacity:.85,marginTop:2}}>Glow with Confidence.</div>
             </div>
           </div>
           {user?.name&&(
-            <div style={{fontSize:12,color:"#9A6677",paddingLeft:2}}>
-              <span style={{color:"#F0C4CC",fontWeight:500}}>{user.name.split(" ")[0]}</span>
-              {user.skinGoal?.length>0&&<div style={{fontSize:10,color:"#6B4455",marginTop:2}}>{user.skinGoal[0]}</div>}
+            <div style={{fontSize:12,color:"var(--muted)",paddingLeft:2,textAlign:"center",marginTop:8}}>
+              <span style={{color:"var(--txt)",fontWeight:600}}>{user.name.split(" ")[0]}</span>
+              {user.skinGoal?.length>0&&<div style={{fontSize:10,color:"var(--muted)",marginTop:2}}>✦ {user.skinGoal[0]}</div>}
             </div>
           )}
         </div>
-        <nav aria-label="Main navigation" style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:2}}>
-          {nav.map(n=>(
-            <button key={n.id} className={`nav-link${active===n.id?" act":""}`} aria-current={active===n.id?"page":undefined} onClick={()=>{onNav(n.id);onClose();}}>
-              <Ic n={n.icon} s={15} c={active===n.id?"#D4879A":"#9A6677"}/>
-              {n.label}
-            </button>
+        <nav aria-label="Main navigation" style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:1}}>
+          {groups.map((g,gi)=>(
+            <div key={gi}>
+              {g.label&&<div className="nav-group-label">{g.label}</div>}
+              {g.items.map(n=>(
+                <button key={n.id} className={`nav-link${active===n.id?" act":""}`} aria-current={active===n.id?"page":undefined} onClick={()=>{onNav(n.id);onClose();}}>
+                  <Ic n={n.icon} s={15} c={active===n.id?"currentColor":"var(--muted)"}/>
+                  {n.label}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
-        <div style={{paddingTop:12,borderTop:"1px solid rgba(181,92,121,.12)"}}>
+        <div style={{paddingTop:12,borderTop:"1px solid var(--border)"}}>
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"4px 8px"}}>
-            <div style={{fontSize:9,color:"#3A1525",letterSpacing:".08em",textAlign:"center"}}>SMIRA · V4.0</div>
-            <div style={{fontSize:8,color:"#2A1020",textAlign:"center"}}>Glow with Confidence.</div>
+            <div style={{fontSize:9,color:"var(--muted)",opacity:.6,letterSpacing:".08em",textAlign:"center"}}>SMIRA · V5.0</div>
+            <div style={{fontSize:8,color:"var(--muted)",opacity:.4,textAlign:"center"}}>Glow with Confidence.</div>
           </div>
         </div>
       </div>
@@ -3125,11 +3245,11 @@ export default function App(){
           <Sidebar active={page} onNav={nav} user={user} open={sideOpen} onClose={()=>setSideOpen(false)}/>
           <div className="app-main" id="main-content" role="main" tabIndex={-1} style={{flex:1,marginLeft:0,minWidth:0,background:T.bodyBg}}>
             {/* Top bar */}
-            <div style={{padding:"12px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",background:T.topbar,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(14px)",transition:"background .35s"}}>
-              <button className="hamburger" onClick={()=>setSideOpen(s=>!s)} aria-label="Menu"><span/><span/><span/></button>
+            <div style={{padding:"12px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",background:T.topbar,position:"sticky",top:0,zIndex:50,backdropFilter:"blur(18px) saturate(160%)",transition:"background .35s"}}>
+              <button className="hamburger" onClick={()=>setSideOpen(s=>!s)} aria-label="Menu"><span style={{background:T.soft}}/><span style={{background:T.soft}}/><span style={{background:T.soft}}/></button>
               <div style={{display:"flex",alignItems:"center",gap:9}}>
-                <AuraLogo size={28} gold={T.gold} bg={resolvedTheme==="light"?"#8B3A57":"#1A0B12"}/>
-                <span className="cf" style={{fontSize:19,letterSpacing:".06em",background:"linear-gradient(135deg,#F0C4CC,#D4879A)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:300}}>SMIRA</span>
+                <AuraLogo size={26} gold={T.gold}/>
+                <span className="cf" style={{fontSize:18,letterSpacing:".06em",color:T.soft,fontWeight:600}}>SMIRA</span>
               </div>
               <button onClick={()=>nav("settings")} style={{background:"none",border:"none",cursor:"pointer",padding:6,borderRadius:8,display:"flex",alignItems:"center",gap:6,color:T.muted}} title="Settings">
                 <Ic n="gear" s={18} c={T.muted}/>
