@@ -157,7 +157,7 @@ return(
 <style>{`
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--dp:${t.dp};--deep:${t.deep};--plum:${t.plum};--wine:${t.wine};--berry:${t.berry};--rose:${t.rose};--blush:${t.blush};--petal:${t.petal};--mist:${t.mist};--card:${t.card};--border:${t.border};--txt:${t.txt};--muted:${t.muted};--soft:${t.soft};--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;--gold:${t.gold};--green:${t.green};--cream:${t.cream};}
+:root{--dp:${t.dp};--deep:${t.deep};--plum:${t.plum};--wine:${t.wine};--berry:${t.berry};--rose:${t.rose};--blush:${t.blush};--petal:${t.petal};--mist:${t.mist};--card:${t.card};--border:${t.border};--txt:${t.txt};--muted:${t.muted};--soft:${t.soft};--ok:#A8E6C9;--warn:#F5D5A3;--err:#F5A3A3;--gold:${t.gold};--green:${t.green};--cream:${t.cream};--inp-bg:${t.inpBg};--inp-border:${t.inpBorder};}
 html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'Poppins',sans-serif;overflow-x:hidden;transition:background .35s,color .35s;}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${t.scrollThumb};border-radius:4px}
 .cf{font-family:'Playfair Display',serif}
@@ -208,21 +208,22 @@ html,body{height:100%;background:${t.bg};color:${t.txt};font-family:'Poppins',sa
 .nav-group-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${t.muted};opacity:.65;padding:14px 14px 6px;font-weight:600;}
 .pbar{height:6px;background:${theme==="light"?"rgba(181,71,107,.1)":"rgba(255,255,255,.08)"};border-radius:4px;overflow:hidden;}
 .pfill{height:100%;border-radius:4px;transition:width 1.2s ease;}
-.tab-btn{padding:9px 17px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:#9A6677;border:none;background:transparent;white-space:nowrap;}
-.tab-btn.act{background:rgba(181,92,121,.18);color:#D4879A;}
+.tab-btn{padding:9px 17px;border-radius:14px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--muted);border:none;background:transparent;white-space:nowrap;}
+.tab-btn.act{background:linear-gradient(135deg,${t.wine},${t.rose});color:#fff;}
 .check-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(181,92,121,.07);}
 .check-row:last-child{border-bottom:none;}
-.streak-badge{background:linear-gradient(135deg,#B55C79,#6B2244);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#F5E6EA;display:inline-block;}
+.streak-badge{background:linear-gradient(135deg,${t.wine},${t.rose});padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#fff;display:inline-block;}
 .concern-zone{position:absolute;border-radius:50%;border:2px solid;animation:gPulse 2s ease-in-out infinite;cursor:pointer;}
-.challenge-card{background:linear-gradient(135deg,rgba(139,58,87,.22),rgba(74,21,48,.4));border:1px solid rgba(181,92,121,.25);border-radius:18px;padding:20px;}
-.floating-btn{position:fixed;bottom:28px;right:28px;z-index:200;cursor:pointer;width:62px;height:62px;border-radius:50%;overflow:hidden;border:2px solid rgba(212,135,154,.45);box-shadow:0 4px 24px rgba(0,0,0,.5);animation:pulseRing 3s ease-in-out infinite;transition:transform .2s;}
+.challenge-card{background:var(--card);backdrop-filter:blur(22px) saturate(160%);border:1px solid var(--border);border-radius:22px;padding:20px;}
+.floating-btn{position:fixed;bottom:28px;right:28px;z-index:200;cursor:pointer;width:62px;height:62px;border-radius:50%;overflow:hidden;border:2px solid ${t.rose}72;box-shadow:0 4px 24px rgba(154,72,100,.35);animation:pulseRing 3s ease-in-out infinite;transition:transform .2s;}
 .floating-btn:hover{transform:scale(1.08);}
-.floating-panel{position:fixed;bottom:calc(104px + env(safe-area-inset-bottom));right:28px;z-index:199;width:min(350px,calc(100vw - 52px));background:rgba(16,5,12,.97);border:1px solid rgba(181,92,121,.3);border-radius:22px;box-shadow:0 16px 56px rgba(0,0,0,.7);animation:fadeUp .28s ease;}
-.floating-mini-bar{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom));right:28px;z-index:200;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:20px;background:rgba(16,5,12,.97);border:1px solid rgba(181,92,121,.35);box-shadow:0 8px 28px rgba(0,0,0,.55);cursor:pointer;max-width:min(240px,calc(100vw - 32px));animation:fadeUp .25s ease;}
-.mood-btn{padding:10px 14px;border-radius:14px;border:1px solid rgba(181,92,121,.22);background:rgba(181,92,121,.06);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.mood-btn.sel,.mood-btn:hover{background:rgba(181,92,121,.2);border-color:#D4879A;transform:scale(1.05);}
+.floating-panel{position:fixed;bottom:calc(104px + env(safe-area-inset-bottom));right:28px;z-index:199;width:min(350px,calc(100vw - 52px));background:var(--card);backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--border);border-radius:22px;box-shadow:0 16px 56px rgba(154,72,100,.3);animation:fadeUp .28s ease;}
+.floating-mini-bar{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom));right:28px;z-index:200;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:20px;background:var(--card);backdrop-filter:blur(20px) saturate(160%);border:1px solid var(--border);box-shadow:0 8px 28px rgba(154,72,100,.22);cursor:pointer;max-width:min(240px,calc(100vw - 32px));animation:fadeUp .25s ease;}
+.mood-btn{padding:10px 14px;border-radius:14px;border:1px solid var(--border);background:var(--inp-bg);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.mood-btn.sel,.mood-btn:hover{background:var(--petal);border-color:${t.rose};transform:scale(1.05);}
 @media(max-width:768px){
   .hide-mobile{display:none!important;}
+  .dash-grid{grid-template-columns:1fr!important;}
   .sidebar-overlay{display:block!important;}
   .app-sidebar{transform:translateX(-100%);transition:transform .3s;position:fixed;z-index:100;height:100vh;}
   .app-sidebar.open{transform:translateX(0);}
@@ -295,6 +296,9 @@ const Ic=({n,s=18,c="currentColor"})=>{
     refresh:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
     forecast:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 113.19-13.28A5.5 5.5 0 1117.5 19z"/></svg>,
     gear:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+    bell:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>,
+    calendar:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+    camera:<svg width={s} height={s} fill="none" stroke={c} strokeWidth="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>,
   };
   return d[n]||null;
 };
@@ -313,8 +317,8 @@ const SmiraAvatar=({state="neutral",size=80,portrait=false,animate=false})=>{
 const SmiraMsg=({state="neutral",text,size=46})=>(
   <div style={{display:"flex",gap:12,alignItems:"flex-end"}}>
     <SmiraAvatar state={state} size={size}/>
-    <div style={{maxWidth:"84%",padding:"13px 16px",borderRadius:"16px 16px 16px 4px",background:"rgba(46,14,31,.9)",border:"1px solid rgba(181,92,121,.2)"}}>
-      <p style={{fontSize:13.5,color:"#F0C4CC",lineHeight:1.75,fontStyle:"italic"}}>{text}</p>
+    <div style={{maxWidth:"84%",padding:"13px 16px",borderRadius:"16px 16px 16px 4px",background:"var(--petal)",border:"1px solid var(--border)"}}>
+      <p style={{fontSize:13.5,color:"var(--soft)",lineHeight:1.75,fontStyle:"italic"}}>{text}</p>
     </div>
   </div>
 );
@@ -371,24 +375,24 @@ const calcStreak=()=>{
   return streak;
 };
 
-const Ring=({score,size=110,label="",color="#D4879A",subtitle=""})=>{
+const Ring=({score,size=110,label="",color="var(--soft)",subtitle=""})=>{
   const [s,setS]=useState(0);
   useEffect(()=>{const t=setTimeout(()=>setS(score),120);return()=>clearTimeout(t);},[score]);
   const r=(size-16)/2,circ=2*Math.PI*r,off=circ-(s/100)*circ;
   return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5}}>
       <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(181,92,121,.1)" strokeWidth="6"/>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--border)" strokeWidth="6"/>
         <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth="6" strokeDasharray={circ} strokeDashoffset={off} strokeLinecap="round" style={{transition:"stroke-dashoffset 1.4s ease"}}/>
-        <text x={size/2} y={size/2+1} textAnchor="middle" dominantBaseline="middle" style={{fill:"#F5E6EA",fontSize:size/5,fontWeight:700,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>{s}</text>
-        <text x={size/2} y={size/2+size/5.5} textAnchor="middle" dominantBaseline="middle" style={{fill:"#9A6677",fontSize:size/10,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>/100</text>
+        <text x={size/2} y={size/2+1} textAnchor="middle" dominantBaseline="middle" style={{fill:"var(--txt)",fontSize:size/5,fontWeight:700,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>{s}</text>
+        <text x={size/2} y={size/2+size/5.5} textAnchor="middle" dominantBaseline="middle" style={{fill:"var(--muted)",fontSize:size/10,fontFamily:"Poppins",transform:`rotate(90deg)`,transformOrigin:`${size/2}px ${size/2}px`}}>/100</text>
       </svg>
-      {label&&<span style={{fontSize:12,color:"#9A6677",fontWeight:500}}>{label}</span>}
-      {subtitle&&<span style={{fontSize:10,color:"#6B4455"}}>{subtitle}</span>}
+      {label&&<span style={{fontSize:12,color:"var(--muted)",fontWeight:500}}>{label}</span>}
+      {subtitle&&<span style={{fontSize:10,color:"var(--muted)"}}>{subtitle}</span>}
     </div>
   );
 };
-const ConfBar=({pct,color="#D4879A"})=>{
+const ConfBar=({pct,color="var(--soft)"})=>{
   const [w,setW]=useState(0);
   useEffect(()=>{const t=setTimeout(()=>setW(pct),200);return()=>clearTimeout(t);},[pct]);
   return<div className="pbar"><div className="pfill" style={{width:`${w}%`,background:`linear-gradient(90deg,${color}60,${color})`}}/></div>;
@@ -396,11 +400,11 @@ const ConfBar=({pct,color="#D4879A"})=>{
 
 const EmptyState=({avatarState="welcome",title,message,actionLabel,onAction})=>(
   <div style={{padding:"60px 24px",textAlign:"center",maxWidth:400,margin:"0 auto"}}>
-    <div style={{width:110,height:132,margin:"0 auto 22px",borderRadius:22,overflow:"hidden",border:"2px solid rgba(212,135,154,.2)"}}>
+    <div style={{width:110,height:132,margin:"0 auto 22px",borderRadius:22,overflow:"hidden",border:"2px solid var(--border)"}}>
       <SmiraAvatar state={avatarState} portrait size={132}/>
     </div>
-    <h3 className="cf" style={{fontSize:26,fontWeight:400,marginBottom:10}}>{title}</h3>
-    <p style={{color:"#9A6677",fontSize:14,lineHeight:1.75,marginBottom:onAction?24:0}}>{message}</p>
+    <h3 className="cf" style={{fontSize:26,fontWeight:600,marginBottom:10,color:"var(--txt)"}}>{title}</h3>
+    <p style={{color:"var(--muted)",fontSize:14,lineHeight:1.75,marginBottom:onAction?24:0}}>{message}</p>
     {onAction&&<button className="btn" onClick={onAction} style={{padding:"12px 32px"}}>{actionLabel}</button>}
   </div>
 );
@@ -410,7 +414,7 @@ const EmptyState=({avatarState="welcome",title,message,actionLabel,onAction})=>(
 const Skeleton=({rows=3,height=16,gap=10,style={}})=>(
   <div style={{display:"flex",flexDirection:"column",gap,...style}}>
     {Array.from({length:rows},(_,i)=>(
-      <div key={i} style={{height,borderRadius:8,width:i===rows-1?"60%":"100%",background:"linear-gradient(90deg,rgba(181,92,121,.08) 25%,rgba(181,92,121,.18) 37%,rgba(181,92,121,.08) 63%)",backgroundSize:"400% 100%",animation:"shimmer 1.6s ease-in-out infinite"}}/>
+      <div key={i} style={{height,borderRadius:8,width:i===rows-1?"60%":"100%",background:"linear-gradient(90deg,var(--petal) 25%,var(--border) 37%,var(--petal) 63%)",backgroundSize:"400% 100%",animation:"shimmer 1.6s ease-in-out infinite"}}/>
     ))}
   </div>
 );
@@ -449,12 +453,12 @@ const OfflineBanner=({online})=>{
   );
 };
 const ErrorBox=({message,onRetry})=>(
-  <div style={{padding:"22px",background:"rgba(139,58,87,.1)",border:"1px solid rgba(212,135,154,.25)",borderRadius:18,textAlign:"center",marginBottom:16}}>
+  <div style={{padding:"22px",background:"var(--petal)",border:"1px solid var(--border)",borderRadius:18,textAlign:"center",marginBottom:16}}>
     <div style={{width:80,height:96,margin:"0 auto 14px",borderRadius:16,overflow:"hidden"}}>
       <SmiraAvatar state="empathy" portrait size={96}/>
     </div>
-    <p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.7,marginBottom:14}}>
-      <strong style={{color:"#D4879A",display:"block",marginBottom:4}}>Something didn't go as planned.</strong>
+    <p style={{fontSize:14,color:"var(--txt)",lineHeight:1.7,marginBottom:14}}>
+      <strong style={{color:"var(--soft)",display:"block",marginBottom:4}}>Something didn't go as planned.</strong>
       {message||"Let's try again together."}
     </p>
     {onRetry&&<button className="btn" onClick={onRetry} style={{padding:"10px 24px",fontSize:13,display:"inline-flex",alignItems:"center",gap:6}}><Ic n="refresh" s={13}/>Try Again</button>}
@@ -590,11 +594,11 @@ const SkinTip=()=>{
   const [k,setK]=useState(0);
   const next=()=>{setIdx(i=>(i+1)%TIPS.length);setK(x=>x+1);};
   return(
-    <div role="button" tabIndex={0} aria-label="Get another skin tip" className="kb-focusable" style={{padding:"16px 20px",borderRadius:16,background:"linear-gradient(135deg,rgba(181,92,121,.14),rgba(107,34,68,.12))",border:"1px solid rgba(181,92,121,.22)",cursor:"pointer",display:"flex",gap:12,alignItems:"flex-start"}} onClick={next} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();next();}}}>
+    <div role="button" tabIndex={0} aria-label="Get another skin tip" className="kb-focusable" style={{padding:"16px 20px",borderRadius:16,background:"var(--petal)",border:"1px solid var(--border)",cursor:"pointer",display:"flex",gap:12,alignItems:"flex-start"}} onClick={next} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();next();}}}>
       <SmiraAvatar state="coach" size={34}/>
       <div style={{flex:1}}>
-        <div style={{fontSize:10,color:"#D4879A",fontWeight:600,marginBottom:5,textTransform:"uppercase",letterSpacing:".07em"}}>Smira's Reminder · tap to refresh</div>
-        <p key={k} className="fade-up" style={{fontSize:13,color:"#F0C4CC",lineHeight:1.75}}>{TIPS[idx]}</p>
+        <div style={{fontSize:10,color:"var(--soft)",fontWeight:600,marginBottom:5,textTransform:"uppercase",letterSpacing:".07em"}}>Smira's Reminder · tap to refresh</div>
+        <p key={k} className="fade-up" style={{fontSize:13,color:"var(--txt)",lineHeight:1.75}}>{TIPS[idx]}</p>
       </div>
     </div>
   );
@@ -608,7 +612,7 @@ const calcConfidenceScore=(habits,water,journalEntries,scans)=>{
   return Math.min(100,Math.round(hPct*.35+wPct*.25+jB+sB+30));
 };
 const confLabel=(s)=>s>=90?"Radiant":s>=75?"Flourishing":s>=60?"Thriving":s>=45?"Growing Consistency":"Building Momentum";
-const confColor=(s)=>s>=70?"#A8E6C9":s>=50?"#D4879A":"#F0C4CC";
+const confColor=(s)=>s>=70?"#4FA876":s>=50?"var(--soft)":"var(--wine)";
 
 const getMediaType=(d)=>{const m=d.match(/^data:([^;]+);/);const r=m?m[1]:"image/jpeg";return["image/jpeg","image/png","image/gif","image/webp"].includes(r)?r:"image/jpeg";};
 const resizeImg=(dataUrl)=>new Promise(res=>{
@@ -877,7 +881,7 @@ const AuraLogo=({size=56,gold="#D8B36A",bg="#1A0B12"})=>(
 const LogoBrand=({size=56,gold="#D8B36A",bg="#1A0B12",showTagline=true,textColor="#F5E6EA"})=>(
   <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
     <AuraLogo size={size} gold={gold} bg={bg}/>
-    <span className="cf" style={{fontSize:size*.48,fontWeight:300,letterSpacing:".08em",color:textColor,lineHeight:1}}>SMIRA</span>
+    <span className="cf" style={{fontSize:size*.48,fontWeight:600,letterSpacing:".08em",color:textColor,lineHeight:1}}>SMIRA</span>
     {showTagline&&<span style={{fontSize:size*.2,color:gold,letterSpacing:".12em",fontWeight:400,opacity:.85}}>Glow with Confidence.</span>}
   </div>
 );
@@ -935,11 +939,12 @@ const Splash=({onDone,theme="dark"})=>{
   useEffect(()=>{const timer=setTimeout(onDone,2800);return()=>clearTimeout(timer);},[onDone]);
   return(
     <div style={{minHeight:"100vh",background:t.bodyBg,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:0,position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",width:420,height:420,borderRadius:"50%",background:"rgba(139,58,87,.18)",filter:"blur(90px)",top:"10%",left:"15%",animation:"gPulse 4s ease-in-out infinite"}}/>
-      <div style={{position:"absolute",width:320,height:320,borderRadius:"50%",background:"rgba(74,21,48,.22)",filter:"blur(70px)",bottom:"10%",right:"10%",animation:"gPulse 5s ease-in-out infinite 1.5s"}}/>
+      <GardenScene butterflies={4} petals={6} sparkles={8}/>
+      <div style={{position:"absolute",width:420,height:420,borderRadius:"50%",background:`${t.rose}22`,filter:"blur(90px)",top:"10%",left:"15%",animation:"gPulse 4s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",width:320,height:320,borderRadius:"50%",background:`${t.wine}22`,filter:"blur(70px)",bottom:"10%",right:"10%",animation:"gPulse 5s ease-in-out infinite 1.5s"}}/>
       <div style={{animation:"fadeUp .9s ease forwards",textAlign:"center",zIndex:10}}>
         <div style={{marginBottom:28}}>
-          <LogoBrand size={78} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+          <LogoBrand size={78} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.soft} showTagline={true}/>
         </div>
         <p style={{color:t.muted,fontSize:13,letterSpacing:".04em",marginTop:16}}>Loading your wellness journey...</p>
         <div style={{marginTop:22,width:48,height:3,borderRadius:2,background:`linear-gradient(90deg,${t.berry},${t.rose})`,margin:"18px auto 0",animation:"shimmer 1.6s ease-in-out infinite",backgroundSize:"200% 100%"}}/>
@@ -986,18 +991,19 @@ const AuthScreen=({onAuth,theme="dark"})=>{
     setLoading(false);
   };
 
-  const cardBg=theme==="light"?"rgba(255,247,248,.96)":"rgba(46,14,31,.7)";
+  const cardBg=theme==="light"?"rgba(255,252,249,.9)":"rgba(46,14,31,.7)";
   return(
     <div style={{minHeight:"100vh",background:t.bodyBg,display:"flex",alignItems:"center",justifyContent:"center",padding:24,position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",width:400,height:400,borderRadius:"50%",background:"rgba(139,58,87,.15)",filter:"blur(80px)",top:"-5%",right:"5%",animation:"gPulse 5s ease-in-out infinite"}}/>
-      <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:"rgba(74,21,48,.2)",filter:"blur(70px)",bottom:"0%",left:"0%",animation:"gPulse 6s ease-in-out infinite 2s"}}/>
+      <GardenScene butterflies={3} petals={5} sparkles={6}/>
+      <div style={{position:"absolute",width:400,height:400,borderRadius:"50%",background:`${t.rose}1E`,filter:"blur(80px)",top:"-5%",right:"5%",animation:"gPulse 5s ease-in-out infinite"}}/>
+      <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:`${t.wine}1E`,filter:"blur(70px)",bottom:"0%",left:"0%",animation:"gPulse 6s ease-in-out infinite 2s"}}/>
       <div style={{width:"100%",maxWidth:420,zIndex:10,animation:"fadeUp .5s ease"}}>
         {/* Brand header */}
         <div style={{textAlign:"center",marginBottom:32}}>
-          <LogoBrand size={62} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+          <LogoBrand size={62} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.soft} showTagline={true}/>
         </div>
-        <div style={{background:cardBg,backdropFilter:"blur(20px)",border:`1px solid ${t.border}`,borderRadius:24,padding:"34px 30px",boxShadow:"0 20px 60px rgba(0,0,0,.18)"}}>
-          <h2 className="cf" style={{fontSize:26,fontWeight:400,marginBottom:22,textAlign:"center",color:t.txt}}>
+        <div className="glass glow" style={{background:cardBg,borderRadius:24,padding:"34px 30px"}}>
+          <h2 className="cf" style={{fontSize:26,fontWeight:600,marginBottom:22,textAlign:"center",color:t.txt}}>
             {mode==="login"?"Welcome back":"Create account"}
             {mode==="forgot"&&"Reset password"}
           </h2>
@@ -1060,11 +1066,11 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
   const [confirmDelete,setConfirmDelete]=useState(false);
   const [deleting,setDeleting]=useState(false);
   const [deleteErr,setDeleteErr]=useState("");
-  const cardBg=theme==="light"?"rgba(255,247,248,.95)":"rgba(46,14,31,.6)";
+  const cardBg=t.card;
   const Card=({children,style={}})=><div style={{background:cardBg,border:`1px solid ${t.border}`,borderRadius:18,padding:"22px 24px",...style}}>{children}</div>;
   const Label=({children})=><div style={{fontSize:11,color:t.muted,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>{children}</div>;
   const Row=({label,children})=><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 0",borderBottom:`1px solid ${t.border}`}}><span style={{fontSize:14,color:t.txt}}>{label}</span>{children}</div>;
-  const Toggle=({on,onChange})=><div role="switch" aria-checked={on} tabIndex={0} className="kb-focusable" onClick={onChange} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onChange();}}} style={{width:46,height:26,borderRadius:13,background:on?"linear-gradient(135deg,#8B3A57,#B55C79)":"rgba(181,92,121,.2)",cursor:"pointer",position:"relative",transition:"background .3s",flexShrink:0}}><div style={{position:"absolute",top:3,left:on?22:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.3)"}}/></div>;
+  const Toggle=({on,onChange})=><div role="switch" aria-checked={on} tabIndex={0} className="kb-focusable" onClick={onChange} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onChange();}}} style={{width:46,height:26,borderRadius:13,background:on?`linear-gradient(135deg,${t.wine},${t.rose})`:t.border,cursor:"pointer",position:"relative",transition:"background .3s",flexShrink:0}}><div style={{position:"absolute",top:3,left:on?22:3,width:20,height:20,borderRadius:"50%",background:"#fff",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.3)"}}/></div>;
 
   const saveProfile=()=>{
     onUpdateProfile({...user,...profile});
@@ -1085,14 +1091,14 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
       <div style={{marginBottom:24,display:"flex",alignItems:"center",gap:14}}>
         <AuraLogo size={44} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"}/>
         <div>
-          <h1 className="cf" style={{fontSize:30,fontWeight:400,color:t.txt}}>Settings</h1>
+          <h1 className="cf" style={{fontSize:30,fontWeight:600,color:t.txt}}>Settings</h1>
           <p style={{color:t.muted,fontSize:13}}>Manage your account, appearance, and preferences</p>
         </div>
       </div>
 
       <div style={{display:"flex",gap:6,marginBottom:22,flexWrap:"wrap"}}>
         {[["profile","👤 Profile"],["appearance","🌗 Appearance"],["notifications","🔔 Notifications"],["account","🔐 Account"],["about","ℹ️ About"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{padding:"8px 16px",borderRadius:20,border:`1px solid ${tab===id?"#D4879A":t.border}`,background:tab===id?"rgba(181,92,121,.18)":"transparent",color:tab===id?"#D4879A":t.muted,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s"}}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{padding:"8px 16px",borderRadius:20,border:`1px solid ${tab===id?t.soft:t.border}`,background:tab===id?t.card:"transparent",color:tab===id?t.soft:t.muted,cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s"}}>{label}</button>
         ))}
       </div>
 
@@ -1100,7 +1106,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <Card>
             <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
-              <div style={{width:64,height:64,borderRadius:"50%",background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,fontWeight:700,color:"#F5E6EA",border:"2px solid rgba(212,135,154,.3)",flexShrink:0}}>{profile.name?.[0]?.toUpperCase()||"S"}</div>
+              <div style={{width:64,height:64,borderRadius:"50%",background:`linear-gradient(135deg,${t.wine},${t.rose})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,fontWeight:700,color:"#fff",border:`2px solid ${t.border}`,flexShrink:0}}>{profile.name?.[0]?.toUpperCase()||"S"}</div>
               <div><div style={{fontSize:16,fontWeight:600,color:t.txt}}>{profile.name||"Smira User"}</div><div style={{fontSize:12,color:t.muted,marginTop:2}}>{profile.email}</div></div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1108,7 +1114,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
               <div><Label>Email</Label><input className="inp" value={profile.email} type="email" onChange={e=>setProfile(p=>({...p,email:e.target.value}))} style={{color:t.txt}}/></div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                 <div><Label>Age</Label><input className="inp" value={profile.age} type="number" onChange={e=>setProfile(p=>({...p,age:e.target.value}))} style={{color:t.txt}}/></div>
-                <div><Label>Skin Type</Label><select className="sel" value={profile.skinType} onChange={e=>setProfile(p=>({...p,skinType:e.target.value}))} style={{color:t.txt,background:theme==="light"?"rgba(249,238,241,.98)":"rgba(20,8,15,.95)"}}><option>Oily</option><option>Dry</option><option>Combination</option><option>Normal</option><option>Sensitive</option></select></div>
+                <div><Label>Skin Type</Label><select className="sel" value={profile.skinType} onChange={e=>setProfile(p=>({...p,skinType:e.target.value}))} style={{color:t.txt,background:theme==="light"?t.card:t.bg}}><option>Oily</option><option>Dry</option><option>Combination</option><option>Normal</option><option>Sensitive</option></select></div>
               </div>
             </div>
             <button className="btn" onClick={saveProfile} style={{marginTop:18,width:"100%"}}>{saved?"✅ Profile Saved!":"Save Profile"}</button>
@@ -1121,15 +1127,15 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
           <h3 style={{fontSize:16,fontWeight:600,color:t.txt,marginBottom:18}}>Appearance</h3>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {THEME_OPTS.map(opt=>(
-              <div key={opt.id} role="radio" aria-checked={themePref===opt.id} tabIndex={0} className="kb-focusable" onClick={()=>onThemeChange(opt.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onThemeChange(opt.id);}}} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",borderRadius:14,cursor:"pointer",background:themePref===opt.id?"rgba(181,92,121,.14)":"rgba(181,92,121,.04)",border:`1px solid ${themePref===opt.id?"#D4879A":t.border}`,transition:"all .2s"}}>
-                <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${themePref===opt.id?"#D4879A":t.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{themePref===opt.id&&<div style={{width:10,height:10,borderRadius:"50%",background:"#D4879A"}}/>}</div>
+              <div key={opt.id} role="radio" aria-checked={themePref===opt.id} tabIndex={0} className="kb-focusable" onClick={()=>onThemeChange(opt.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onThemeChange(opt.id);}}} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",borderRadius:14,cursor:"pointer",background:themePref===opt.id?t.card:t.card,border:`1px solid ${themePref===opt.id?t.soft:t.border}`,transition:"all .2s"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${themePref===opt.id?t.soft:t.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{themePref===opt.id&&<div style={{width:10,height:10,borderRadius:"50%",background:t.soft}}/>}</div>
                 <span style={{fontSize:20}}>{opt.icon}</span>
                 <span style={{fontSize:15,fontWeight:500,color:t.txt}}>{opt.label}</span>
                 {opt.id==="system"&&<span style={{fontSize:11,color:t.muted,marginLeft:"auto"}}>({getSystemTheme()} detected)</span>}
               </div>
             ))}
           </div>
-          <div style={{marginTop:18,padding:"12px 16px",background:"rgba(181,92,121,.07)",borderRadius:12,fontSize:12,color:t.muted,lineHeight:1.7}}>Theme preference is saved automatically and persists across sessions.</div>
+          <div style={{marginTop:18,padding:"12px 16px",background:t.card,borderRadius:12,fontSize:12,color:t.muted,lineHeight:1.7}}>Theme preference is saved automatically and persists across sessions.</div>
         </Card>
       )}
 
@@ -1149,7 +1155,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <Card>
             <h3 style={{fontSize:15,fontWeight:600,color:t.txt,marginBottom:14}}>Change Password</h3>
-            {pwMsg&&<div style={{background:pwMsg.includes("success")?"rgba(168,230,201,.1)":"rgba(245,163,163,.1)",border:`1px solid ${pwMsg.includes("success")?"rgba(168,230,201,.3)":"rgba(245,163,163,.3)"}`,borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:13,color:pwMsg.includes("success")?"#A8E6C9":"#F5A3A3"}}>{pwMsg}</div>}
+            {pwMsg&&<div style={{background:pwMsg.includes("success")?"rgba(168,230,201,.1)":"rgba(245,163,163,.1)",border:`1px solid ${pwMsg.includes("success")?"rgba(79,168,118,.3)":"rgba(245,163,163,.3)"}`,borderRadius:10,padding:"10px 14px",marginBottom:12,fontSize:13,color:pwMsg.includes("success")?"#4FA876":"#F5A3A3"}}>{pwMsg}</div>}
             <div style={{display:"flex",flexDirection:"column",gap:11}}>
               <input className="inp" placeholder="Current password" type="password" value={pwForm.current} onChange={e=>setPwForm(p=>({...p,current:e.target.value}))} style={{color:t.txt}}/>
               <input className="inp" placeholder="New password" type="password" value={pwForm.next} onChange={e=>setPwForm(p=>({...p,next:e.target.value}))} style={{color:t.txt}}/>
@@ -1187,7 +1193,7 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
               a.href=url;a.download=`smira-data-export-${new Date().toISOString().slice(0,10)}.json`;
               document.body.appendChild(a);a.click();document.body.removeChild(a);
               URL.revokeObjectURL(url);
-            }} style={{width:"100%",padding:"12px",borderRadius:50,border:"1px solid rgba(181,92,121,.3)",background:"transparent",color:"#D4879A",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>Export My Data (JSON)</button>
+            }} style={{width:"100%",padding:"12px",borderRadius:50,border:`1px solid ${t.border}`,background:"transparent",color:t.soft,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"Poppins,sans-serif"}}>Export My Data (JSON)</button>
           </Card>
           {onDeleteAccount&&(
             <Card style={{border:"1px solid rgba(245,163,163,.25)"}}>
@@ -1213,14 +1219,14 @@ const Settings=({user,authUser,themePref,onThemeChange,onLogout,onUpdateProfile,
       {tab==="about"&&(
         <Card style={{textAlign:"center",padding:"40px 30px"}}>
           <div style={{marginBottom:22}}>
-            <LogoBrand size={64} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.txt} showTagline={true}/>
+            <LogoBrand size={64} gold={t.gold} bg={theme==="light"?"#8B3A57":"#1A0B12"} textColor={t.soft} showTagline={true}/>
           </div>
           <p style={{fontSize:14,color:t.muted,lineHeight:1.85,maxWidth:380,margin:"0 auto 24px"}}>AI-powered skincare and emotional wellness designed to help you understand your skin, build healthy habits, and grow your confidence — one day at a time.</p>
           <div style={{display:"flex",gap:9,justifyContent:"center",flexWrap:"wrap",marginBottom:22}}>
-            {["AI Skin Analysis","Confidence Score™","Glow Journal","Skin Forecast","Wellness Coach"].map(f=><span key={f} style={{fontSize:11,color:t.soft,background:"rgba(181,92,121,.1)",border:`1px solid rgba(181,92,121,.2)`,padding:"4px 12px",borderRadius:20}}>{f}</span>)}
+            {["AI Skin Analysis","Confidence Score™","Glow Journal","Skin Forecast","Wellness Coach"].map(f=><span key={f} style={{fontSize:11,color:t.soft,background:t.card,border:`1px solid ${t.border}`,padding:"4px 12px",borderRadius:20}}>{f}</span>)}
           </div>
           <div style={{fontSize:12,color:t.muted,borderTop:`1px solid ${t.border}`,paddingTop:18,lineHeight:1.8}}>
-            <div style={{fontWeight:600,color:t.txt,marginBottom:4}}>Version 4.0</div>
+            <div style={{fontWeight:600,color:t.txt,marginBottom:4}}>Version 5.0</div>
             <div>© 2026 Smira · Not a medical device</div>
             <div style={{marginTop:4}}>Always consult a qualified dermatologist for clinical advice.</div>
           </div>
@@ -1452,18 +1458,18 @@ const SkinScan=({onResult,user,existingScans})=>{
 
   if(analyzing)return(
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"65vh",padding:24}}>
-      <div className="glass" style={{padding:"48px 44px",borderRadius:28,textAlign:"center",maxWidth:380}}>
-        <div style={{width:100,height:120,margin:"0 auto 22px",borderRadius:20,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)"}}><SmiraAvatar state="analysis" portrait size={120}/></div>
+      <div className="glass glow" style={{padding:"48px 44px",borderRadius:28,textAlign:"center",maxWidth:380}}>
+        <div style={{width:100,height:120,margin:"0 auto 22px",borderRadius:20,overflow:"hidden",border:"2px solid var(--border)"}}><SmiraAvatar state="analysis" portrait size={120}/></div>
         <div style={{position:"relative",width:130,height:130,margin:"0 auto 22px"}}>
           <svg width="130" height="130" style={{transform:"rotate(-90deg)"}}>
-            <circle cx="65" cy="65" r="55" fill="none" stroke="rgba(181,92,121,.1)" strokeWidth="6"/>
-            <circle cx="65" cy="65" r="55" fill="none" stroke="#D4879A" strokeWidth="6" strokeDasharray="345" strokeDashoffset={345-(progress/100)*345} strokeLinecap="round" style={{transition:"stroke-dashoffset .4s"}}/>
+            <circle cx="65" cy="65" r="55" fill="none" stroke="var(--border)" strokeWidth="6"/>
+            <circle cx="65" cy="65" r="55" fill="none" stroke="var(--rose)" strokeWidth="6" strokeDasharray="345" strokeDashoffset={345-(progress/100)*345} strokeLinecap="round" style={{transition:"stroke-dashoffset .4s"}}/>
           </svg>
-          <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:28,fontWeight:700,color:"#D4879A"}}>{progress}%</span></div>
+          <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:28,fontWeight:700,color:"var(--soft)"}}>{progress}%</span></div>
         </div>
-        <h3 className="cf" style={{fontSize:22,marginBottom:9,fontWeight:400}}>Reading your skin with care</h3>
-        <p style={{color:"#D4879A",fontSize:13,marginBottom:5}}>{stepTxt}</p>
-        <p style={{color:"#6B4455",fontSize:11}}>Smira AI Vision</p>
+        <h3 className="cf" style={{fontSize:22,marginBottom:9,fontWeight:600,color:"var(--txt)"}}>Reading your skin with care</h3>
+        <p style={{color:"var(--soft)",fontSize:13,marginBottom:5}}>{stepTxt}</p>
+        <p style={{color:"var(--muted)",fontSize:11}}>Smira AI Vision</p>
       </div>
     </div>
   );
@@ -1472,24 +1478,24 @@ const SkinScan=({onResult,user,existingScans})=>{
     <div style={{padding:"28px 22px",maxWidth:680,margin:"0 auto"}}>
       <div style={{marginBottom:22}}>
         <SmiraMsg state="analysis" text="Your skin is unique and beautiful. This analysis helps you understand it better — never judge it. Take a clear, well-lit selfie for the most accurate results." size={44}/>
-        <h1 className="cf" style={{fontSize:32,marginTop:20,marginBottom:5,fontWeight:400}}>Skin Analysis</h1>
-        <p style={{color:"#9A6677",fontSize:13}}>AI-powered · private · compassionate</p>
+        <h1 className="cf" style={{fontSize:32,marginTop:20,marginBottom:5,fontWeight:600,color:"var(--txt)"}}>Skin Analysis</h1>
+        <p style={{color:"var(--muted)",fontSize:13}}>AI-powered · private · compassionate</p>
       </div>
       {err&&<ErrorBox message={err} onRetry={lastImg?()=>doAnalysis(lastImg):null}/>}
-      <div style={{display:"flex",gap:10,alignItems:"flex-start",padding:"12px 16px",background:"rgba(168,230,201,.06)",border:"1px solid rgba(168,230,201,.2)",borderRadius:14,marginBottom:18}}>
-        <Ic n="lock" s={15} c="#A8E6C9"/>
-        <p style={{fontSize:11.5,color:"#9A6677",lineHeight:1.65}}>Your photo is processed securely for this analysis and never shared with third parties or used to train AI models. It belongs entirely to you — you can delete any scan from your history at any time in Settings.</p>
+      <div style={{display:"flex",gap:10,alignItems:"flex-start",padding:"12px 16px",background:"rgba(168,230,201,.08)",border:"1px solid rgba(168,230,201,.28)",borderRadius:14,marginBottom:18}}>
+        <Ic n="lock" s={15} c="#7BC99A"/>
+        <p style={{fontSize:11.5,color:"var(--muted)",lineHeight:1.65}}>Your photo is processed securely for this analysis and never shared with third parties or used to train AI models. It belongs entirely to you — you can delete any scan from your history at any time in Settings.</p>
       </div>
       <div style={{display:"flex",gap:8,marginBottom:20}}>
         {[["upload","Upload Photo","dl"],["camera","Use Camera","scan"]].map(([m,l,icon])=>(
-          <button key={m} onClick={()=>m==="camera"?startCamera():fileRef.current?.click()} style={{flex:1,padding:"12px",borderRadius:14,border:`1px solid ${mode===m?"#D4879A":"rgba(181,92,121,.2)"}`,background:mode===m?"rgba(181,92,121,.15)":"rgba(255,255,255,.02)",color:mode===m?"#D4879A":"#9A6677",cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-            <Ic n={icon} s={14} c={mode===m?"#D4879A":"#9A6677"}/>{l}
+          <button key={m} onClick={()=>m==="camera"?startCamera():fileRef.current?.click()} style={{flex:1,padding:"12px",borderRadius:14,border:`1px solid ${mode===m?"var(--rose)":"var(--border)"}`,background:mode===m?"var(--petal)":"var(--inp-bg)",color:mode===m?"var(--soft)":"var(--muted)",cursor:"pointer",fontSize:13,fontWeight:500,transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+            <Ic n={icon} s={14} c={mode===m?"var(--soft)":"var(--muted)"}/>{l}
           </button>
         ))}
       </div>
       <input ref={fileRef} type="file" accept="image/*" onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{setImg(ev.target.result);setMode("preview");};r.readAsDataURL(f);}} style={{display:"none"}}/>
       {(mode==="upload"||mode==="preview")&&(
-        <div role="button" tabIndex={0} aria-label="Upload a photo" className="kb-focusable" onClick={()=>!img&&fileRef.current?.click()} onKeyDown={e=>{if((e.key==="Enter"||e.key===" ")&&!img){e.preventDefault();fileRef.current?.click();}}} style={{border:`2px dashed ${img?"rgba(181,92,121,.35)":"rgba(181,92,121,.2)"}`,borderRadius:20,padding:"44px 24px",textAlign:"center",cursor:img?"default":"pointer",background:"rgba(181,92,121,.04)",minHeight:200}}>
+        <div role="button" tabIndex={0} aria-label="Upload a photo" className="kb-focusable" onClick={()=>!img&&fileRef.current?.click()} onKeyDown={e=>{if((e.key==="Enter"||e.key===" ")&&!img){e.preventDefault();fileRef.current?.click();}}} style={{border:`2px dashed ${img?"var(--rose)":"var(--border)"}`,borderRadius:20,padding:"44px 24px",textAlign:"center",cursor:img?"default":"pointer",background:"var(--petal)",minHeight:200}}>
           {img?(
             <div>
               <img src={img} alt="preview" style={{maxWidth:"100%",maxHeight:320,borderRadius:16,objectFit:"contain"}}/>
@@ -1501,13 +1507,13 @@ const SkinScan=({onResult,user,existingScans})=>{
           ):(
             <div>
               <div style={{width:60,height:72,margin:"0 auto 16px",borderRadius:14,overflow:"hidden"}}><SmiraAvatar state="analysis" portrait size={72}/></div>
-              <p style={{color:"#9A6677",fontSize:14,lineHeight:1.65}}>Tap to upload a clear, well-lit photo<br/><span style={{fontSize:12,color:"#6B4455"}}>Analyzed privately and never stored permanently</span></p>
+              <p style={{color:"var(--muted)",fontSize:14,lineHeight:1.65}}>Tap to upload a clear, well-lit photo<br/><span style={{fontSize:12,color:"var(--muted)",opacity:.75}}>Analyzed privately and never stored permanently</span></p>
             </div>
           )}
         </div>
       )}
       {mode==="camera"&&(
-        <div style={{borderRadius:20,overflow:"hidden",position:"relative",background:"rgba(181,92,121,.06)"}}>
+        <div style={{borderRadius:20,overflow:"hidden",position:"relative",background:"var(--petal)"}}>
           <video ref={vidRef} style={{width:"100%",borderRadius:20,maxHeight:340,objectFit:"cover",display:"block"}} playsInline autoPlay muted/>
           <div className="scan-anim"/>
           <canvas ref={canRef} style={{display:"none"}}/>
@@ -1519,12 +1525,12 @@ const SkinScan=({onResult,user,existingScans})=>{
       )}
       {existingScans?.length>0&&(
         <div style={{marginTop:28}}>
-          <h3 style={{fontSize:14,fontWeight:600,color:"#9A6677",marginBottom:12}}>Previous Scans</h3>
+          <h3 className="cf" style={{fontSize:14,fontWeight:600,color:"var(--muted)",marginBottom:12}}>Previous Scans</h3>
           <div style={{display:"flex",gap:9,overflowX:"auto",paddingBottom:6}}>
             {existingScans.slice(-5).reverse().map((s,i)=>(
               <div key={i} className="glass" style={{padding:"12px 14px",borderRadius:14,flexShrink:0,textAlign:"center",minWidth:90}}>
-                <div style={{fontSize:20,fontWeight:700,color:"#D4879A",marginBottom:3}}>{s.overallScore}</div>
-                <div style={{fontSize:10,color:"#6B4455"}}>{s.date}</div>
+                <div style={{fontSize:20,fontWeight:700,color:"var(--soft)",marginBottom:3}}>{s.overallScore}</div>
+                <div style={{fontSize:10,color:"var(--muted)"}}>{s.date}</div>
               </div>
             ))}
           </div>
@@ -1536,33 +1542,33 @@ const SkinScan=({onResult,user,existingScans})=>{
 
 const Results=({results,img,user,onNav,scans})=>{
   const [tab,setTab]=useState("overview");
-  const cColors={Low:"#A8E6C9",Moderate:"#F0C4CC",High:"#F5A3A3"};
+  const cColors={Low:"#4FA876",Moderate:"var(--txt)",High:"#F5A3A3"};
   if(!results)return<EmptyState avatarState="analysis" title="No analysis yet" message="Complete your first skin scan to see your personalized results and begin your glow journey." actionLabel="Start Skin Analysis" onAction={()=>onNav("scan")}/>;
   const progress=computeProgress(scans);
   const radar=[{s:"Hydration",v:results.hydrationLevel||62},{s:"Brightness",v:results.brightness||60},{s:"Elasticity",v:results.elasticity||70},{s:"Clarity",v:100-(results.concerns?.find(c=>c.name==="Acne")?.confidence||40)},{s:"Evenness",v:results.overallScore||68}];
   return(
     <div style={{padding:"24px 22px",maxWidth:920,margin:"0 auto"}}>
       {results.emotionalNote&&(
-        <div style={{marginBottom:20,padding:"16px 20px",borderRadius:16,background:"linear-gradient(135deg,rgba(181,92,121,.15),rgba(74,21,48,.2))",border:"1px solid rgba(181,92,121,.25)",display:"flex",gap:12,alignItems:"center"}}>
+        <div style={{marginBottom:20,padding:"16px 20px",borderRadius:16,background:"linear-gradient(135deg,var(--petal),var(--card))",border:"1px solid var(--border)",display:"flex",gap:12,alignItems:"center"}}>
           <SmiraAvatar state="empathy" size={44}/>
-          <p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.75,fontStyle:"italic"}}>{results.emotionalNote}</p>
+          <p style={{fontSize:14,color:"var(--txt)",lineHeight:1.75,fontStyle:"italic"}}>{results.emotionalNote}</p>
         </div>
       )}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:13,marginBottom:20}}>
         <div className="glass glow" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.overallScore||68} size={90} label="Overall"/></div>
         <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.hydrationLevel||62} size={90} label="Hydration" color="#7EC8E3"/></div>
-        <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.elasticity||71} size={90} label="Elasticity" color="#A8E6C9"/></div>
-        <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.brightness||60} size={90} label="Brightness" color="#F0C4CC"/></div>
+        <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.elasticity||71} size={90} label="Elasticity" color="#4FA876"/></div>
+        <div className="glass" style={{padding:"18px 14px",borderRadius:18,textAlign:"center"}}><Ring score={results.brightness||60} size={90} label="Brightness" color="var(--txt)"/></div>
         <div className="glass" style={{padding:"18px 14px",borderRadius:18,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:5}}>
           <div style={{fontSize:28,fontWeight:700,background:"linear-gradient(135deg,var(--wine),var(--rose))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{results.skinAge||"--"}</div>
-          <div style={{fontSize:11,color:"#9A6677"}}>Skin Age</div>
-          <span style={{fontSize:10,color:"#A8E6C9",background:"rgba(168,230,201,.1)",padding:"2px 8px",borderRadius:10}}>Actual: {user?.age||"–"}</span>
+          <div style={{fontSize:11,color:"var(--muted)"}}>Skin Age</div>
+          <span style={{fontSize:10,color:"#4FA876",background:"rgba(168,230,201,.1)",padding:"2px 8px",borderRadius:10}}>Actual: {user?.age||"–"}</span>
         </div>
       </div>
       {results.aiSummary&&(
-        <div style={{marginBottom:18,padding:"18px 20px",borderRadius:16,background:"rgba(181,92,121,.1)",border:"1px solid rgba(181,92,121,.2)",display:"flex",gap:12,alignItems:"flex-start"}}>
+        <div style={{marginBottom:18,padding:"18px 20px",borderRadius:16,background:"var(--petal)",border:"1px solid var(--border)",display:"flex",gap:12,alignItems:"flex-start"}}>
           <SmiraAvatar state="analysis" size={40}/>
-          <div><div style={{fontSize:10,color:"#D4879A",fontWeight:600,marginBottom:5,textTransform:"uppercase",letterSpacing:".06em"}}>Smira's Analysis</div><p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.8}}>{results.aiSummary}</p></div>
+          <div><div style={{fontSize:10,color:"var(--soft)",fontWeight:600,marginBottom:5,textTransform:"uppercase",letterSpacing:".06em"}}>Smira's Analysis</div><p style={{fontSize:14,color:"var(--txt)",lineHeight:1.8}}>{results.aiSummary}</p></div>
         </div>
       )}
       <div style={{display:"flex",gap:5,marginBottom:18,overflowX:"auto",paddingBottom:3}}>
@@ -1573,14 +1579,14 @@ const Results=({results,img,user,onNav,scans})=>{
       {tab==="overview"&&(
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:18}} className="r-col">
           <div className="glass" style={{padding:22,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Skin Radar</h3>
-            <ResponsiveContainer width="100%" height={200}><RadarChart data={radar}><PolarGrid stroke="rgba(181,92,121,.15)"/><PolarAngleAxis dataKey="s" tick={{fill:"#9A6677",fontSize:11}}/><Radar dataKey="v" stroke="#D4879A" fill="rgba(212,135,154,.18)" fillOpacity={0.7}/></RadarChart></ResponsiveContainer>
+            <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Skin Radar</h3>
+            <ResponsiveContainer width="100%" height={200}><RadarChart data={radar}><PolarGrid stroke="var(--petal)"/><PolarAngleAxis dataKey="s" tick={{fill:"var(--muted)",fontSize:11}}/><Radar dataKey="v" stroke="var(--soft)" fill="rgba(212,135,154,.18)" fillOpacity={0.7}/></RadarChart></ResponsiveContainer>
           </div>
           <div className="glass" style={{padding:22,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Score Breakdown</h3>
+            <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Score Breakdown</h3>
             <div style={{display:"flex",flexDirection:"column",gap:13}}>
               {results.concerns?.slice(0,5).map(c=>(
-                <div key={c.name}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"#F0C4CC"}}>{c.name}</span><span style={{fontWeight:600,color:"#D4879A"}}>{c.confidence}/100</span></div><ConfBar pct={c.confidence} color={c.color||"#D4879A"}/></div>
+                <div key={c.name}><div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"var(--txt)"}}>{c.name}</span><span style={{fontWeight:600,color:"var(--soft)"}}>{c.confidence}/100</span></div><ConfBar pct={c.confidence} color={c.color||"var(--soft)"}/></div>
               ))}
             </div>
           </div>
@@ -1591,13 +1597,13 @@ const Results=({results,img,user,onNav,scans})=>{
           {!progress.hasComparison?(
             <div className="glass" style={{padding:"28px 24px",borderRadius:20,textAlign:"center"}}>
               <SmiraAvatar state="analysis" size={48}/>
-              <p style={{fontSize:14,color:"#9A6677",marginTop:14,lineHeight:1.7}}>Complete one more scan to start seeing progress comparisons. Smira tracks every scan so you can see exactly how your skin changes over time.</p>
+              <p style={{fontSize:14,color:"var(--muted)",marginTop:14,lineHeight:1.7}}>Complete one more scan to start seeing progress comparisons. Smira tracks every scan so you can see exactly how your skin changes over time.</p>
             </div>
           ):(
             <>
               <div className="glass" style={{padding:"16px 20px",borderRadius:16,display:"flex",gap:10,alignItems:"center"}}>
                 <SmiraAvatar state="celebration" size={40}/>
-                <p style={{fontSize:13,color:"#F0C4CC",lineHeight:1.6}}>Comparing your <b>{progress.latestDate}</b> scan to your previous one ({progress.scanCount} scans tracked since {progress.firstDate}).</p>
+                <p style={{fontSize:13,color:"var(--txt)",lineHeight:1.6}}>Comparing your <b>{progress.latestDate}</b> scan to your previous one ({progress.scanCount} scans tracked since {progress.firstDate}).</p>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:13}}>
                 {[
@@ -1608,11 +1614,11 @@ const Results=({results,img,user,onNav,scans})=>{
                 ].map(({key,label,unit})=>{
                   const m=progress[key];
                   const up=m.value>0;const flat=m.value===0;
-                  const color=flat?"#9A6677":up?"#A8E6C9":"#F5A3A3";
+                  const color=flat?"var(--muted)":up?"#4FA876":"#F5A3A3";
                   return(
                     <div key={key} className="glass" style={{padding:"16px 14px",borderRadius:16,textAlign:"center"}}>
-                      <div style={{fontSize:11,color:"#9A6677",marginBottom:6}}>{label}</div>
-                      <div style={{fontSize:22,fontWeight:700,color:"#F0C4CC"}}>{m.current}{unit}</div>
+                      <div style={{fontSize:11,color:"var(--muted)",marginBottom:6}}>{label}</div>
+                      <div style={{fontSize:22,fontWeight:700,color:"var(--txt)"}}>{m.current}{unit}</div>
                       <div style={{fontSize:12,fontWeight:600,color,marginTop:4,display:"flex",alignItems:"center",justifyContent:"center",gap:3}}>
                         {!flat&&<span>{up?"↑":"↓"}</span>}{Math.abs(m.value)}{unit} since last scan
                       </div>
@@ -1622,31 +1628,31 @@ const Results=({results,img,user,onNav,scans})=>{
               </div>
               {progress.concernTrend?.length>0&&(
                 <div className="glass" style={{padding:22,borderRadius:20}}>
-                  <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Concern Progress</h3>
+                  <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Concern Progress</h3>
                   <div style={{display:"flex",flexDirection:"column",gap:12}}>
                     {progress.concernTrend.map(c=>(
                       <div key={c.name} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <span style={{fontSize:13,color:"#F0C4CC"}}>{c.name}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:c.prevChange==null?"#9A6677":c.prevChange<0?"#A8E6C9":c.prevChange>0?"#F5A3A3":"#9A6677"}}>
+                        <span style={{fontSize:13,color:"var(--txt)"}}>{c.name}</span>
+                        <span style={{fontSize:12,fontWeight:600,color:c.prevChange==null?"var(--muted)":c.prevChange<0?"#4FA876":c.prevChange>0?"#F5A3A3":"var(--muted)"}}>
                           {c.prevChange==null?"New":c.prevChange===0?"No change":c.prevChange<0?`Improved ${Math.abs(c.prevChange)}%`:`Up ${c.prevChange}%`}
                         </span>
                       </div>
                     ))}
                   </div>
-                  <p style={{fontSize:11,color:"#6B4455",marginTop:12,lineHeight:1.6}}>Lower confidence % generally means the concern is less prominent in your latest scan.</p>
+                  <p style={{fontSize:11,color:"var(--muted)",marginTop:12,lineHeight:1.6}}>Lower confidence % generally means the concern is less prominent in your latest scan.</p>
                 </div>
               )}
               <div className="glass" style={{padding:22,borderRadius:20}}>
                 <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Skin Health Timeline</h3>
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={progress.series}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-                    <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-                    <YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-                    <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--petal)"/>
+                    <XAxis dataKey="date" tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+                    <YAxis tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+                    <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid var(--border)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
                     <Line type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" strokeWidth={2} dot={{r:3}} name="Hydration"/>
-                    <Line type="monotone" dataKey="brightness" stroke="#D4879A" strokeWidth={2} dot={{r:3}} name="Brightness"/>
-                    <Line type="monotone" dataKey="overallScore" stroke="#A8E6C9" strokeWidth={2} dot={{r:3}} name="Overall"/>
+                    <Line type="monotone" dataKey="brightness" stroke="var(--soft)" strokeWidth={2} dot={{r:3}} name="Brightness"/>
+                    <Line type="monotone" dataKey="overallScore" stroke="#4FA876" strokeWidth={2} dot={{r:3}} name="Overall"/>
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -1657,24 +1663,24 @@ const Results=({results,img,user,onNav,scans})=>{
       {tab==="concerns"&&(
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:14}}>
           {results.concerns?.map(c=>(
-            <div key={c.name} className="glass" style={{padding:"18px 20px",borderRadius:16,borderLeft:`3px solid ${c.color||"#D4879A"}`}}>
+            <div key={c.name} className="glass" style={{padding:"18px 20px",borderRadius:16,borderLeft:`3px solid ${c.color||"var(--soft)"}`}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
-                <div><div style={{fontSize:15,fontWeight:600}}>{c.name}</div><span style={{fontSize:12,color:cColors[c.severity]||"#9A6677",fontWeight:500}}>{c.severity} severity</span></div>
-                <div style={{textAlign:"right"}}><div style={{fontSize:18,fontWeight:700,color:c.color||"#D4879A"}}>{c.confidence}%</div><div style={{fontSize:10,color:"#6B4455"}}>AI confidence</div></div>
+                <div><div style={{fontSize:15,fontWeight:600}}>{c.name}</div><span style={{fontSize:12,color:cColors[c.severity]||"var(--muted)",fontWeight:500}}>{c.severity} severity</span></div>
+                <div style={{textAlign:"right"}}><div style={{fontSize:18,fontWeight:700,color:c.color||"var(--soft)"}}>{c.confidence}%</div><div style={{fontSize:10,color:"var(--muted)"}}>AI confidence</div></div>
               </div>
-              <ConfBar pct={c.confidence} color={c.color||"#D4879A"}/>
-              {c.description&&<p style={{fontSize:12,color:"#9A6677",marginTop:10,lineHeight:1.6}}>{c.description}</p>}
+              <ConfBar pct={c.confidence} color={c.color||"var(--soft)"}/>
+              {c.description&&<p style={{fontSize:12,color:"var(--muted)",marginTop:10,lineHeight:1.6}}>{c.description}</p>}
             </div>
           ))}
         </div>
       )}
       {tab==="heatmap"&&(
         <div className="glass" style={{padding:24,borderRadius:20}}>
-          <h3 style={{fontSize:15,fontWeight:600,marginBottom:6}}>Concern Zone Map</h3>
-          <p style={{fontSize:13,color:"#9A6677",marginBottom:18}}>Areas where Smira AI detected skin concerns. All zones are manageable — none define your beauty.</p>
+          <h3 className="cf" style={{fontSize:16,fontWeight:600,marginBottom:6,color:"var(--txt)"}}>Concern Zone Map</h3>
+          <p style={{fontSize:13,color:"var(--muted)",marginBottom:18}}>Areas where Smira AI detected skin concerns. All zones are manageable — none define your beauty.</p>
           <div style={{position:"relative",maxWidth:360,margin:"0 auto"}}>
             {img?<img src={img} alt="face" style={{width:"100%",borderRadius:14,objectFit:"cover",maxHeight:360}}/>
-              :<div style={{width:"100%",paddingBottom:"100%",borderRadius:14,background:"rgba(181,92,121,.08)",position:"relative"}}><div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#4A1530",fontSize:14}}>Upload photo to see heat map</span></div></div>}
+              :<div style={{width:"100%",paddingBottom:"100%",borderRadius:14,background:"var(--petal)",position:"relative"}}><div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"var(--muted)",fontSize:14}}>Upload photo to see heat map</span></div></div>}
             {results.heatZones?.map((z,i)=>(
               <div key={i} className="concern-zone" style={{left:`${z.x}%`,top:`${z.y}%`,width:z.intensity==="High"?48:z.intensity==="Medium"?36:26,height:z.intensity==="High"?48:z.intensity==="Medium"?36:26,borderColor:z.color,background:`${z.color}22`,transform:"translate(-50%,-50%)"}}>
                 <div style={{position:"absolute",bottom:"100%",left:"50%",transform:"translateX(-50%)",whiteSpace:"nowrap",background:"rgba(26,11,18,.92)",border:`1px solid ${z.color}40`,padding:"2px 7px",borderRadius:6,fontSize:10,color:z.color,fontWeight:600,marginBottom:4}}>{z.label}</div>
@@ -1688,20 +1694,20 @@ const Results=({results,img,user,onNav,scans})=>{
           <div className="glass" style={{padding:"22px 24px",borderRadius:20}}>
             <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:14}}>
               <SmiraAvatar state="analysis" size={48}/>
-              <div><h3 style={{fontSize:16,fontWeight:600}}>30-Day Skin Forecast</h3><p style={{fontSize:12,color:"#9A6677",marginTop:2}}>Based on your current routine and habits</p></div>
+              <div><h3 className="cf" style={{fontSize:17,fontWeight:600,color:"var(--txt)"}}>30-Day Skin Forecast</h3><p style={{fontSize:12,color:"var(--muted)",marginTop:2}}>Based on your current routine and habits</p></div>
             </div>
             {results.forecast?(
               <div style={{display:"flex",flexDirection:"column",gap:12}}>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-                  <div style={{background:"rgba(181,92,121,.1)",borderRadius:12,padding:14}}><div style={{fontSize:11,color:"#9A6677",marginBottom:4}}>Hydration (projected)</div><div style={{fontSize:22,fontWeight:700,color:"#7EC8E3"}}>+{results.forecast.hydration30days||12}%</div></div>
-                  <div style={{background:"rgba(181,92,121,.1)",borderRadius:12,padding:14}}><div style={{fontSize:11,color:"#9A6677",marginBottom:4}}>Brightness trend</div><div style={{fontSize:14,fontWeight:600,color:"#F0C4CC"}}>{results.forecast.brightnessChange||"Improving"}</div></div>
+                  <div style={{background:"var(--petal)",borderRadius:12,padding:14}}><div style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>Hydration (projected)</div><div style={{fontSize:22,fontWeight:700,color:"#7EC8E3"}}>+{results.forecast.hydration30days||12}%</div></div>
+                  <div style={{background:"var(--petal)",borderRadius:12,padding:14}}><div style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>Brightness trend</div><div style={{fontSize:14,fontWeight:600,color:"var(--txt)"}}>{results.forecast.brightnessChange||"Improving"}</div></div>
                 </div>
                 <div style={{background:"rgba(168,230,201,.08)",border:"1px solid rgba(168,230,201,.2)",borderRadius:12,padding:"13px 16px"}}>
-                  <div style={{fontSize:11,color:"#A8E6C9",fontWeight:600,marginBottom:4}}>AI Recommendation</div>
-                  <p style={{fontSize:13,color:"#F0C4CC",lineHeight:1.7}}>{results.forecast.recommendation||"Maintain your current routine consistency. Small, daily actions lead to visible improvements within 4–6 weeks."}</p>
+                  <div style={{fontSize:11,color:"#4FA876",fontWeight:600,marginBottom:4}}>AI Recommendation</div>
+                  <p style={{fontSize:13,color:"var(--txt)",lineHeight:1.7}}>{results.forecast.recommendation||"Maintain your current routine consistency. Small, daily actions lead to visible improvements within 4–6 weeks."}</p>
                 </div>
               </div>
-            ):<p style={{color:"#9A6677",fontSize:14}}>Forecast data will be available from your scan results.</p>}
+            ):<p style={{color:"var(--muted)",fontSize:14}}>Forecast data will be available from your scan results.</p>}
           </div>
         </div>
       )}
@@ -1714,10 +1720,10 @@ const Results=({results,img,user,onNav,scans})=>{
             <div key={t.food} className="glass" style={{padding:"18px 20px",borderRadius:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
                 <div style={{fontSize:14,fontWeight:600}}>{t.food}</div>
-                <div style={{fontSize:16,fontWeight:700,color:"#D4879A"}}>{t.correlation}%</div>
+                <div style={{fontSize:16,fontWeight:700,color:"var(--soft)"}}>{t.correlation}%</div>
               </div>
-              <ConfBar pct={t.correlation} color="#D4879A"/>
-              <p style={{fontSize:12,color:"#9A6677",marginTop:10,lineHeight:1.6}}>{t.insight}</p>
+              <ConfBar pct={t.correlation} color="var(--soft)"/>
+              <p style={{fontSize:12,color:"var(--muted)",marginTop:10,lineHeight:1.6}}>{t.insight}</p>
             </div>
           ))}
         </div>
@@ -1726,21 +1732,21 @@ const Results=({results,img,user,onNav,scans})=>{
         <div>
           {results.recommendations?.length>0&&(
             <div style={{marginBottom:22}}>
-              <h3 style={{fontSize:15,fontWeight:600,marginBottom:6,color:"#F0C4CC"}}>Personalized For You</h3>
-              <p style={{fontSize:12,color:"#9A6677",marginBottom:14}}>Based on your profile, concerns, and this scan — not a generic list.</p>
+              <h3 style={{fontSize:15,fontWeight:600,marginBottom:6,color:"var(--txt)"}}>Personalized For You</h3>
+              <p style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>Based on your profile, concerns, and this scan — not a generic list.</p>
               <div style={{display:"flex",flexDirection:"column",gap:12}}>
                 {results.recommendations.map((r,i)=>(
-                  <div key={i} className="glass" style={{padding:"18px 20px",borderRadius:16,borderLeft:"3px solid #D4879A"}}>
+                  <div key={i} className="glass" style={{padding:"18px 20px",borderRadius:16,borderLeft:"3px solid var(--soft)"}}>
                     <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-                      <div style={{width:26,height:26,borderRadius:7,background:"rgba(181,92,121,.18)",display:"flex",alignItems:"center",justifyContent:"center",color:"#D4879A",fontSize:12,fontWeight:700,flexShrink:0,marginTop:1}}>{i+1}</div>
+                      <div style={{width:26,height:26,borderRadius:7,background:"var(--petal)",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--soft)",fontSize:12,fontWeight:700,flexShrink:0,marginTop:1}}>{i+1}</div>
                       <div style={{flex:1}}>
-                        <div style={{fontSize:14,fontWeight:600,color:"#F0C4CC",marginBottom:6}}>{r.action}</div>
-                        {r.reason&&<p style={{fontSize:12,color:"#9A6677",lineHeight:1.65,marginBottom:8}}>{r.reason}</p>}
+                        <div style={{fontSize:14,fontWeight:600,color:"var(--txt)",marginBottom:6}}>{r.action}</div>
+                        {r.reason&&<p style={{fontSize:12,color:"var(--muted)",lineHeight:1.65,marginBottom:8}}>{r.reason}</p>}
                         <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                          {r.targetConcern&&<span style={{fontSize:10,color:"#D4879A",background:"rgba(181,92,121,.1)",padding:"3px 9px",borderRadius:20}}>Targets: {r.targetConcern}</span>}
-                          {r.timeframe&&<span style={{fontSize:10,color:"#A8E6C9",background:"rgba(168,230,201,.08)",padding:"3px 9px",borderRadius:20}}>⏱ {r.timeframe}</span>}
+                          {r.targetConcern&&<span style={{fontSize:10,color:"var(--soft)",background:"var(--petal)",padding:"3px 9px",borderRadius:20}}>Targets: {r.targetConcern}</span>}
+                          {r.timeframe&&<span style={{fontSize:10,color:"#4FA876",background:"rgba(168,230,201,.08)",padding:"3px 9px",borderRadius:20}}>⏱ {r.timeframe}</span>}
                         </div>
-                        {r.expectedImprovement&&<p style={{fontSize:11,color:"#6B4455",marginTop:8,fontStyle:"italic"}}>Expected: {r.expectedImprovement}</p>}
+                        {r.expectedImprovement&&<p style={{fontSize:11,color:"var(--muted)",marginTop:8,fontStyle:"italic"}}>Expected: {r.expectedImprovement}</p>}
                       </div>
                     </div>
                   </div>
@@ -1753,8 +1759,8 @@ const Results=({results,img,user,onNav,scans})=>{
               <h3 style={{fontSize:15,fontWeight:600,marginBottom:14}}>{title}</h3>
               {items.map((item,i)=>(
                 <div key={i} className="check-row">
-                  <div style={{width:26,height:26,borderRadius:7,background:"rgba(181,92,121,.18)",display:"flex",alignItems:"center",justifyContent:"center",color:"#D4879A",fontSize:12,fontWeight:700,flexShrink:0}}>{i+1}</div>
-                  <span style={{fontSize:13,color:"#F0C4CC"}}>{item}</span>
+                  <div style={{width:26,height:26,borderRadius:7,background:"var(--petal)",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--soft)",fontSize:12,fontWeight:700,flexShrink:0}}>{i+1}</div>
+                  <span style={{fontSize:13,color:"var(--txt)"}}>{item}</span>
                 </div>
               ))}
             </div>
@@ -1786,125 +1792,142 @@ const Dashboard=({user,results,onNav,scans})=>{
   useEffect(()=>{if(welcomeBack)setTimeout(()=>LS.set("just_logged_in",false),4000);},[welcomeBack]);
   const latestScan=scans?.[scans.length-1];
   return(
-    <div style={{padding:"24px 22px",maxWidth:1000,margin:"0 auto"}}>
-      {/* HERO — Smira Companion */}
-      <div className="glass glow" style={{padding:"26px 28px",borderRadius:24,marginBottom:22,background:"linear-gradient(135deg,rgba(139,58,87,.28),rgba(46,14,31,.8))",border:"1px solid rgba(212,135,154,.25)",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",top:-30,right:-10,width:180,height:220,opacity:.1,borderRadius:20,overflow:"hidden",pointerEvents:"none"}}>
-          <SmiraAvatar state={avState} portrait size={220}/>
-        </div>
-        <div style={{display:"flex",gap:16,alignItems:"flex-start",position:"relative",zIndex:1}}>
-          <div style={{width:68,height:80,borderRadius:16,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",flexShrink:0}}>
-            <SmiraAvatar state={avState} portrait size={80}/>
+    <div style={{padding:"22px 22px 40px",maxWidth:1240,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 300px",gap:20}} className="dash-grid">
+      <div style={{minWidth:0}}>
+        {/* Header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20,flexWrap:"wrap",gap:12}}>
+          <div>
+            <h1 className="cf" style={{fontSize:26,fontWeight:600,color:"var(--txt)"}}>{greeting}, {user?.name?.split(" ")[0]||"Beautiful"} <span style={{color:"var(--gold)"}}>✦</span></h1>
+            <p style={{fontSize:13,color:"var(--muted)",marginTop:5}}>{dailyMsg}</p>
           </div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:11,color:"#9A6677",marginBottom:4,textTransform:"uppercase",letterSpacing:".08em",fontWeight:600}}>{greeting}, {user?.name?.split(" ")[0]||"Beautiful"}</div>
-            <p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.75,fontStyle:"italic",marginBottom:12}}>"{dailyMsg}"</p>
-            <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-              {streak===0?(
-                <span style={{fontSize:12,color:"#9A6677",background:"rgba(181,92,121,.12)",border:"1px solid rgba(181,92,121,.25)",borderRadius:20,padding:"5px 12px",cursor:"pointer"}} onClick={()=>{recordActivity("checkin");window.location.reload();}}>Complete today's check-in to begin your streak</span>
-              ):(
-                <span className="streak-badge">{streak===1?"Day 1 — Your journey begins!":`${streak}-day streak`}</span>
-              )}
-              <span style={{fontSize:11,color:"#6B4455"}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</span>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button className="btn-o" onClick={()=>onNav("scan")} style={{display:"flex",alignItems:"center",gap:7,fontSize:12.5}}><Ic n="camera" s={14} c="var(--soft)"/>Quick Scan</button>
+            <button className="btn-o" aria-label="Notifications" style={{padding:10,borderRadius:"50%"}}><Ic n="bell" s={15} c="var(--soft)"/></button>
+            <button className="btn-o hide-mobile" aria-label="Calendar" style={{padding:10,borderRadius:"50%"}}><Ic n="calendar" s={15} c="var(--soft)"/></button>
+          </div>
+        </div>
+
+        {/* Metric cards */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12,marginBottom:20}}>
+          {[
+            {label:"Confidence",value:confScore,unit:"/100",sub:cl,color:cc,page:"confidence"},
+            {label:"Streak",value:streak,unit:streak===1?"day":streak>1?"days":"",sub:streak===0?"Start today!":"Keep it up!",color:"var(--gold)",page:null},
+            {label:"Water",value:water,unit:"/8",sub:"Glasses today",color:"#7EC8E3",page:null},
+            {label:"Skin Score",value:latestScan?.overallScore||"—",unit:latestScan?"":"scan",sub:latestScan?"Healthy":"No scan yet",color:"var(--soft)",page:"scan"},
+            {label:"Habits",value:`${done}/${habits.length}`,unit:"",sub:"Completed today",color:"#A8D9A8",page:null},
+          ].map(card=>(
+            <div key={card.label} className="glass kb-focusable" role={card.page?"button":undefined} tabIndex={card.page?0:undefined} style={{padding:"16px 14px",borderRadius:20,cursor:card.page?"pointer":"default",transition:"transform .2s"}} onClick={()=>card.page&&onNav(card.page)} onKeyDown={e=>{if(card.page&&(e.key==="Enter"||e.key===" ")){e.preventDefault();onNav(card.page);}}} onMouseEnter={e=>card.page&&(e.currentTarget.style.transform="translateY(-2px)")} onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
+              <div style={{fontSize:11,color:"var(--muted)",marginBottom:5}}>{card.label}</div>
+              <div style={{fontSize:22,fontWeight:700,color:card.color,lineHeight:1}}>{card.value}<span style={{fontSize:12,color:"var(--muted)",fontWeight:400}}>{card.unit}</span></div>
+              <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{card.sub}</div>
             </div>
-          </div>
+          ))}
         </div>
-      </div>
 
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))",gap:14,marginBottom:22}}>
-        {[
-          {label:"Confidence",value:confScore,unit:"/100",sub:cl,color:cc,page:"confidence"},
-          {label:"Skin Score",value:latestScan?.overallScore||"—",unit:latestScan?"":"scan",sub:latestScan?"Last scan":"No scan yet",color:"#D4879A",page:"scan"},
-          {label:"Streak",value:streak,unit:streak===1?"day":streak>1?"days":"",sub:streak===0?"Start today!":"Keep it up!",color:"#F5D5A3",page:null},
-          {label:"Habits",value:`${done}/${habits.length}`,unit:"",sub:"Completed today",color:"#A8E6C9",page:null},
-          {label:"Water",value:water,unit:"/8",sub:"Glasses today",color:"#7EC8E3",page:null},
-        ].map(card=>(
-          <div key={card.label} className="glass kb-focusable" role={card.page?"button":undefined} tabIndex={card.page?0:undefined} style={{padding:"16px 14px",borderRadius:18,cursor:card.page?"pointer":"default",transition:"transform .2s"}} onClick={()=>card.page&&onNav(card.page)} onKeyDown={e=>{if(card.page&&(e.key==="Enter"||e.key===" ")){e.preventDefault();onNav(card.page);}}} onMouseEnter={e=>card.page&&(e.currentTarget.style.transform="translateY(-2px)")} onMouseLeave={e=>(e.currentTarget.style.transform="translateY(0)")}>
-            <div style={{fontSize:11,color:"#9A6677",marginBottom:5}}>{card.label}</div>
-            <div style={{fontSize:22,fontWeight:700,color:card.color,lineHeight:1}}>{card.value}<span style={{fontSize:12,color:"#6B4455",fontWeight:400}}>{card.unit}</span></div>
-            <div style={{fontSize:11,color:"#6B4455",marginTop:4}}>{card.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}} className="r-col">
-        {/* Habits */}
-        <div className="glass" style={{padding:22,borderRadius:20}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <h3 style={{fontSize:15,fontWeight:600}}>Today's Habits</h3>
-            <SmiraAvatar state="coach" size={28}/>
-          </div>
-          {habits.map(habit=>(
-            <div key={habit.id} className="check-row kb-focusable" role="checkbox" aria-checked={habit.done} tabIndex={0} style={{cursor:"pointer"}} onClick={()=>toggleHabit(habit.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleHabit(habit.id);}}}>
-              <div style={{width:22,height:22,borderRadius:6,background:habit.done?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",border:`1px solid ${habit.done?"transparent":"rgba(181,92,121,.25)"}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                {habit.done&&<Ic n="ok" s={11} c="#fff"/>}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}} className="r-col">
+          {/* Today's Plan (habits) */}
+          <div className="glass" style={{padding:22,borderRadius:24}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+              <h3 className="cf" style={{fontSize:16,fontWeight:600,color:"var(--txt)"}}>Today's Plan</h3>
+              <SmiraAvatar state="coach" size={28}/>
+            </div>
+            {habits.map(habit=>(
+              <div key={habit.id} className="check-row kb-focusable" role="checkbox" aria-checked={habit.done} tabIndex={0} style={{cursor:"pointer"}} onClick={()=>toggleHabit(habit.id)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleHabit(habit.id);}}}>
+                <div style={{width:22,height:22,borderRadius:7,background:habit.done?"linear-gradient(135deg,var(--wine),var(--rose))":"var(--inp-bg)",border:`1px solid ${habit.done?"transparent":"var(--border)"}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
+                  {habit.done&&<Ic n="ok" s={11} c="#fff"/>}
+                </div>
+                <span style={{fontSize:13,color:habit.done?"var(--muted)":"var(--txt)",textDecoration:habit.done?"line-through":"none",transition:"all .2s"}}>{habit.label}</span>
               </div>
-              <span style={{fontSize:13,color:habit.done?"#9A6677":"#F0C4CC",textDecoration:habit.done?"line-through":"none",transition:"all .2s"}}>{habit.label}</span>
+            ))}
+            <div style={{marginTop:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--muted)",marginBottom:5}}><span>{done} of {habits.length} complete</span><span style={{color:done===habits.length?"#7BC99A":"var(--soft)",fontWeight:600}}>{done===habits.length?"All done!":Math.round((done/habits.length)*100)+"%"}</span></div>
+              <ConfBar pct={(done/habits.length)*100} color={done===habits.length?"#7BC99A":"var(--rose)"}/>
             </div>
-          ))}
-          <div style={{marginTop:14}}>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9A6677",marginBottom:5}}><span>{done} of {habits.length} complete</span><span style={{color:done===habits.length?"#A8E6C9":"#D4879A",fontWeight:600}}>{done===habits.length?"All done!":Math.round((done/habits.length)*100)+"%"}</span></div>
-            <ConfBar pct={(done/habits.length)*100} color={done===habits.length?"#A8E6C9":"#D4879A"}/>
+          </div>
+
+          {/* AI Insight + Quick Actions */}
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div className="glass" style={{padding:20,borderRadius:24}}>
+              <h4 className="cf" style={{fontSize:14,fontWeight:600,marginBottom:10,color:"var(--txt)",display:"flex",alignItems:"center",gap:7}}><Ic n="spark" s={14} c="var(--gold)"/>AI Insight for You</h4>
+              <p style={{fontSize:12.5,color:"var(--muted)",lineHeight:1.65,background:"var(--petal)",borderRadius:12,padding:"10px 13px",border:"1px solid var(--border)"}}>{dailyMsg}</p>
+            </div>
+            <div className="glass" style={{padding:20,borderRadius:24,display:"flex",gap:14,alignItems:"center"}}>
+              <Ring score={confScore} size={78} color={cc}/>
+              <div>
+                <div style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>Confidence Score</div>
+                <div style={{fontSize:16,fontWeight:700,color:cc,lineHeight:1.2}}>{cl}</div>
+                <button onClick={()=>onNav("confidence")} style={{marginTop:9,fontSize:11,color:"var(--soft)",background:"none",border:"1px solid var(--border)",borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>View Details</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Confidence + Quick Actions */}
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div className="glass" style={{padding:22,borderRadius:20,display:"flex",gap:14,alignItems:"center"}}>
-            <Ring score={confScore} size={90} color={cc}/>
-            <div>
-              <div style={{fontSize:11,color:"#9A6677",marginBottom:4}}>Confidence Score</div>
-              <div style={{fontSize:18,fontWeight:700,color:cc,lineHeight:1.2}}>{cl}</div>
-              <div style={{fontSize:12,color:"#6B4455",marginTop:4}}>Built by self-care, not appearance</div>
-              <button onClick={()=>onNav("confidence")} style={{marginTop:9,fontSize:11,color:"#D4879A",background:"none",border:"1px solid rgba(181,92,121,.25)",borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>View Details</button>
-            </div>
+        {/* Quick Actions */}
+        <div className="glass" style={{padding:18,borderRadius:22,marginBottom:16}}>
+          <h4 className="cf" style={{fontSize:14,fontWeight:600,marginBottom:11,color:"var(--txt)"}}>Quick Actions</h4>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(90px,1fr))",gap:8}}>
+            {[["scan","Skin Scan","analysis"],["journal","Journal","book"],["products","Products","bag"],["story","My Story","star"]].map(([pg,label,icon])=>(
+              <button key={pg} onClick={()=>onNav(pg)} style={{padding:"12px 8px",borderRadius:14,background:"var(--petal)",border:"1px solid var(--border)",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,transition:"all .2s",color:"var(--soft)"}}>
+                <Ic n={icon} s={16} c="var(--soft)"/>
+                <span style={{fontSize:11,fontWeight:500}}>{label}</span>
+              </button>
+            ))}
           </div>
-          <div className="glass" style={{padding:18,borderRadius:20}}>
-            <h4 style={{fontSize:13,fontWeight:600,marginBottom:11}}>Quick Actions</h4>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-              {[["scan","Skin Scan","analysis"],["journal","Journal","book"],["products","Products","bag"],["story","My Story","star"]].map(([pg,label,icon])=>(
-                <button key={pg} onClick={()=>onNav(pg)} style={{padding:"10px 8px",borderRadius:12,background:"rgba(181,92,121,.08)",border:"1px solid rgba(181,92,121,.15)",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5,transition:"all .2s",color:"#D4879A"}} onMouseEnter={e=>e.currentTarget.style.background="rgba(181,92,121,.18)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(181,92,121,.08)"}>
-                  <Ic n={icon} s={16} c="#D4879A"/>
-                  <span style={{fontSize:11,fontWeight:500}}>{label}</span>
-                </button>
-              ))}
-            </div>
+        </div>
+
+        {/* Water Tracker */}
+        <div className="glass" style={{padding:22,borderRadius:24,marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <h3 className="cf" style={{fontSize:16,fontWeight:600,color:"var(--txt)",display:"flex",alignItems:"center",gap:8}}><Ic n="leaf" s={16} c="#7EC8E3"/>Hydration Tracker</h3>
+            <span style={{fontSize:12,color:water>=8?"#7BC99A":water>=6?"var(--gold)":"var(--muted)",fontWeight:600}}>{water}/8 glasses</span>
           </div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            {Array.from({length:8},(_,i)=>(
+              <div key={i} role="button" aria-label={`Set water intake to ${i+1} glasses`} tabIndex={0} className="kb-focusable" onClick={()=>{setWater(i+1);recordActivity("hydration");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i+1);recordActivity("hydration");}}} style={{width:44,height:44,borderRadius:14,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.25)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:18}}>
+                {i<water?"💧":"○"}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <SkinTip/>
+
+        <div className="glass" style={{padding:22,borderRadius:24,marginTop:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <h3 className="cf" style={{fontSize:16,fontWeight:600,color:"var(--txt)"}}>7-Day Trend</h3>
+            <button onClick={()=>onNav("analytics")} style={{fontSize:11,color:"var(--soft)",background:"none",border:"1px solid var(--border)",borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Full Analytics</button>
+          </div>
+          <ResponsiveContainer width="100%" height={150}>
+            <AreaChart data={computeProgress(scans).series.slice(-7)}><defs><linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient></defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/><XAxis dataKey="date" tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:9,color:"var(--txt)",fontSize:11}}/>
+              <Area type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" fill="url(#dg1)" strokeWidth={2} name="Hydration"/>
+              <Line type="monotone" dataKey="overallScore" stroke="#D4879A" strokeWidth={2} dot={false} name="Overall Score"/>
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Water Tracker */}
-      <div className="glass" style={{padding:22,borderRadius:20,marginBottom:18}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <h3 style={{fontSize:15,fontWeight:600,display:"flex",alignItems:"center",gap:8}}><Ic n="leaf" s={16} c="#7EC8E3"/>Hydration Tracker</h3>
-          <span style={{fontSize:12,color:water>=8?"#A8E6C9":water>=6?"#F5D5A3":"#9A6677",fontWeight:600}}>{water}/8 glasses</span>
+      {/* Right rail — companion + extras (desktop only) */}
+      <div className="hide-mobile" style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div className="glass glow" style={{padding:20,borderRadius:24,position:"relative",overflow:"hidden"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <span className="cf" style={{fontSize:15,fontWeight:600,color:"var(--txt)"}}>Smira</span>
+            <span style={{fontSize:10,color:"var(--muted)"}}>Your AI Companion</span>
+          </div>
+          <div style={{width:"100%",borderRadius:18,overflow:"hidden",marginBottom:12}}><SmiraAvatar state={avState} portrait size={190}/></div>
+          <p style={{fontSize:12.5,color:"var(--muted)",fontStyle:"italic",lineHeight:1.6,marginBottom:12}}>"{dailyMsg}"</p>
+          {streak>0&&<span className="streak-badge" style={{display:"inline-block",marginBottom:12}}>{streak===1?"Day 1 — Your journey begins!":`${streak}-day streak`}</span>}
+          <button className="btn" onClick={()=>onNav("journal")} style={{width:"100%",fontSize:13}}>Chat with Smira →</button>
         </div>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-          {Array.from({length:8},(_,i)=>(
-            <div key={i} role="button" aria-label={`Set water intake to ${i+1} glasses`} tabIndex={0} className="kb-focusable" onClick={()=>{setWater(i+1);recordActivity("hydration");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i+1);recordActivity("hydration");}}} style={{width:44,height:44,borderRadius:12,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:18}}>
-              {i<water?"💧":"○"}
-            </div>
-          ))}
+        <div className="glass" style={{padding:18,borderRadius:22}}>
+          <p style={{fontSize:11,color:"var(--muted)",marginBottom:6}}>Today's Quote</p>
+          <p className="cf" style={{fontSize:14,fontStyle:"italic",color:"var(--soft)",lineHeight:1.5}}>"Your glow is a reflection of how well you cherish yourself." <span style={{color:"var(--rose)"}}>♥</span></p>
         </div>
-      </div>
-
-      {/* Skin Tip */}
-      <SkinTip/>
-
-      {/* Weekly Chart */}
-      <div className="glass" style={{padding:22,borderRadius:20,marginTop:18}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <h3 style={{fontSize:15,fontWeight:600}}>7-Day Trend</h3>
-          <button onClick={()=>onNav("analytics")} style={{fontSize:11,color:"#D4879A",background:"none",border:"1px solid rgba(181,92,121,.25)",borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Full Analytics</button>
+        <div className="glass" style={{padding:18,borderRadius:22}}>
+          <p style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</p>
+          <p style={{fontSize:12,color:"var(--txt)"}}>Small daily habits create beautiful long-term results.</p>
         </div>
-        <ResponsiveContainer width="100%" height={150}>
-          <AreaChart data={computeProgress(scans).series.slice(-7)}><defs><linearGradient id="dg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient></defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-            <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-            <Area type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" fill="url(#dg1)" strokeWidth={2} name="Hydration"/>
-            <Line type="monotone" dataKey="overallScore" stroke="#D4879A" strokeWidth={2} dot={false} name="Overall Score"/>
-          </AreaChart>
-        </ResponsiveContainer>
       </div>
     </div>
   );
@@ -1915,29 +1938,29 @@ const ConfidenceScore=({habits,water,journalEntries,scans,user})=>{
   const cl=confLabel(score),cc=confColor(score);
   return(
     <div style={{padding:"24px 22px",maxWidth:720,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:400}}>Confidence Score</h1>
-      <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>Measuring self-care consistency, not how you look.</p>
-      <div className="glass glow" style={{padding:28,borderRadius:24,marginBottom:20,background:"linear-gradient(135deg,rgba(139,58,87,.25),rgba(46,14,31,.7))",position:"relative",overflow:"hidden"}}>
+      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:600,color:"var(--txt)"}}>Confidence Score</h1>
+      <p style={{color:"var(--muted)",fontSize:13,marginBottom:20}}>Measuring self-care consistency, not how you look.</p>
+      <div className="glass glow" style={{padding:28,borderRadius:24,marginBottom:20,background:"linear-gradient(135deg,var(--petal),var(--card))",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-20,right:-10,width:140,height:170,opacity:.12,borderRadius:20,overflow:"hidden",pointerEvents:"none"}}>
           <SmiraAvatar state={score>=70?"happy":"coach"} portrait size={170}/>
         </div>
         <div style={{display:"flex",gap:18,alignItems:"center",marginBottom:22,position:"relative"}}>
           <SmiraAvatar state={score>=70?"happy":score>=50?"coach":"empathy"} size={60} animate={true}/>
           <div>
-            <div style={{fontSize:11,color:"#9A6677",fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",marginBottom:3}}>Your Confidence Score</div>
-            <div style={{fontSize:44,fontWeight:700,color:cc,lineHeight:1}}>{score}<span style={{fontSize:18,color:"#9A6677",fontWeight:400}}>/100</span></div>
+            <div style={{fontSize:11,color:"var(--muted)",fontWeight:600,textTransform:"uppercase",letterSpacing:".08em",marginBottom:3}}>Your Confidence Score</div>
+            <div style={{fontSize:44,fontWeight:700,color:cc,lineHeight:1}}>{score}<span style={{fontSize:18,color:"var(--muted)",fontWeight:400}}>/100</span></div>
             <div style={{fontSize:15,color:cc,fontWeight:600,marginTop:4}}>{cl}</div>
           </div>
         </div>
         <ConfBar pct={score} color={cc}/>
-        <p style={{fontSize:12,color:"#9A6677",marginTop:12,lineHeight:1.65}}>Built from habit consistency, hydration, journaling, and skin scans — never from your appearance. Every act of self-care counts.</p>
+        <p style={{fontSize:12,color:"var(--muted)",marginTop:12,lineHeight:1.65}}>Built from habit consistency, hydration, journaling, and skin scans — never from your appearance. Every act of self-care counts.</p>
       </div>
       <div style={{marginBottom:18}}><SmiraMsg state={score>=70?"happy":score>=50?"encouragement":"empathy"} text={score>=70?`You are genuinely thriving, ${user?.name?.split(" ")[0]||""}. This score reflects weeks of consistent self-care. Keep going — you're building something beautiful.`:score>=50?"You're making real progress. Every habit completed, every glass of water, every journal entry — it all matters more than you know.":"Every journey begins exactly where you are. You're not behind — you're building momentum. One small act of self-care today changes everything."} size={44}/></div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:13}}>
-        {[["Daily Habits",`${habits?.filter(h=>h.done).length||0}/${habits?.length||6}`,((habits?.filter(h=>h.done).length||0)/(habits?.length||6))*100,"#D4879A"],["Hydration",`${water||0}/8`,((water||0)/8)*100,"#7EC8E3"],["Journal Entries",`${journalEntries?.length||0}`,Math.min((journalEntries?.length||0)*5,100),"#F0C4CC"],["Skin Scans",`${scans?.length||0}`,Math.min((scans?.length||0)*15,100),"#A8E6C9"]].map(([l,v,pct,c])=>(
+        {[["Daily Habits",`${habits?.filter(h=>h.done).length||0}/${habits?.length||6}`,((habits?.filter(h=>h.done).length||0)/(habits?.length||6))*100,"var(--soft)"],["Hydration",`${water||0}/8`,((water||0)/8)*100,"#7EC8E3"],["Journal Entries",`${journalEntries?.length||0}`,Math.min((journalEntries?.length||0)*5,100),"var(--txt)"],["Skin Scans",`${scans?.length||0}`,Math.min((scans?.length||0)*15,100),"#4FA876"]].map(([l,v,pct,c])=>(
           <div key={l} className="glass" style={{padding:"16px",borderRadius:16,textAlign:"center"}}>
             <div style={{fontSize:20,fontWeight:700,color:c,marginBottom:4}}>{v}</div>
-            <div style={{fontSize:11,color:"#6B4455",marginBottom:8}}>{l}</div>
+            <div style={{fontSize:11,color:"var(--muted)",marginBottom:8}}>{l}</div>
             <ConfBar pct={pct} color={c}/>
           </div>
         ))}
@@ -1965,8 +1988,8 @@ const GlowJournal=()=>{
   const avgConf=entries.length?Math.round(entries.reduce((a,e)=>a+e.confidence,0)/entries.length):0;
   return(
     <div style={{padding:"24px 22px",maxWidth:720,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:400}}>Glow Journal</h1>
-      <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>A private space to reflect on your emotional journey and self-care growth.</p>
+      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:600,color:"var(--txt)"}}>Glow Journal</h1>
+      <p style={{color:"var(--muted)",fontSize:13,marginBottom:20}}>A private space to reflect on your emotional journey and self-care growth.</p>
       <div style={{display:"flex",gap:6,marginBottom:20}}>
         {[["write","Write"],["entries","Past Entries"],["insights","Insights"]].map(([t,l])=>(
           <button key={t} className={`tab-btn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
@@ -1976,12 +1999,12 @@ const GlowJournal=()=>{
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div style={{marginBottom:4}}><SmiraMsg state="journal" text={prompt} size={44}/></div>
           <div className="glass" style={{padding:20,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>How are you feeling today?</h3>
+            <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>How are you feeling today?</h3>
             <div style={{display:"flex",gap:9,flexWrap:"wrap"}}>
               {MOODS.map(([emoji,label])=>(
                 <button key={label} className={`mood-btn${form.mood===label?" sel":""}`} onClick={()=>setForm(f=>({...f,mood:label}))}>
                   <span style={{fontSize:22}}>{emoji}</span>
-                  <span style={{fontSize:10,color:form.mood===label?"#F0C4CC":"#9A6677"}}>{label}</span>
+                  <span style={{fontSize:10,color:form.mood===label?"var(--txt)":"var(--muted)"}}>{label}</span>
                 </button>
               ))}
             </div>
@@ -1991,20 +2014,20 @@ const GlowJournal=()=>{
               {[["Confidence level","confidence"],["Energy level","energy"]].map(([label,key])=>(
                 <div key={key}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
-                    <label style={{fontSize:12,color:"#9A6677"}}>{label}</label>
-                    <span style={{fontSize:13,fontWeight:700,color:"#D4879A"}}>{form[key]}/10</span>
+                    <label style={{fontSize:12,color:"var(--muted)"}}>{label}</label>
+                    <span style={{fontSize:13,fontWeight:700,color:"var(--soft)"}}>{form[key]}/10</span>
                   </div>
-                  <input type="range" min={1} max={10} value={form[key]} onChange={e=>setForm(f=>({...f,[key]:Number(e.target.value)}))} style={{width:"100%",accentColor:"#B55C79"}}/>
+                  <input type="range" min={1} max={10} value={form[key]} onChange={e=>setForm(f=>({...f,[key]:Number(e.target.value)}))} style={{width:"100%",accentColor:"var(--rose)"}}/>
                 </div>
               ))}
             </div>
           </div>
           <div className="glass" style={{padding:20,borderRadius:20}}>
-            <label style={{fontSize:12,color:"#9A6677",display:"block",marginBottom:8}}>Today's reflection</label>
+            <label style={{fontSize:12,color:"var(--muted)",display:"block",marginBottom:8}}>Today's reflection</label>
             <textarea className="inp" value={form.note} onChange={e=>setForm(f=>({...f,note:e.target.value}))} placeholder="How did your skin or confidence feel today? What's on your mind?" rows={4} style={{resize:"vertical",lineHeight:1.65}}/>
           </div>
           <div className="glass" style={{padding:20,borderRadius:20}}>
-            <label style={{fontSize:12,color:"#D4879A",display:"block",marginBottom:8}}>Gratitude entry</label>
+            <label style={{fontSize:12,color:"var(--soft)",display:"block",marginBottom:8}}>Gratitude entry</label>
             <input className="inp" value={form.gratitude} onChange={e=>setForm(f=>({...f,gratitude:e.target.value}))} placeholder="One thing you're grateful for about your body or self today..."/>
           </div>
           <button className="btn" onClick={save} style={{width:"100%"}} disabled={!form.mood&&!form.note}>{saved?"Saved!":"Save Entry"}</button>
@@ -2019,16 +2042,16 @@ const GlowJournal=()=>{
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
                   <div style={{display:"flex",gap:9,alignItems:"center"}}>
                     <span style={{fontSize:18}}>{MOODS.find(m=>m[1]===e.mood)?.[0]||"📝"}</span>
-                    <span style={{fontSize:13,fontWeight:600,color:"#F0C4CC"}}>{e.mood||"Reflection"}</span>
+                    <span style={{fontSize:13,fontWeight:600,color:"var(--txt)"}}>{e.mood||"Reflection"}</span>
                   </div>
-                  <span style={{fontSize:11,color:"#6B4455"}}>{e.date}</span>
+                  <span style={{fontSize:11,color:"var(--muted)"}}>{e.date}</span>
                 </div>
                 <div style={{display:"flex",gap:9,marginBottom:e.note?10:0}}>
                   <span className="tag">Confidence {e.confidence}/10</span>
                   <span className="tag">Energy {e.energy}/10</span>
                 </div>
-                {e.note&&<p style={{fontSize:13,color:"#9A6677",lineHeight:1.65}}>{e.note}</p>}
-                {e.gratitude&&<p style={{fontSize:12,color:"#D4879A",marginTop:8,fontStyle:"italic"}}>{e.gratitude}</p>}
+                {e.note&&<p style={{fontSize:13,color:"var(--muted)",lineHeight:1.65}}>{e.note}</p>}
+                {e.gratitude&&<p style={{fontSize:12,color:"var(--soft)",marginTop:8,fontStyle:"italic"}}>{e.gratitude}</p>}
               </div>
             ))}
         </div>
@@ -2039,24 +2062,24 @@ const GlowJournal=()=>{
             ?<EmptyState avatarState="analysis" title="Not enough data yet" message="Write at least 3 journal entries to unlock your emotional insights and confidence trends." actionLabel="Write an Entry" onAction={()=>setTab("write")}/>
             :<>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:4}}>
-                {[["Total Entries",entries.length,"#F0C4CC"],["Avg Confidence",`${avgConf}/10`,"#D4879A"],["Streak Days",calcStreak(),"#A8E6C9"]].map(([l,v,c])=>(
+                {[["Total Entries",entries.length,"var(--txt)"],["Avg Confidence",`${avgConf}/10`,"var(--soft)"],["Streak Days",calcStreak(),"#4FA876"]].map(([l,v,c])=>(
                   <div key={l} className="glass" style={{padding:"16px",borderRadius:16,textAlign:"center"}}>
                     <div style={{fontSize:22,fontWeight:700,color:c,marginBottom:4}}>{v}</div>
-                    <div style={{fontSize:11,color:"#6B4455"}}>{l}</div>
+                    <div style={{fontSize:11,color:"var(--muted)"}}>{l}</div>
                   </div>
                 ))}
               </div>
               <div className="glass" style={{padding:22,borderRadius:20}}>
-                <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Confidence Trend</h3>
+                <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Confidence Trend</h3>
                 <ResponsiveContainer width="100%" height={160}>
                   <AreaChart data={entries.slice(0,14).reverse().map((e,i)=>({day:`D${i+1}`,confidence:e.confidence,energy:e.energy}))}>
-                    <defs><linearGradient id="jg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.28}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-                    <XAxis dataKey="day" tick={{fill:"#9A6677",fontSize:9}} axisLine={false} tickLine={false}/>
-                    <YAxis domain={[0,10]} tick={{fill:"#9A6677",fontSize:9}} axisLine={false} tickLine={false}/>
-                    <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-                    <Area type="monotone" dataKey="confidence" stroke="#D4879A" fill="url(#jg)" strokeWidth={2} name="Confidence"/>
-                    <Line type="monotone" dataKey="energy" stroke="#A8E6C9" strokeWidth={2} dot={false} name="Energy"/>
+                    <defs><linearGradient id="jg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--soft)" stopOpacity={0.28}/><stop offset="95%" stopColor="var(--soft)" stopOpacity={0}/></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+                    <XAxis dataKey="day" tick={{fill:"var(--muted)",fontSize:9}} axisLine={false} tickLine={false}/>
+                    <YAxis domain={[0,10]} tick={{fill:"var(--muted)",fontSize:9}} axisLine={false} tickLine={false}/>
+                    <Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:9,color:"var(--txt)",fontSize:11}}/>
+                    <Area type="monotone" dataKey="confidence" stroke="var(--soft)" fill="url(#jg)" strokeWidth={2} name="Confidence"/>
+                    <Line type="monotone" dataKey="energy" stroke="#4FA876" strokeWidth={2} dot={false} name="Energy"/>
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -2082,7 +2105,7 @@ const Products=({results})=>{
   const [search,setSearch]=useState("");
   const skinType=results?.skinType||"Combination";
   const concerns=results?.concerns?.map(c=>c.name)||[];
-  const tierColor={Budget:"#A8E6C9",Mid:"#F5D5A3",Premium:"#D4879A",Luxury:"#F0C4CC"};
+  const tierColor={Budget:"#4FA876",Mid:"#F5D5A3",Premium:"var(--soft)",Luxury:"var(--txt)"};
   const cats=["cleanser","serum","moisturizer","sunscreen","toner"];
   const relevance=(p)=>p.for.reduce((n,x)=>n+(concerns.includes(x)?2:x===skinType?1:0),0);
   const filter=(prods)=>{
@@ -2097,15 +2120,15 @@ const Products=({results})=>{
   const prods=filter(ALL_PRODUCTS[cat]||[]);
   return(
     <div style={{padding:"24px 22px",maxWidth:960,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:400}}>Product Recommendations</h1>
+      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:600,color:"var(--txt)"}}>Product Recommendations</h1>
       <div style={{marginBottom:20}}><SmiraMsg state="coach" text={`These products were curated for your ${skinType} skin. I've included options across every budget — great skin doesn't require expensive products, just the right ones.`} size={44}/></div>
-      {!results&&<div style={{background:"rgba(181,92,121,.1)",border:"1px solid rgba(181,92,121,.2)",borderRadius:14,padding:"12px 16px",marginBottom:18,display:"flex",gap:10,alignItems:"center"}}><Ic n="alert" s={15} c="#D4879A"/><p style={{fontSize:13,color:"#D4879A"}}>Complete a skin analysis to get recommendations tailored to your specific skin type and concerns.</p></div>}
-      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by ingredient or product name..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif",marginBottom:14,boxSizing:"border-box"}}/>
+      {!results&&<div style={{background:"var(--petal)",border:"1px solid var(--border)",borderRadius:14,padding:"12px 16px",marginBottom:18,display:"flex",gap:10,alignItems:"center"}}><Ic n="alert" s={15} c="var(--soft)"/><p style={{fontSize:13,color:"var(--soft)"}}>Complete a skin analysis to get recommendations tailored to your specific skin type and concerns.</p></div>}
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by ingredient or product name..." style={{width:"100%",padding:"10px 14px",borderRadius:12,border:"1px solid var(--border)",background:"var(--inp-bg)",color:"var(--txt)",fontSize:13,fontFamily:"Poppins,sans-serif",marginBottom:14,boxSizing:"border-box"}}/>
       <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
-        {cats.map(c=><button key={c} onClick={()=>setCat(c)} style={{padding:"9px 20px",borderRadius:24,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,textTransform:"capitalize",background:cat===c?"linear-gradient(135deg,#8B3A57,#D4879A)":"rgba(181,92,121,.1)",color:cat===c?"#fff":"#D4879A",transition:"all .2s"}}>{c}</button>)}
+        {cats.map(c=><button key={c} onClick={()=>setCat(c)} style={{padding:"9px 20px",borderRadius:24,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,textTransform:"capitalize",background:cat===c?"linear-gradient(135deg,var(--wine),var(--rose))":"var(--petal)",color:cat===c?"#fff":"var(--soft)",transition:"all .2s"}}>{c}</button>)}
       </div>
       <div style={{display:"flex",gap:6,marginBottom:22,flexWrap:"wrap"}}>
-        {["All","Budget","Mid","Premium","Luxury"].map(b=><button key={b} onClick={()=>setBudget(b)} style={{padding:"6px 14px",borderRadius:20,border:`1px solid ${budget===b?"#D4879A":"rgba(181,92,121,.2)"}`,background:budget===b?"rgba(181,92,121,.18)":"transparent",color:budget===b?"#D4879A":"#9A6677",cursor:"pointer",fontSize:12,fontWeight:500,transition:"all .2s"}}>{b}</button>)}
+        {["All","Budget","Mid","Premium","Luxury"].map(b=><button key={b} onClick={()=>setBudget(b)} style={{padding:"6px 14px",borderRadius:20,border:`1px solid ${budget===b?"var(--soft)":"var(--border)"}`,background:budget===b?"var(--petal)":"transparent",color:budget===b?"var(--soft)":"var(--muted)",cursor:"pointer",fontSize:12,fontWeight:500,transition:"all .2s"}}>{b}</button>)}
       </div>
       {prods.length===0
         ?<EmptyState avatarState="coach" title="No products found" message="Try a different budget filter, search term, or skin category to discover the right products for you." actionLabel="Show All Budgets" onAction={()=>{setBudget("All");setSearch("");}}/>
@@ -2113,20 +2136,20 @@ const Products=({results})=>{
           {prods.map(p=>(
             <div key={p.name} className="glass glow" style={{padding:18,borderRadius:18,display:"flex",flexDirection:"column",gap:11}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div style={{width:44,height:44,borderRadius:12,background:"rgba(181,92,121,.14)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="bag" s={20} c="#D4879A"/></div>
+                <div style={{width:44,height:44,borderRadius:12,background:"var(--petal)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="bag" s={20} c="var(--soft)"/></div>
                 <span style={{background:`${tierColor[p.tier]||"#F5D5A3"}22`,color:tierColor[p.tier],padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600,border:`1px solid ${tierColor[p.tier]||"#F5D5A3"}35`}}>{p.tier}</span>
               </div>
               <div>
-                <div style={{fontSize:14,fontWeight:600}}>{p.name}</div>
-                <div style={{fontSize:12,color:"#9A6677",marginTop:2}}>{p.brand}</div>
+                <div style={{fontSize:14,fontWeight:600,color:"var(--txt)"}}>{p.name}</div>
+                <div style={{fontSize:12,color:"var(--muted)",marginTop:2}}>{p.brand}</div>
               </div>
-              <div style={{fontSize:11,color:"#6B4455"}}>Suitable for: {p.for.join(", ")}</div>
+              <div style={{fontSize:11,color:"var(--muted)"}}>Suitable for: {p.for.join(", ")}</div>
               <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>{p.ing.map(i=><span key={i} className="tag" style={{fontSize:10}}>{i}</span>)}</div>
-              {p.why&&<div style={{padding:"9px 12px",background:"rgba(181,92,121,.08)",borderRadius:10,border:"1px solid rgba(181,92,121,.15)"}}><p style={{fontSize:12,color:"#D4879A",lineHeight:1.6,fontStyle:"italic"}}>{p.why}</p></div>}
-              <p style={{fontSize:12,color:"#F0C4CC",lineHeight:1.6}}>{p.benefit}</p>
-              {USAGE_BY_CATEGORY[cat]&&<p style={{fontSize:11,color:"#9A6677",lineHeight:1.55}}><b style={{color:"#7EC8E3"}}>How to use: </b>{USAGE_BY_CATEGORY[cat]}</p>}
+              {p.why&&<div style={{padding:"9px 12px",background:"var(--petal)",borderRadius:10,border:"1px solid var(--petal)"}}><p style={{fontSize:12,color:"var(--soft)",lineHeight:1.6,fontStyle:"italic"}}>{p.why}</p></div>}
+              <p style={{fontSize:12,color:"var(--txt)",lineHeight:1.6}}>{p.benefit}</p>
+              {USAGE_BY_CATEGORY[cat]&&<p style={{fontSize:11,color:"var(--muted)",lineHeight:1.55}}><b style={{color:"#7EC8E3"}}>How to use: </b>{USAGE_BY_CATEGORY[cat]}</p>}
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:"auto"}}>
-                <span style={{fontSize:18,fontWeight:700,color:"#D4879A"}}>{p.price}</span>
+                <span style={{fontSize:18,fontWeight:700,color:"var(--soft)"}}>{p.price}</span>
                 <div style={{display:"flex",gap:3,alignItems:"center"}}><Ic n="star" s={12} c="#F5D5A3"/><span style={{fontSize:12,fontWeight:600,color:"#F5D5A3"}}>{p.rating}</span></div>
               </div>
             </div>
@@ -2157,10 +2180,10 @@ const Nutrition=({user,results})=>{
 
   return(
     <div style={{padding:"24px 22px",maxWidth:820,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:400}}>Nutrition & Hydration</h1>
+      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:600,color:"var(--txt)"}}>Nutrition & Hydration</h1>
       <div style={{marginBottom:20}}><SmiraMsg state="morning" text="What you eat today shows on your face in 24–72 hours. Food is your skin's most powerful foundation. Let's make choices that nourish you from the inside out." size={44}/></div>
       <div className="glass" style={{padding:22,borderRadius:20,marginBottom:20}}>
-        <h3 style={{fontSize:14,fontWeight:600,marginBottom:14,display:"flex",alignItems:"center",gap:8}}><Ic n="leaf" s={16} c="#7EC8E3"/>Water Intake</h3>
+        <h3 className="cf" style={{fontSize:14,fontWeight:600,marginBottom:14,display:"flex",alignItems:"center",gap:8}}><Ic n="leaf" s={16} c="#7EC8E3"/>Water Intake</h3>
         <div style={{display:"flex",flexWrap:"wrap",gap:9,marginBottom:12}}>
           {Array.from({length:8},(_,i)=>(
             <div key={i} role="button" aria-label={`Set water intake to ${i+1} glasses`} tabIndex={0} className="kb-focusable" onClick={()=>{setWater(i+1);recordActivity("hydration");}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setWater(i+1);recordActivity("hydration");}}} style={{width:46,height:46,borderRadius:13,background:i<water?"linear-gradient(135deg,#7EC8E3,#4AAFCC)":"rgba(126,200,227,.1)",border:`1px solid ${i<water?"#7EC8E3":"rgba(126,200,227,.2)"}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .2s",fontSize:20}}>
@@ -2168,35 +2191,35 @@ const Nutrition=({user,results})=>{
             </div>
           ))}
         </div>
-        <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#9A6677"}}>
+        <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--muted)"}}>
           <span>{water} of 8 glasses today</span>
-          <span style={{color:water>=8?"#A8E6C9":water>=6?"#F5D5A3":"#F5A3A3",fontWeight:600}}>{water>=8?"Goal reached!":water>=6?"Almost there!":"Keep drinking!"}</span>
+          <span style={{color:water>=8?"#4FA876":water>=6?"#F5D5A3":"#F5A3A3",fontWeight:600}}>{water>=8?"Goal reached!":water>=6?"Almost there!":"Keep drinking!"}</span>
         </div>
       </div>
 
       <div className="glass" style={{padding:22,borderRadius:20,marginBottom:20}}>
-        <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Your Personalized Diet Plan</h3>
+        <h3 className="cf" style={{fontSize:14,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Your Personalized Diet Plan</h3>
         <div style={{display:"flex",gap:16,marginBottom:16,flexWrap:"wrap"}}>
           <div style={{flex:1,minWidth:150}}>
-            <div style={{fontSize:11,color:"#9A6677",marginBottom:6}}>Diet Type</div>
+            <div style={{fontSize:11,color:"var(--muted)",marginBottom:6}}>Diet Type</div>
             <div style={{display:"flex",gap:6}}>
               {["Vegetarian","Non-Vegetarian"].map(d=>(
-                <button key={d} onClick={()=>setDietType(d)} style={{flex:1,padding:"8px 10px",borderRadius:10,border:`1px solid ${dietType===d?"#D4879A":"rgba(181,92,121,.2)"}`,background:dietType===d?"rgba(181,92,121,.15)":"transparent",color:dietType===d?"#D4879A":"#9A6677",fontSize:11,fontWeight:600,cursor:"pointer"}}>{d==="Vegetarian"?"Veg":"Non-Veg"}</button>
+                <button key={d} onClick={()=>setDietType(d)} style={{flex:1,padding:"8px 10px",borderRadius:10,border:`1px solid ${dietType===d?"var(--soft)":"var(--border)"}`,background:dietType===d?"var(--petal)":"transparent",color:dietType===d?"var(--soft)":"var(--muted)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{d==="Vegetarian"?"Veg":"Non-Veg"}</button>
               ))}
             </div>
           </div>
           <div style={{flex:1,minWidth:150}}>
-            <div style={{fontSize:11,color:"#9A6677",marginBottom:6}}>Budget</div>
+            <div style={{fontSize:11,color:"var(--muted)",marginBottom:6}}>Budget</div>
             <div style={{display:"flex",gap:6}}>
               {["Low","Medium","Premium"].map(b=>(
-                <button key={b} onClick={()=>setBudget(b)} style={{flex:1,padding:"8px 6px",borderRadius:10,border:`1px solid ${budget===b?"#D4879A":"rgba(181,92,121,.2)"}`,background:budget===b?"rgba(181,92,121,.15)":"transparent",color:budget===b?"#D4879A":"#9A6677",fontSize:11,fontWeight:600,cursor:"pointer"}}>{b}</button>
+                <button key={b} onClick={()=>setBudget(b)} style={{flex:1,padding:"8px 6px",borderRadius:10,border:`1px solid ${budget===b?"var(--soft)":"var(--border)"}`,background:budget===b?"var(--petal)":"transparent",color:budget===b?"var(--soft)":"var(--muted)",fontSize:11,fontWeight:600,cursor:"pointer"}}>{b}</button>
               ))}
             </div>
           </div>
         </div>
         {err&&<ErrorBox message={err} onRetry={generate}/>}
         <button className="btn" onClick={generate} disabled={loading} style={{width:"100%"}}>{loading?"Creating your plan...":plan?"Regenerate Plan":"Generate My Diet Plan"}</button>
-        {!results&&<p style={{fontSize:11,color:"#6B4455",marginTop:10,textAlign:"center"}}>Tip: complete a skin scan first so this plan can target your actual concerns.</p>}
+        {!results&&<p style={{fontSize:11,color:"var(--muted)",marginTop:10,textAlign:"center"}}>Tip: complete a skin scan first so this plan can target your actual concerns.</p>}
       </div>
       {loading&&(
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:20}} className="r-col">
@@ -2207,17 +2230,17 @@ const Nutrition=({user,results})=>{
       {plan&&(
         <>
           <div className="glass" style={{padding:"18px 20px",borderRadius:16,marginBottom:18}}>
-            <p style={{fontSize:13,color:"#F0C4CC",lineHeight:1.7,fontStyle:"italic"}}>{plan.summary}</p>
+            <p style={{fontSize:13,color:"var(--txt)",lineHeight:1.7,fontStyle:"italic"}}>{plan.summary}</p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:18}} className="r-col">
-            {[["Breakfast",plan.meals?.breakfast,"#F0C4CC"],["Lunch",plan.meals?.lunch,"#D4879A"],["Dinner",plan.meals?.dinner,"#A8E6C9"],["Snacks",plan.meals?.snacks,"#F5D5A3"],["Drinks",plan.meals?.drinks,"#7EC8E3"]].map(([label,items,color])=>items?.length>0&&(
+            {[["Breakfast",plan.meals?.breakfast,"var(--txt)"],["Lunch",plan.meals?.lunch,"var(--soft)"],["Dinner",plan.meals?.dinner,"#4FA876"],["Snacks",plan.meals?.snacks,"#F5D5A3"],["Drinks",plan.meals?.drinks,"#7EC8E3"]].map(([label,items,color])=>items?.length>0&&(
               <div key={label} className="glass" style={{padding:"16px 18px",borderRadius:16,borderLeft:`3px solid ${color}`}}>
                 <div style={{fontSize:11,color,fontWeight:600,marginBottom:10,textTransform:"uppercase",letterSpacing:".06em"}}>{label}</div>
                 <div style={{display:"flex",flexDirection:"column",gap:10}}>
                   {items.map((it,i)=>(
                     <div key={i}>
-                      <div style={{fontSize:13,color:"#F0C4CC",fontWeight:600}}>{it.food}</div>
-                      <div style={{fontSize:11,color:"#9A6677",lineHeight:1.5,marginTop:2}}>{it.reason}</div>
+                      <div style={{fontSize:13,color:"var(--txt)",fontWeight:600}}>{it.food}</div>
+                      <div style={{fontSize:11,color:"var(--muted)",lineHeight:1.5,marginTop:2}}>{it.reason}</div>
                     </div>
                   ))}
                 </div>
@@ -2229,19 +2252,19 @@ const Nutrition=({user,results})=>{
               <h3 style={{fontSize:13,fontWeight:600,marginBottom:12,color:"#F5A3A3"}}>Foods to Limit</h3>
               <div style={{display:"flex",flexDirection:"column",gap:9}}>
                 {plan.avoid.map((a,i)=>(
-                  <div key={i}><span style={{fontSize:13,color:"#F0C4CC",fontWeight:600}}>{a.food}</span><span style={{fontSize:12,color:"#9A6677"}}> — {a.reason}</span></div>
+                  <div key={i}><span style={{fontSize:13,color:"var(--txt)",fontWeight:600}}>{a.food}</span><span style={{fontSize:12,color:"var(--muted)"}}> — {a.reason}</span></div>
                 ))}
               </div>
             </div>
           )}
           {plan.keyNutrients?.length>0&&(
             <div className="glass" style={{padding:20,borderRadius:18,marginBottom:18}}>
-              <h3 style={{fontSize:13,fontWeight:600,marginBottom:12}}>Key Nutrients For You</h3>
+              <h3 className="cf" style={{fontSize:13,fontWeight:600,marginBottom:12,color:"var(--txt)"}}>Key Nutrients For You</h3>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {plan.keyNutrients.map((n,i)=>(
                   <div key={i}>
-                    <div style={{fontSize:13,color:"#D4879A",fontWeight:600}}>{n.nutrient}</div>
-                    <div style={{fontSize:12,color:"#9A6677",lineHeight:1.55}}>{n.why} <span style={{color:"#6B4455"}}>Sources: {n.sources}</span></div>
+                    <div style={{fontSize:13,color:"var(--soft)",fontWeight:600}}>{n.nutrient}</div>
+                    <div style={{fontSize:12,color:"var(--muted)",lineHeight:1.55}}>{n.why} <span style={{color:"var(--muted)"}}>Sources: {n.sources}</span></div>
                   </div>
                 ))}
               </div>
@@ -2252,12 +2275,12 @@ const Nutrition=({user,results})=>{
 
       {results?.triggers?.length>0&&(
         <div className="glass" style={{padding:22,borderRadius:20}}>
-          <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Your Food-Skin Correlations</h3>
+          <h3 className="cf" style={{fontSize:14,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Your Food-Skin Correlations</h3>
           {results.triggers.map(t=>(
             <div key={t.food} style={{marginBottom:12}}>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"#F0C4CC"}}>{t.food}</span><span style={{color:"#D4879A",fontWeight:600}}>{t.correlation}% correlation</span></div>
-              <ConfBar pct={t.correlation} color="#D4879A"/>
-              <p style={{fontSize:12,color:"#9A6677",marginTop:5,lineHeight:1.55}}>{t.insight}</p>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}><span style={{color:"var(--txt)"}}>{t.food}</span><span style={{color:"var(--soft)",fontWeight:600}}>{t.correlation}% correlation</span></div>
+              <ConfBar pct={t.correlation} color="var(--soft)"/>
+              <p style={{fontSize:12,color:"var(--muted)",marginTop:5,lineHeight:1.55}}>{t.insight}</p>
             </div>
           ))}
         </div>
@@ -2290,15 +2313,15 @@ const Challenges=()=>{
   const completedAny=CHALLENGES.some(c=>(progress[c.id]||0)>=c.duration&&joined.includes(c.id));
   return(
     <div style={{padding:"24px 22px",maxWidth:800,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:400}}>Challenges</h1>
+      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:600,color:"var(--txt)"}}>Challenges</h1>
       <div style={{marginBottom:20}}><SmiraMsg state={completedAny?"achievement":"coach"} text={completedAny?"You've completed a challenge — I'm so proud of you. Every milestone you hit is proof of how far you've come.":"Personal challenges to build confidence and healthy habits. These are just for you — no competition, no pressure. Just growth."} size={46}/></div>
       {celebrated&&(
-        <div style={{padding:"22px 26px",background:"linear-gradient(135deg,rgba(168,230,201,.2),rgba(74,21,48,.4))",border:"1px solid rgba(168,230,201,.35)",borderRadius:20,marginBottom:20,display:"flex",gap:14,alignItems:"center"}}>
+        <div style={{padding:"22px 26px",background:"linear-gradient(135deg,rgba(79,168,118,.16),var(--card))",border:"1px solid rgba(79,168,118,.35)",borderRadius:20,marginBottom:20,display:"flex",gap:14,alignItems:"center"}}>
           <div style={{width:80,height:96,borderRadius:16,overflow:"hidden",flexShrink:0}}><SmiraAvatar state="achievement" portrait size={96}/></div>
           <div>
-            <div style={{fontSize:11,color:"#A8E6C9",fontWeight:600,textTransform:"uppercase",letterSpacing:".07em",marginBottom:5}}>Challenge Complete!</div>
-            <h3 className="cf" style={{fontSize:22,fontWeight:400,marginBottom:5}}>You earned: {celebrated.reward}</h3>
-            <p style={{fontSize:13,color:"#F0C4CC",lineHeight:1.65}}>Completing the {celebrated.title} challenge shows real dedication to your wellbeing. I'm genuinely proud of you.</p>
+            <div style={{fontSize:11,color:"#4FA876",fontWeight:600,textTransform:"uppercase",letterSpacing:".07em",marginBottom:5}}>Challenge Complete!</div>
+            <h3 className="cf" style={{fontSize:22,fontWeight:600,marginBottom:5,color:"var(--txt)"}}>You earned: {celebrated.reward}</h3>
+            <p style={{fontSize:13,color:"var(--txt)",lineHeight:1.65}}>Completing the {celebrated.title} challenge shows real dedication to your wellbeing. I'm genuinely proud of you.</p>
             <button onClick={()=>setCelebrated(null)} className="btn-o" style={{marginTop:10,fontSize:12,padding:"6px 16px"}}>Continue</button>
           </div>
         </div>
@@ -2308,17 +2331,17 @@ const Challenges=()=>{
           const isJoined=joined.includes(c.id),prog=progress[c.id]||0,done=prog>=c.duration,pct=(prog/c.duration)*100;
           return(
             <div key={c.id} className="challenge-card" style={{position:"relative"}}>
-              {done&&<div style={{position:"absolute",top:12,right:12,background:"linear-gradient(135deg,#A8E6C9,#68C99A)",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:"#0A2A1A"}}>Complete</div>}
+              {done&&<div style={{position:"absolute",top:12,right:12,background:"linear-gradient(135deg,#4FA876,#68C99A)",borderRadius:20,padding:"4px 12px",fontSize:11,fontWeight:700,color:"#0A2A1A"}}>Complete</div>}
               <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:14}}>
-                <div style={{width:42,height:42,borderRadius:12,background:"rgba(181,92,121,.2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Ic n={c.icon} s={20} c="#D4879A"/></div>
-                <div><div style={{fontSize:15,fontWeight:600,color:"#F0C4CC",marginBottom:4}}>{c.title}</div><div style={{fontSize:12,color:"#9A6677",lineHeight:1.6}}>{c.desc}</div></div>
+                <div style={{width:42,height:42,borderRadius:12,background:"var(--petal)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Ic n={c.icon} s={20} c="var(--soft)"/></div>
+                <div><div style={{fontSize:15,fontWeight:600,color:"var(--txt)",marginBottom:4}}>{c.title}</div><div style={{fontSize:12,color:"var(--muted)",lineHeight:1.6}}>{c.desc}</div></div>
               </div>
               <div style={{marginBottom:14}}>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#9A6677",marginBottom:6}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--muted)",marginBottom:6}}>
                   <span>{prog} / {c.duration} days</span>
-                  <span style={{color:"#D4879A",fontWeight:600,display:"flex",alignItems:"center",gap:4}}><Ic n="trophy" s={11} c="#D4879A"/>{c.reward}</span>
+                  <span style={{color:"var(--soft)",fontWeight:600,display:"flex",alignItems:"center",gap:4}}><Ic n="trophy" s={11} c="var(--soft)"/>{c.reward}</span>
                 </div>
-                <ConfBar pct={pct} color={done?"#A8E6C9":"#D4879A"}/>
+                <ConfBar pct={pct} color={done?"#4FA876":"var(--soft)"}/>
               </div>
               <div style={{display:"flex",gap:9}}>
                 <button className={isJoined?"btn":"btn-o"} onClick={()=>join(c.id)} style={{flex:1,fontSize:12,padding:"9px 14px"}}>{isJoined?(done?"Completed":"Joined"):"Join Challenge"}</button>
@@ -2339,8 +2362,8 @@ const Analytics=({scans})=>{
   const recentSeries=progress.series.slice(-7);
   return(
     <div style={{padding:"24px 22px",maxWidth:900,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:400}}>Your Analytics</h1>
-      <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>Track how your skin and wellness evolve over time.</p>
+      <h1 className="cf" style={{fontSize:32,marginBottom:5,fontWeight:600,color:"var(--txt)"}}>Your Analytics</h1>
+      <p style={{color:"var(--muted)",fontSize:13,marginBottom:20}}>Track how your skin and wellness evolve over time.</p>
       <div style={{display:"flex",gap:5,marginBottom:22}}>
         {[["weekly","Recent Scans"],["monthly","All Scans"],["habits","Habit Insights"]].map(([t,l])=>(
           <button key={t} className={`tab-btn${tab===t?" act":""}`} onClick={()=>setTab(t)}>{l}</button>
@@ -2349,29 +2372,29 @@ const Analytics=({scans})=>{
       {tab==="weekly"&&(
         <div style={{display:"flex",flexDirection:"column",gap:18}}>
           <div className="glass" style={{padding:22,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Skin Health Trends</h3>
-            <p style={{fontSize:11,color:"#6B4455",marginBottom:10}}>Your last {recentSeries.length} scan{recentSeries.length===1?"":"s"}</p>
+            <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Skin Health Trends</h3>
+            <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Your last {recentSeries.length} scan{recentSeries.length===1?"":"s"}</p>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={recentSeries}><defs>
                 <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#7EC8E3" stopOpacity={0.25}/><stop offset="95%" stopColor="#7EC8E3" stopOpacity={0}/></linearGradient>
-                <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#D4879A" stopOpacity={0.25}/><stop offset="95%" stopColor="#D4879A" stopOpacity={0}/></linearGradient>
+                <linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--soft)" stopOpacity={0.25}/><stop offset="95%" stopColor="var(--soft)" stopOpacity={0}/></linearGradient>
               </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/><XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-                <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/><XAxis dataKey="date" tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/><YAxis tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:9,color:"var(--txt)",fontSize:11}}/>
                 <Area type="monotone" dataKey="hydrationLevel" stroke="#7EC8E3" fill="url(#ag1)" strokeWidth={2} name="Hydration"/>
-                <Area type="monotone" dataKey="brightness" stroke="#D4879A" fill="url(#ag2)" strokeWidth={2} name="Brightness"/>
+                <Area type="monotone" dataKey="brightness" stroke="var(--soft)" fill="url(#ag2)" strokeWidth={2} name="Brightness"/>
               </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="glass" style={{padding:22,borderRadius:20}}>
-            <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>Overall Skin Score Trend</h3>
+            <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Overall Skin Score Trend</h3>
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={recentSeries}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-                <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-                <YAxis tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-                <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-                <Line type="monotone" dataKey="overallScore" stroke="#D4879A" strokeWidth={2.5} dot={{fill:"#D4879A",r:3}} name="Overall Score"/>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+                <XAxis dataKey="date" tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+                <YAxis tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:9,color:"var(--txt)",fontSize:11}}/>
+                <Line type="monotone" dataKey="overallScore" stroke="var(--soft)" strokeWidth={2.5} dot={{fill:"var(--soft)",r:3}} name="Overall Score"/>
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -2379,16 +2402,16 @@ const Analytics=({scans})=>{
       )}
       {tab==="monthly"&&(
         <div className="glass" style={{padding:22,borderRadius:20}}>
-          <h3 style={{fontSize:14,fontWeight:600,marginBottom:14}}>All-Time Score Progress</h3>
-          <p style={{fontSize:11,color:"#6B4455",marginBottom:10}}>Every scan you've completed, oldest to newest</p>
+          <h3 className="cf" style={{fontSize:15,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>All-Time Score Progress</h3>
+          <p style={{fontSize:11,color:"var(--muted)",marginBottom:10}}>Every scan you've completed, oldest to newest</p>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={progress.series}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(181,92,121,.1)"/>
-              <XAxis dataKey="date" tick={{fill:"#9A6677",fontSize:10}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fill:"#9A6677",fontSize:11}} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{background:"#2E0E1F",border:"1px solid rgba(181,92,121,.2)",borderRadius:9,color:"#F5E6EA",fontSize:11}}/>
-              <Bar dataKey="overallScore" fill="rgba(181,92,121,.5)" radius={[6,6,0,0]} name="Skin Score"/>
-              <Bar dataKey="hydrationLevel" fill="rgba(212,135,154,.4)" radius={[6,6,0,0]} name="Hydration"/>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)"/>
+              <XAxis dataKey="date" tick={{fill:"var(--muted)",fontSize:10}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fill:"var(--muted)",fontSize:11}} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:9,color:"var(--txt)",fontSize:11}}/>
+              <Bar dataKey="overallScore" fill="var(--rose)" radius={[6,6,0,0]} name="Skin Score"/>
+              <Bar dataKey="hydrationLevel" fill="var(--blush)" radius={[6,6,0,0]} name="Hydration"/>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -2399,10 +2422,10 @@ const Analytics=({scans})=>{
           {DEFAULT_HABITS.map(h=>(
             <div key={h.id} className="glass" style={{padding:"16px 20px",borderRadius:16,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{display:"flex",gap:12,alignItems:"center"}}>
-                <div style={{width:38,height:38,borderRadius:10,background:"rgba(181,92,121,.18)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={h.icon} s={18} c="#D4879A"/></div>
-                <span style={{fontSize:13,color:"#F0C4CC"}}>{h.label}</span>
+                <div style={{width:38,height:38,borderRadius:10,background:"var(--petal)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={h.icon} s={18} c="var(--soft)"/></div>
+                <span style={{fontSize:13,color:"var(--txt)"}}>{h.label}</span>
               </div>
-              <div style={{width:80}}><ConfBar pct={Math.random()*40+55} color="#D4879A"/></div>
+              <div style={{width:80}}><ConfBar pct={Math.random()*40+55} color="var(--soft)"/></div>
             </div>
           ))}
         </div>
@@ -2415,22 +2438,22 @@ const Journey=({scans})=>{
   if(!scans?.length)return<EmptyState avatarState="welcome" title="Your journey starts now" message="Each skin scan becomes a milestone in your glow journey. Complete your first scan to begin tracking your transformation." actionLabel="Start First Scan" onAction={null}/>;
   return(
     <div style={{padding:"24px 22px",maxWidth:800,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:400}}>Your Glow Journey</h1>
+      <h1 className="cf" style={{fontSize:32,marginBottom:14,fontWeight:600,color:"var(--txt)"}}>Your Glow Journey</h1>
       <SmiraMsg state="happy" text={`You've completed ${scans.length} skin scan${scans.length!==1?"s":""} — each one is a milestone in your journey. Look how far you've come.`} size={44}/>
       <div style={{marginTop:20,display:"flex",flexDirection:"column",gap:0}}>
         {scans.map((s,i)=>(
           <div key={i} style={{display:"flex",gap:16,alignItems:"flex-start"}}>
             <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-              <div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,#8B3A57,#D4879A)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff",fontSize:13,fontWeight:700}}>{i+1}</div>
-              {i<scans.length-1&&<div style={{width:2,height:40,background:"rgba(181,92,121,.2)",margin:"4px 0"}}/>}
+              <div style={{width:36,height:36,borderRadius:"50%",background:"linear-gradient(135deg,var(--wine),var(--rose))",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff",fontSize:13,fontWeight:700}}>{i+1}</div>
+              {i<scans.length-1&&<div style={{width:2,height:40,background:"var(--border)",margin:"4px 0"}}/>}
             </div>
             <div className="glass" style={{flex:1,padding:"16px 18px",borderRadius:16,marginBottom:12}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
-                <div style={{fontSize:14,fontWeight:600,color:"#F0C4CC"}}>{s.date}</div>
-                <div style={{fontSize:20,fontWeight:700,color:"#D4879A"}}>{s.overallScore}</div>
+                <div style={{fontSize:14,fontWeight:600,color:"var(--txt)"}}>{s.date}</div>
+                <div style={{fontSize:20,fontWeight:700,color:"var(--soft)"}}>{s.overallScore}</div>
               </div>
               {s.thumb&&<img src={s.thumb} alt="scan" style={{width:80,height:80,objectFit:"cover",borderRadius:10,marginBottom:8}}/>}
-              <p style={{fontSize:12,color:"#9A6677",lineHeight:1.6}}>{s.summary||"Skin analysis completed. Check your results for personalized insights."}</p>
+              <p style={{fontSize:12,color:"var(--muted)",lineHeight:1.6}}>{s.summary||"Skin analysis completed. Check your results for personalized insights."}</p>
             </div>
           </div>
         ))}
@@ -2445,28 +2468,28 @@ const MonthlyStory=({user,scans,habits,journalEntries})=>{
   const habitDone=habits?.filter(h=>h.done).length||0;
   const confScore=calcConfidenceScore(habits,6,journalEntries,scans);
   const highlights=[
-    {icon:"chart",label:"Skin scans completed",value:scans?.length||0,color:"#D4879A"},
+    {icon:"chart",label:"Skin scans completed",value:scans?.length||0,color:"var(--soft)"},
     {icon:"heart",label:"Confidence Score",value:`${confScore}/100`,color:confColor(confScore)},
-    {icon:"book",label:"Journal entries",value:journalEntries?.length||0,color:"#F0C4CC"},
-    {icon:"ok",label:"Habits completed today",value:`${habitDone}/${habits?.length||6}`,color:"#A8E6C9"},
+    {icon:"book",label:"Journal entries",value:journalEntries?.length||0,color:"var(--txt)"},
+    {icon:"ok",label:"Habits completed today",value:`${habitDone}/${habits?.length||6}`,color:"#4FA876"},
   ];
   return(
     <div style={{padding:"24px 22px",maxWidth:640,margin:"0 auto"}}>
       <div style={{marginBottom:28,textAlign:"center"}}>
-        <div style={{width:140,height:168,margin:"0 auto 18px",borderRadius:24,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",boxShadow:"0 16px 48px rgba(0,0,0,.4)"}}>
+        <div style={{width:140,height:168,margin:"0 auto 18px",borderRadius:24,overflow:"hidden",border:"2px solid var(--border)",boxShadow:"0 16px 48px rgba(154,72,100,.2)"}}>
           <SmiraAvatar state="achievement" portrait size={168}/>
         </div>
-        <span className="cf" style={{fontSize:"clamp(28px,5vw,44px)",fontWeight:300,background:"linear-gradient(135deg,var(--wine),var(--rose))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:8}}>Your Smira Story</span>
-        <p style={{color:"#D4879A",fontSize:15,fontWeight:500}}>{month}</p>
+        <span className="cf" style={{fontSize:"clamp(28px,5vw,44px)",fontWeight:600,background:"linear-gradient(135deg,var(--wine),var(--rose))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",display:"block",marginBottom:8}}>Your Smira Story</span>
+        <p style={{color:"var(--soft)",fontSize:15,fontWeight:500}}>{month}</p>
       </div>
-      <div className="glass glow" style={{padding:28,borderRadius:26,marginBottom:18,background:"linear-gradient(135deg,rgba(139,58,87,.25),rgba(46,14,31,.6))"}}>
-        <h2 className="cf" style={{fontSize:22,fontWeight:400,marginBottom:18,textAlign:"center",color:"#F0C4CC"}}>{firstName}'s Highlights</h2>
+      <div className="glass glow" style={{padding:28,borderRadius:26,marginBottom:18,background:"linear-gradient(135deg,var(--petal),var(--card))"}}>
+        <h2 className="cf" style={{fontSize:22,fontWeight:600,marginBottom:18,textAlign:"center",color:"var(--txt)"}}>{firstName}'s Highlights</h2>
         <div style={{display:"flex",flexDirection:"column",gap:11}}>
           {highlights.map(h=>(
-            <div key={h.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",background:"rgba(181,92,121,.1)",borderRadius:14}}>
+            <div key={h.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 16px",background:"var(--petal)",borderRadius:14}}>
               <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                <div style={{width:28,height:28,borderRadius:8,background:"rgba(181,92,121,.2)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={h.icon} s={14} c={h.color}/></div>
-                <span style={{fontSize:13,color:"#F0C4CC"}}>{h.label}</span>
+                <div style={{width:28,height:28,borderRadius:8,background:"var(--border)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={h.icon} s={14} c={h.color}/></div>
+                <span style={{fontSize:13,color:"var(--txt)"}}>{h.label}</span>
               </div>
               <span style={{fontSize:16,fontWeight:700,color:h.color}}>{h.value}</span>
             </div>
@@ -2477,8 +2500,8 @@ const MonthlyStory=({user,scans,habits,journalEntries})=>{
         <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
           <SmiraAvatar state="happy" size={50}/>
           <div>
-            <div style={{fontSize:10,color:"#D4879A",fontWeight:600,marginBottom:7,textTransform:"uppercase",letterSpacing:".07em"}}>Monthly Message from Smira</div>
-            <p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.85,fontStyle:"italic"}}>
+            <div style={{fontSize:10,color:"var(--soft)",fontWeight:600,marginBottom:7,textTransform:"uppercase",letterSpacing:".07em"}}>Monthly Message from Smira</div>
+            <p style={{fontSize:14,color:"var(--txt)",lineHeight:1.85,fontStyle:"italic"}}>
               "This month you showed up for yourself. Not every day was perfect — and that's okay. What matters is that you're building habits with intention, learning about your body, and choosing self-care over self-criticism. That's real progress, {firstName}. I'm proud of you."
             </p>
           </div>
@@ -2496,7 +2519,7 @@ const MenstrualTracker=({scans,journalEntries})=>{
   const [cycles,setCycles]=useState(()=>LS.get("menstrual_cycles",[]));
   const [showLog,setShowLog]=useState(false);
   const [logDate,setLogDate]=useState(()=>new Date().toISOString().slice(0,10));
-  const PHASES=[{id:"menstrual",label:"Menstrual",desc:"Skin may be more sensitive. Gentle cleanse, skip actives, extra hydration.",color:"#F5A3A3"},{id:"follicular",label:"Follicular",desc:"Estrogen rises — skin looks brighter. Great time to introduce new products.",color:"#F5D5A3"},{id:"ovulation",label:"Ovulation",desc:"Peak glow! Skin looks its best. Perfect for a scan or photos.",color:"#A8E6C9"},{id:"luteal",label:"Luteal",desc:"Progesterone rises — oil increases, breakouts more likely. Stick to your routine.",color:"#D4879A"}];
+  const PHASES=[{id:"menstrual",label:"Menstrual",desc:"Skin may be more sensitive. Gentle cleanse, skip actives, extra hydration.",color:"#F5A3A3"},{id:"follicular",label:"Follicular",desc:"Estrogen rises — skin looks brighter. Great time to introduce new products.",color:"#F5D5A3"},{id:"ovulation",label:"Ovulation",desc:"Peak glow! Skin looks its best. Perfect for a scan or photos.",color:"#A8E6C9"},{id:"luteal",label:"Luteal",desc:"Progesterone rises — oil increases, breakouts more likely. Stick to your routine.",color:"var(--soft)"}];
 
   const sorted=[...cycles].sort((a,b)=>new Date(a.date)-new Date(b.date));
   const gaps=sorted.slice(1).map((c,i)=>Math.round((new Date(c.date)-new Date(sorted[i].date))/86400000)).filter(g=>g>15&&g<60);
@@ -2549,71 +2572,71 @@ const MenstrualTracker=({scans,journalEntries})=>{
 
   return(
     <div style={{padding:"24px 22px",maxWidth:700,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:7,fontWeight:400}}>Cycle Tracker</h1>
-      <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>Understanding your hormonal cycle helps you work with your skin, not against it.</p>
+      <h1 className="cf" style={{fontSize:32,marginBottom:7,fontWeight:600,color:"var(--txt)"}}>Cycle Tracker</h1>
+      <p style={{color:"var(--muted)",fontSize:13,marginBottom:20}}>Understanding your hormonal cycle helps you work with your skin, not against it.</p>
       <SmiraMsg state="empathy" text="Your skin changes with your cycle — that's completely normal and expected. Log your period start date and I'll predict your phases and connect them to your skin data." size={44}/>
 
       <div className="glass" style={{padding:"20px 22px",borderRadius:20,marginTop:20,marginBottom:18}}>
         {!lastStart?(
           <div style={{textAlign:"center",padding:"10px 0"}}>
-            <p style={{fontSize:13,color:"#9A6677",marginBottom:14}}>Log your last period start date to begin predictions.</p>
+            <p style={{fontSize:13,color:"var(--muted)",marginBottom:14}}>Log your last period start date to begin predictions.</p>
             <button className="btn" onClick={()=>setShowLog(true)}>Log Period Start</button>
           </div>
         ):(
           <>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
               <div>
-                <div style={{fontSize:12,color:"#9A6677"}}>Cycle Day</div>
-                <div style={{fontSize:28,fontWeight:700,color:"#D4879A"}}>{dayInCycle}<span style={{fontSize:14,color:"#9A6677"}}> / ~{avgLen}</span></div>
+                <div style={{fontSize:12,color:"var(--muted)"}}>Cycle Day</div>
+                <div style={{fontSize:28,fontWeight:700,color:"var(--soft)"}}>{dayInCycle}<span style={{fontSize:14,color:"var(--muted)"}}> / ~{avgLen}</span></div>
               </div>
-              <button onClick={()=>setShowLog(true)} style={{padding:"9px 16px",borderRadius:20,border:"1px solid rgba(181,92,121,.3)",background:"transparent",color:"#D4879A",fontSize:12,fontWeight:600,cursor:"pointer"}}>+ Log Period</button>
+              <button onClick={()=>setShowLog(true)} style={{padding:"9px 16px",borderRadius:20,border:"1px solid var(--border)",background:"transparent",color:"var(--soft)",fontSize:12,fontWeight:600,cursor:"pointer"}}>+ Log Period</button>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-              <div style={{padding:"12px 14px",background:"rgba(181,92,121,.08)",borderRadius:12}}>
-                <div style={{fontSize:11,color:"#9A6677",marginBottom:4}}>Next Period (est.)</div>
-                <div style={{fontSize:15,fontWeight:600,color:"#F0C4CC"}}>{fmtDate(nextPeriod)}</div>
+              <div style={{padding:"12px 14px",background:"var(--petal)",borderRadius:12}}>
+                <div style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>Next Period (est.)</div>
+                <div style={{fontSize:15,fontWeight:600,color:"var(--txt)"}}>{fmtDate(nextPeriod)}</div>
               </div>
-              <div style={{padding:"12px 14px",background:"rgba(168,230,201,.08)",borderRadius:12}}>
-                <div style={{fontSize:11,color:"#9A6677",marginBottom:4}}>Fertile Window (est.)</div>
-                <div style={{fontSize:15,fontWeight:600,color:"#F0C4CC"}}>{fmtDate(addDays(lastStart,fertileStart))} – {fmtDate(addDays(lastStart,fertileEnd))}</div>
+              <div style={{padding:"12px 14px",background:"rgba(79,168,118,.1)",borderRadius:12}}>
+                <div style={{fontSize:11,color:"var(--muted)",marginBottom:4}}>Fertile Window (est.)</div>
+                <div style={{fontSize:15,fontWeight:600,color:"var(--txt)"}}>{fmtDate(addDays(lastStart,fertileStart))} – {fmtDate(addDays(lastStart,fertileEnd))}</div>
               </div>
             </div>
-            {gaps.length===0&&<p style={{fontSize:11,color:"#6B4455",marginTop:12}}>Using a default 28-day cycle — log 2+ periods for predictions based on your actual cycle length.</p>}
+            {gaps.length===0&&<p style={{fontSize:11,color:"var(--muted)",marginTop:12}}>Using a default 28-day cycle — log 2+ periods for predictions based on your actual cycle length.</p>}
           </>
         )}
       </div>
 
       {showLog&&(
         <div className="glass" style={{padding:"18px 20px",borderRadius:16,marginBottom:18,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-          <input type="date" value={logDate} onChange={e=>setLogDate(e.target.value)} max={new Date().toISOString().slice(0,10)} style={{padding:"9px 12px",borderRadius:10,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
+          <input type="date" value={logDate} onChange={e=>setLogDate(e.target.value)} max={new Date().toISOString().slice(0,10)} style={{padding:"9px 12px",borderRadius:10,border:"1px solid var(--border)",background:"var(--inp-bg)",color:"var(--txt)",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
           <button className="btn" onClick={logPeriod} style={{padding:"9px 18px"}}>Save</button>
-          <button onClick={()=>setShowLog(false)} style={{padding:"9px 14px",borderRadius:20,border:"none",background:"transparent",color:"#9A6677",cursor:"pointer",fontSize:13}}>Cancel</button>
+          <button onClick={()=>setShowLog(false)} style={{padding:"9px 14px",borderRadius:20,border:"none",background:"transparent",color:"var(--muted)",cursor:"pointer",fontSize:13}}>Cancel</button>
         </div>
       )}
 
       <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
-        {PHASES.map(p=><div key={p.id} style={{flex:1,minWidth:110,padding:"9px 10px",borderRadius:14,border:`1px solid ${currentPhase===p.id?p.color:"rgba(181,92,121,.2)"}`,background:currentPhase===p.id?`${p.color}22`:"rgba(255,255,255,.02)",color:currentPhase===p.id?p.color:"#9A6677",fontSize:12,fontWeight:600,textAlign:"center"}}>{p.label}{currentPhase===p.id&&" (now)"}</div>)}
+        {PHASES.map(p=><div key={p.id} style={{flex:1,minWidth:110,padding:"9px 10px",borderRadius:14,border:`1px solid ${currentPhase===p.id?p.color:"var(--border)"}`,background:currentPhase===p.id?`${p.color}22`:"var(--inp-bg)",color:currentPhase===p.id?p.color:"var(--muted)",fontSize:12,fontWeight:600,textAlign:"center"}}>{p.label}{currentPhase===p.id&&" (now)"}</div>)}
       </div>
       {PHASES.filter(p=>p.id===(currentPhase||"follicular")).map(p=>(
         <div key={p.id} className="glass" style={{padding:"22px 24px",borderRadius:20,borderLeft:`3px solid ${p.color}`,marginBottom:18}}>
-          <h3 style={{fontSize:18,fontWeight:600,color:p.color,marginBottom:10}}>{p.label} Phase</h3>
-          <p style={{fontSize:14,color:"#F0C4CC",lineHeight:1.75}}>{p.desc}</p>
+          <h3 className="cf" style={{fontSize:19,fontWeight:600,color:p.color,marginBottom:10}}>{p.label} Phase</h3>
+          <p style={{fontSize:14,color:"var(--txt)",lineHeight:1.75}}>{p.desc}</p>
         </div>
       ))}
 
       {phaseCorrelation&&(
         <div className="glass" style={{padding:22,borderRadius:20}}>
-          <h3 style={{fontSize:15,fontWeight:600,marginBottom:6}}>Your Skin & Cycle</h3>
-          <p style={{fontSize:12,color:"#9A6677",marginBottom:14}}>Average skin score from your scans, grouped by the cycle phase they were taken in.</p>
+          <h3 className="cf" style={{fontSize:16,fontWeight:600,marginBottom:6,color:"var(--txt)"}}>Your Skin & Cycle</h3>
+          <p style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>Average skin score from your scans, grouped by the cycle phase they were taken in.</p>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {PHASES.filter(p=>phaseCorrelation[p.id]!==undefined).map(p=>(
               <div key={p.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span style={{fontSize:13,color:p.color}}>{p.label}</span>
-                <span style={{fontSize:14,fontWeight:700,color:"#F0C4CC"}}>{phaseCorrelation[p.id]}</span>
+                <span style={{fontSize:14,fontWeight:700,color:"var(--txt)"}}>{phaseCorrelation[p.id]}</span>
               </div>
             ))}
           </div>
-          <p style={{fontSize:11,color:"#6B4455",marginTop:12,lineHeight:1.6}}>Based on {scans.length} scan{scans.length===1?"":"s"} matched to logged cycle dates. More scans across more cycles will sharpen this pattern.</p>
+          <p style={{fontSize:11,color:"var(--muted)",marginTop:12,lineHeight:1.6}}>Based on {scans.length} scan{scans.length===1?"":"s"} matched to logged cycle dates. More scans across more cycles will sharpen this pattern.</p>
         </div>
       )}
     </div>
@@ -2718,20 +2741,20 @@ const SkinForecast=({user,results})=>{
 
   return(
     <div style={{padding:"24px 22px",maxWidth:700,margin:"0 auto"}}>
-      <h1 className="cf" style={{fontSize:32,marginBottom:7,fontWeight:400}}>Today's Skin Forecast</h1>
-      <p style={{color:"#9A6677",fontSize:13,marginBottom:20}}>Real-time weather, translated into what your skin actually needs today.</p>
+      <h1 className="cf" style={{fontSize:32,marginBottom:7,fontWeight:600,color:"var(--txt)"}}>Today's Skin Forecast</h1>
+      <p style={{color:"var(--muted)",fontSize:13,marginBottom:20}}>Real-time weather, translated into what your skin actually needs today.</p>
 
       {status==="idle"&&(
         <div className="glass" style={{padding:"28px 24px",borderRadius:20,textAlign:"center"}}>
-          <p style={{fontSize:13,color:"#9A6677",marginBottom:16,lineHeight:1.7}}>Share your location for a personalized forecast, or enter your city manually. Nothing is stored beyond this session.</p>
+          <p style={{fontSize:13,color:"var(--muted)",marginBottom:16,lineHeight:1.7}}>Share your location for a personalized forecast, or enter your city manually. Nothing is stored beyond this session.</p>
           <button className="btn" onClick={useMyLocation} style={{marginBottom:10}}>Use My Location</button>
-          <div><button onClick={()=>setStatus("manual")} style={{background:"none",border:"none",color:"#9A6677",fontSize:12,textDecoration:"underline",cursor:"pointer"}}>Enter city manually instead</button></div>
+          <div><button onClick={()=>setStatus("manual")} style={{background:"none",border:"none",color:"var(--muted)",fontSize:12,textDecoration:"underline",cursor:"pointer"}}>Enter city manually instead</button></div>
         </div>
       )}
       {(status==="locating"||status==="loading")&&(
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div className="glass" style={{padding:"20px 22px",borderRadius:20}}>
-            <p style={{fontSize:12,color:"#9A6677",marginBottom:14}}>{status==="locating"?"Getting your location...":"Loading today's forecast..."}</p>
+            <p style={{fontSize:12,color:"var(--muted)",marginBottom:14}}>{status==="locating"?"Getting your location...":"Loading today's forecast..."}</p>
             <Skeleton rows={2} height={20}/>
           </div>
           <SkeletonCard/>
@@ -2741,9 +2764,9 @@ const SkinForecast=({user,results})=>{
       {status==="manual"&&(
         <div className="glass" style={{padding:"22px 24px",borderRadius:20}}>
           {err&&<p style={{fontSize:12,color:"#F5A3A3",marginBottom:12}}>{err}</p>}
-          <p style={{fontSize:13,color:"#9A6677",marginBottom:12}}>Enter your city:</p>
+          <p style={{fontSize:13,color:"var(--muted)",marginBottom:12}}>Enter your city:</p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <input value={cityInput} onChange={e=>setCityInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitCity()} placeholder="e.g. Kolkata" style={{flex:1,minWidth:160,padding:"10px 14px",borderRadius:12,border:"1px solid rgba(181,92,121,.25)",background:"rgba(255,255,255,.03)",color:"#F0C4CC",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
+            <input value={cityInput} onChange={e=>setCityInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submitCity()} placeholder="e.g. Kolkata" style={{flex:1,minWidth:160,padding:"10px 14px",borderRadius:12,border:"1px solid var(--border)",background:"var(--inp-bg)",color:"var(--txt)",fontSize:13,fontFamily:"Poppins,sans-serif"}}/>
             <button className="btn" onClick={submitCity} style={{padding:"10px 20px"}}>Get Forecast</button>
           </div>
         </div>
@@ -2758,34 +2781,34 @@ const SkinForecast=({user,results})=>{
         <div style={{display:"flex",flexDirection:"column",gap:16}}>
           <div className="glass" style={{padding:"20px 22px",borderRadius:20,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
             <div>
-              <div style={{fontSize:12,color:"#9A6677"}}>{place}</div>
-              <div style={{fontSize:28,fontWeight:700,color:"#F0C4CC"}}>{weather.temp}°C</div>
-              <div style={{fontSize:13,color:"#D4879A"}}>{weather.condition}</div>
+              <div style={{fontSize:12,color:"var(--muted)"}}>{place}</div>
+              <div style={{fontSize:28,fontWeight:700,color:"var(--txt)"}}>{weather.temp}°C</div>
+              <div style={{fontSize:13,color:"var(--soft)"}}>{weather.condition}</div>
             </div>
-            <div style={{display:"flex",gap:16,fontSize:12,color:"#9A6677"}}>
-              <div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"#F0C4CC",fontSize:15}}>{weather.uv}</div>UV Index</div>
-              <div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"#F0C4CC",fontSize:15}}>{weather.humidity}%</div>Humidity</div>
-              {weather.aqi!=null&&<div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"#F0C4CC",fontSize:15}}>{weather.aqi}</div>AQI</div>}
+            <div style={{display:"flex",gap:16,fontSize:12,color:"var(--muted)"}}>
+              <div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"var(--txt)",fontSize:15}}>{weather.uv}</div>UV Index</div>
+              <div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"var(--txt)",fontSize:15}}>{weather.humidity}%</div>Humidity</div>
+              {weather.aqi!=null&&<div style={{textAlign:"center"}}><div style={{fontWeight:700,color:"var(--txt)",fontSize:15}}>{weather.aqi}</div>AQI</div>}
             </div>
           </div>
           <div className="glass" style={{padding:"20px 22px",borderRadius:20}}>
-            <h3 style={{fontSize:15,fontWeight:600,marginBottom:14}}>Today's Skincare Routine</h3>
+            <h3 className="cf" style={{fontSize:16,fontWeight:600,marginBottom:14,color:"var(--txt)"}}>Today's Skincare Routine</h3>
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}><Ic n="forecast" s={17} c="#F5D5A3"/><div><div style={{fontSize:13,fontWeight:600,color:"#F0C4CC"}}>Sunscreen</div><div style={{fontSize:12,color:"#9A6677"}}>{advice.spf}</div></div></div>
-              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}><Ic n="leaf" s={17} c="#A8E6C9"/><div><div style={{fontSize:13,fontWeight:600,color:"#F0C4CC"}}>Moisturizer</div><div style={{fontSize:12,color:"#9A6677"}}>{advice.moisturizer}</div></div></div>
+              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}><Ic n="forecast" s={17} c="#F5D5A3"/><div><div style={{fontSize:13,fontWeight:600,color:"var(--txt)"}}>Sunscreen</div><div style={{fontSize:12,color:"var(--muted)"}}>{advice.spf}</div></div></div>
+              <div style={{display:"flex",gap:10,alignItems:"flex-start"}}><Ic n="leaf" s={17} c="#4FA876"/><div><div style={{fontSize:13,fontWeight:600,color:"var(--txt)"}}>Moisturizer</div><div style={{fontSize:12,color:"var(--muted)"}}>{advice.moisturizer}</div></div></div>
             </div>
           </div>
           {advice.tips.length>0&&(
             <div className="glass" style={{padding:"20px 22px",borderRadius:20}}>
-              <h3 style={{fontSize:15,fontWeight:600,marginBottom:12}}>Personalized Tips</h3>
+              <h3 className="cf" style={{fontSize:16,fontWeight:600,marginBottom:12,color:"var(--txt)"}}>Personalized Tips</h3>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {advice.tips.map((t,i)=>(
-                  <p key={i} style={{fontSize:12,color:"#F0C4CC",lineHeight:1.65,paddingLeft:14,borderLeft:"2px solid rgba(181,92,121,.3)"}}>{t}</p>
+                  <p key={i} style={{fontSize:12,color:"var(--txt)",lineHeight:1.65,paddingLeft:14,borderLeft:"2px solid var(--border)"}}>{t}</p>
                 ))}
               </div>
             </div>
           )}
-          <button onClick={()=>setStatus("idle")} style={{background:"none",border:"none",color:"#9A6677",fontSize:12,textDecoration:"underline",cursor:"pointer",alignSelf:"center"}}>Check a different location</button>
+          <button onClick={()=>setStatus("idle")} style={{background:"none",border:"none",color:"var(--muted)",fontSize:12,textDecoration:"underline",cursor:"pointer",alignSelf:"center"}}>Check a different location</button>
         </div>
       )}
     </div>
@@ -2858,15 +2881,15 @@ User context: ${ctx}${antiRepeat}`;
 
   return(
     <div style={{display:"flex",flexDirection:"column",height:"100%"}}>
-      <div style={{padding:"20px 22px",borderBottom:"1px solid rgba(181,92,121,.15)",background:"rgba(26,11,18,.6)",display:"flex",gap:12,alignItems:"center"}}>
-        <div style={{width:44,height:52,borderRadius:12,overflow:"hidden",border:"2px solid rgba(212,135,154,.3)",flexShrink:0}}><SmiraAvatar state="welcome" portrait size={52}/></div>
+      <div style={{padding:"20px 22px",borderBottom:"1px solid var(--border)",background:"var(--topbar)",display:"flex",gap:12,alignItems:"center"}}>
+        <div style={{width:44,height:52,borderRadius:12,overflow:"hidden",border:"2px solid var(--border)",flexShrink:0}}><SmiraAvatar state="welcome" portrait size={52}/></div>
         <div>
-          <h2 className="cf" style={{fontSize:22,fontWeight:400}}>Smira</h2>
-          <p style={{fontSize:12,color:"#9A6677"}}>AI Wellness Companion · Always here for you</p>
+          <h2 className="cf" style={{fontSize:22,fontWeight:600,color:"var(--txt)"}}>Smira</h2>
+          <p style={{fontSize:12,color:"var(--muted)"}}>AI Wellness Companion · Always here for you</p>
         </div>
         <div style={{marginLeft:"auto",display:"flex",gap:4}}>
-          {onMinimize&&<button onClick={onMinimize} aria-label="Minimize chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:8}}><Ic n="minus" s={18} c="#9A6677"/></button>}
-          {onClose&&<button onClick={onClose} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:8}}><Ic n="x" s={18} c="#9A6677"/></button>}
+          {onMinimize&&<button onClick={onMinimize} aria-label="Minimize chat" style={{background:"none",border:"none",cursor:"pointer",color:"var(--muted)",padding:8}}><Ic n="minus" s={18} c="var(--muted)"/></button>}
+          {onClose&&<button onClick={onClose} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"var(--muted)",padding:8}}><Ic n="x" s={18} c="var(--muted)"/></button>}
         </div>
       </div>
 
@@ -2874,17 +2897,17 @@ User context: ${ctx}${antiRepeat}`;
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",gap:10,alignItems:"flex-end",flexDirection:m.role==="user"?"row-reverse":"row"}}>
             {m.role==="assistant"&&<SmiraAvatar state="welcome" size={34}/>}
-            <div style={{maxWidth:"82%",padding:"12px 15px",borderRadius:m.role==="user"?"16px 16px 4px 16px":"16px 16px 16px 4px",background:m.role==="user"?"linear-gradient(135deg,#8B3A57,#6B2244)":"rgba(46,14,31,.9)",border:m.role==="user"?"none":"1px solid rgba(181,92,121,.2)"}}>
-              <p style={{fontSize:13.5,color:"#F5E6EA",lineHeight:1.75}}>{m.text}</p>
+            <div style={{maxWidth:"82%",padding:"12px 15px",borderRadius:m.role==="user"?"16px 16px 4px 16px":"16px 16px 16px 4px",background:m.role==="user"?"linear-gradient(135deg,var(--wine),var(--rose))":"var(--petal)",border:m.role==="user"?"none":"1px solid var(--border)"}}>
+              <p style={{fontSize:13.5,color:m.role==="user"?"#fff":"var(--txt)",lineHeight:1.75}}>{m.text}</p>
             </div>
           </div>
         ))}
         {loading&&(
           <div style={{display:"flex",gap:10,alignItems:"flex-end"}}>
             <SmiraAvatar state="analysis" size={34}/>
-            <div style={{padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:"rgba(46,14,31,.9)",border:"1px solid rgba(181,92,121,.2)"}}>
+            <div style={{padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:"var(--petal)",border:"1px solid var(--border)"}}>
               <div style={{display:"flex",gap:5,alignItems:"center"}}>
-                {[0,1,2].map(j=><div key={j} style={{width:7,height:7,borderRadius:"50%",background:"#D4879A",animation:`gPulse 1.2s ease-in-out ${j*0.2}s infinite`}}/>)}
+                {[0,1,2].map(j=><div key={j} style={{width:7,height:7,borderRadius:"50%",background:"var(--soft)",animation:`gPulse 1.2s ease-in-out ${j*0.2}s infinite`}}/>)}
               </div>
             </div>
           </div>
@@ -2895,14 +2918,14 @@ User context: ${ctx}${antiRepeat}`;
 
       {msgs.length<=2&&(
         <div style={{padding:"0 16px 14px"}}>
-          <p style={{fontSize:11,color:"#6B4455",marginBottom:8}}>Quick topics:</p>
+          <p style={{fontSize:11,color:"var(--muted)",marginBottom:8}}>Quick topics:</p>
           <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-            {quickPrompts.map(q=><button key={q} onClick={()=>setInput(q)} style={{padding:"6px 12px",borderRadius:20,background:"rgba(181,92,121,.1)",border:"1px solid rgba(181,92,121,.22)",color:"#D4879A",fontSize:11,cursor:"pointer",transition:"all .2s"}}>{q}</button>)}
+            {quickPrompts.map(q=><button key={q} onClick={()=>setInput(q)} style={{padding:"6px 12px",borderRadius:20,background:"var(--petal)",border:"1px solid var(--border)",color:"var(--soft)",fontSize:11,cursor:"pointer",transition:"all .2s"}}>{q}</button>)}
           </div>
         </div>
       )}
 
-      <div style={{padding:"14px 16px",borderTop:"1px solid rgba(181,92,121,.15)",background:"rgba(26,11,18,.6)"}}>
+      <div style={{padding:"14px 16px",borderTop:"1px solid var(--border)",background:"var(--topbar)"}}>
         <div style={{display:"flex",gap:9,alignItems:"flex-end"}}>
           <textarea className="inp" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Tell me about your food, skincare, or how you're feeling..." rows={2} style={{resize:"none",lineHeight:1.6,flex:1,padding:"10px 14px"}}/>
           <button className="btn" onClick={send} disabled={!input.trim()||loading} style={{padding:"10px 14px",borderRadius:14,flexShrink:0,display:"flex",alignItems:"center",gap:6}}>
@@ -2956,9 +2979,9 @@ const FloatingCompanion=({user,results,scans})=>{
   return(
     <>
       {showBubble&&!open&&(
-        <div role="button" tabIndex={0} aria-label="Open Smira chat" className="kb-focusable" style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"rgba(16,5,12,.95)",border:"1px solid rgba(181,92,121,.3)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(true);setMinimized(false);setShowBubble(false);}}}>
-          <p style={{fontSize:12,color:"#F0C4CC",lineHeight:1.65,fontStyle:"italic"}}>"{msg}"</p>
-          <div style={{fontSize:10,color:"#6B4455",marginTop:4,textAlign:"right"}}>— Smira</div>
+        <div role="button" tabIndex={0} aria-label="Open Smira chat" className="kb-focusable" style={{position:"fixed",bottom:102,right:98,zIndex:198,maxWidth:220,background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px 14px 4px 14px",padding:"11px 14px",boxShadow:"0 8px 28px rgba(0,0,0,.5)",animation:"fadeUp .4s ease",cursor:"pointer"}} onClick={()=>{setOpen(true);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(true);setMinimized(false);setShowBubble(false);}}}>
+          <p style={{fontSize:12,color:"var(--txt)",lineHeight:1.65,fontStyle:"italic"}}>"{msg}"</p>
+          <div style={{fontSize:10,color:"var(--muted)",marginTop:4,textAlign:"right"}}>— Smira</div>
         </div>
       )}
       {open&&!minimized&&(
@@ -2969,13 +2992,13 @@ const FloatingCompanion=({user,results,scans})=>{
       {open&&minimized&&(
         <div className="floating-mini-bar kb-focusable" role="button" tabIndex={0} aria-label="Reopen Smira chat" onClick={()=>setMinimized(false)} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setMinimized(false);}}}>
           <div style={{width:26,height:26,borderRadius:"50%",overflow:"hidden",flexShrink:0}}><img src={AV.welcome} alt="" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}}/></div>
-          <span style={{fontSize:13,color:"#F0C4CC",flex:1}}>Smira — tap to reopen</span>
-          <button onClick={e=>{e.stopPropagation();setOpen(false);setMinimized(false);}} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"#9A6677",padding:4}}><Ic n="x" s={16} c="#9A6677"/></button>
+          <span style={{fontSize:13,color:"var(--txt)",flex:1}}>Smira — tap to reopen</span>
+          <button onClick={e=>{e.stopPropagation();setOpen(false);setMinimized(false);}} aria-label="Close chat" style={{background:"none",border:"none",cursor:"pointer",color:"var(--muted)",padding:4}}><Ic n="x" s={16} c="var(--muted)"/></button>
         </div>
       )}
       {!(open&&minimized)&&(
         <div ref={btnRef} className="floating-btn kb-focusable" role="button" tabIndex={0} aria-label={open?"Close Smira chat":"Open Smira chat"} onClick={()=>{setOpen(o=>!o);setMinimized(false);setShowBubble(false);}} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(o=>!o);setMinimized(false);setShowBubble(false);}}}>
-          <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,#8B3A57,#D4879A)";e.target.parentNode.innerHTML="<span style='font-family:Playfair Display,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
+          <img src={AV.welcome} alt="Smira" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"50% 12%"}} onError={e=>{e.target.style.display="none";e.target.parentNode.style.background="linear-gradient(135deg,var(--wine),var(--rose))";e.target.parentNode.innerHTML="<span style='font-family:Playfair Display,serif;font-size:26px;color:#F5E6EA;font-weight:600;display:flex;align-items:center;justify-content:center;height:100%'>S</span>";}}/>
         </div>
       )}
     </>
