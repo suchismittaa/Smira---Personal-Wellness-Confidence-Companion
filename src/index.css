@@ -1,0 +1,157 @@
+/* Minimal global reset only. SMIRA's actual design system (colors,
+   typography, theme switching, layout) lives entirely in the GlobalStyles
+   component inside App.jsx. This file intentionally does NOT redefine
+   #root, h1/h2, fonts, or color-scheme — those previously fought against
+   the app's own inline styles and manual light/dark theme toggle. */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SMIRA V6 — "Vintage Botanical Scrapbook" surface layer.
+   Palette tokens live in LIGHT_T (App.jsx). This file reshapes the
+   SURFACES: paper cards, stationery buttons, gingham onboarding,
+   hand-drawn borders, scalloped edges, sticker accents.
+   Loaded via main.jsx, so it layers over GlobalStyles.
+   ══════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Gabriela&family=Nunito:wght@400;600;700;800&display=swap');
+
+body{
+  font-family:'Nunito',system-ui,sans-serif !important;
+  color:var(--txt);
+  background-color:#F1F0E4 !important;
+  background-image:
+    radial-gradient(circle at 18% 12%,rgba(220,228,211,.55),transparent 42%),
+    radial-gradient(circle at 84% 78%,rgba(244,220,220,.50),transparent 45%) !important;
+  background-attachment:fixed;
+}
+h1,h2,h3,h4,.cf,.serif{font-family:'Gabriela',Georgia,serif !important;font-weight:400 !important;letter-spacing:.2px;}
+.script,.handwritten{font-family:'Caveat',cursive !important;color:var(--rose);}
+
+/* ── Gingham onboarding / splash / auth ─────────────────────────── */
+.onboard-scenery{
+  background-image:linear-gradient(rgba(253,248,240,.40),rgba(253,248,240,.40)),
+                   url('/smira/brand/gingham.jpg') !important;
+  background-size:auto,300px !important;
+  background-repeat:repeat !important;
+}
+
+/* ── Paper cards ────────────────────────────────────────────────── */
+.card,.glass,.panel,.tile,.stat-card{
+  background:var(--card) !important;
+  border:1px solid var(--border) !important;
+  border-radius:20px !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  box-shadow:0 2px 0 rgba(160,140,120,.10),0 10px 24px -14px rgba(120,100,85,.45) !important;
+}
+.card::after,.glass::after{content:none;}
+.glow{box-shadow:0 2px 0 rgba(160,140,120,.10),0 12px 28px -16px rgba(201,127,132,.55) !important;}
+
+/* torn/scalloped paper edge — opt in with .paper-scallop */
+.paper-scallop{position:relative;border-bottom-left-radius:0 !important;border-bottom-right-radius:0 !important;}
+.paper-scallop::before{
+  content:"";position:absolute;left:0;right:0;bottom:-9px;height:10px;
+  background:radial-gradient(circle at 5px 0,var(--cream) 5px,transparent 5.5px) repeat-x;
+  background-size:10px 10px;filter:drop-shadow(0 1px 0 var(--border));
+}
+/* washi-tape header — opt in with .paper-tape */
+.paper-tape::before{
+  content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-2deg);
+  width:78px;height:19px;background:rgba(244,220,220,.85);
+  border:1px dashed rgba(201,127,132,.40);border-radius:2px;
+}
+/* stitched inner frame */
+.stitched{border:1px dashed rgba(163,179,148,.60);border-radius:14px;padding:12px;}
+
+/* ── Stationery buttons ─────────────────────────────────────────── */
+button,.btn,.btn-primary{font-family:'Nunito',sans-serif;}
+.btn,.btn-primary,button.primary{
+  border-radius:30px 26px 30px 26px !important;
+  box-shadow:0 3px 0 rgba(160,110,110,.25) !important;
+  transition:transform .18s ease,box-shadow .18s ease !important;
+}
+.btn:hover,.btn-primary:hover{transform:translateY(-1px);}
+.btn-ghost,.btn.secondary{background:var(--cream) !important;border:1px solid var(--green) !important;color:var(--txt) !important;}
+
+/* ── Inputs: cream paper fields with a hand-drawn underline ─────── */
+.inp,.sel,input[type=text],input[type=email],input[type=password],input[type=number],textarea,select{
+  background:var(--inp-bg) !important;
+  border:1px solid var(--inp-border) !important;
+  border-bottom:2px solid rgba(163,179,148,.55) !important;
+  border-radius:12px !important;
+  font-family:'Nunito',sans-serif !important;
+  color:var(--txt) !important;
+}
+.inp:focus,.sel:focus,textarea:focus,input:focus{
+  border-color:var(--rose) !important;
+  box-shadow:0 0 0 4px rgba(201,127,132,.12) !important;
+}
+.inp::placeholder,textarea::placeholder{color:#B7A392 !important;}
+
+/* ── Progress bars: sage track, pink fill ───────────────────────── */
+.pbar{height:9px !important;background:var(--sage-soft) !important;border:1px solid rgba(163,179,148,.30) !important;border-radius:9px !important;}
+.pbar>*{background:linear-gradient(90deg,#E0A3A6,#C97F84) !important;border-radius:9px !important;}
+
+/* ── Badges / chips: little embroidered paper stickers ──────────── */
+.tag,.chip,.badge,.pill{
+  border-radius:20px !important;
+  font-family:'Nunito',sans-serif !important;font-weight:600 !important;
+  border:1px solid rgba(201,127,132,.30) !important;
+  background:rgba(244,220,220,.55) !important;color:var(--wine) !important;
+  box-shadow:0 1px 0 rgba(160,140,120,.12) !important;
+}
+.chip-sage,.tag.sage{background:var(--sage-soft) !important;border-color:rgba(163,179,148,.45) !important;color:#7E8F70 !important;}
+
+/* ── Nav / tabs: soft sage, no glass ────────────────────────────── */
+.tabs,.tabbar,.bottom-nav,.app-sidebar,.topbar{
+  background:rgba(255,251,244,.94) !important;
+  border-color:var(--border) !important;
+  backdrop-filter:blur(6px);
+}
+.tab,.nav-item{border-radius:16px !important;font-weight:600 !important;}
+.tab.active,.nav-item.active,.tab[aria-selected="true"]{
+  background:var(--sage-soft) !important;color:var(--txt) !important;
+  box-shadow:inset 0 0 0 1px rgba(163,179,148,.40) !important;
+}
+
+/* ── Charts: keep modern + readable, palette only ───────────────── */
+.recharts-cartesian-grid line{stroke:rgba(163,179,148,.30) !important;}
+.recharts-text{fill:var(--muted) !important;font-family:'Nunito',sans-serif !important;font-size:11px !important;}
+.recharts-tooltip-wrapper .recharts-default-tooltip{
+  background:var(--cream) !important;border:1px solid var(--border) !important;border-radius:14px !important;
+  font-family:'Nunito',sans-serif !important;color:var(--txt) !important;
+}
+/* notebook ruling behind chart panels — opt in with .paper-chart */
+.paper-chart{background-image:repeating-linear-gradient(transparent,transparent 36px,rgba(163,179,148,.18) 37px) !important;}
+
+/* ── Empty & loading states ─────────────────────────────────────── */
+.empty-state{border:1px dashed var(--border) !important;border-radius:18px !important;background:var(--cream) !important;text-align:center;}
+.smira-load{display:flex;align-items:center;gap:9px;justify-content:center;color:var(--muted);font-size:13.5px;}
+.smira-load em{font-style:normal;font-size:22px;animation:smiraBob 1.6s ease-in-out infinite;}
+.smira-load em:nth-child(2){animation-delay:.2s}.smira-load em:nth-child(3){animation-delay:.4s}
+@keyframes smiraBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* ── Sticker accents — decorative only, hidden on small screens ── */
+.smira-sticker{position:absolute;pointer-events:none;opacity:.9;z-index:2;}
+@media(max-width:640px){.smira-sticker{display:none !important;}}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#F1F0E4}
+::-webkit-scrollbar-thumb{background:#D9C6AE;border-radius:8px;border:2px solid #F1F0E4}
+
+/* No neon, no harsh black, no glassmorphism anywhere. */
