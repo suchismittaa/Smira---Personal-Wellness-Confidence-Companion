@@ -1,0 +1,72 @@
+/* Cycle Tracker content — moved verbatim from App.jsx (PHASES, PHASE_CONTENT,
+   TOPIC_CARDS). Every recorded period is USER-CONFIRMED; Sumi only ever
+   CALCULATES estimates from history. All text here describes general
+   patterns that vary between individuals. */
+export const PHASES=[
+  {id:"menstrual",label:"Menstrual",color:"#D0616B",text:"#A9414A"},
+  {id:"follicular",label:"Follicular",color:"#A9C48F",text:"#5A7644"},
+  {id:"ovulation",label:"Ovulation",color:"#F0AEB8",text:"#B4566A"},
+  {id:"luteal",label:"Luteal",color:"#6F8A5A",text:"#4F6B3E"},
+];
+export const PHASE_CONTENT={
+  menstrual:{
+    duration:"Usually 3–7 days",
+    biology:"Estrogen and progesterone are at their lowest point. The uterus sheds its lining, which is your period.",
+    whyFeel:"With both hormones low, energy often dips and the body is doing physical work to shed the uterine lining. That combination is behind a lot of what you may feel this phase.",
+    body:"Cramping, a dull lower-back ache, bloating, and general fatigue are common while the uterus contracts.",
+    skin:"Skin can feel more reactive or sensitive than usual, and some people notice a temporarily duller complexion.",
+    emotional:"Some people feel more inward-turned, tired, or low-key during the first day or two, as hormone levels bottom out.",
+    energy:"Energy is often at its lowest for the cycle. Gentler movement can feel better than high-intensity workouts right now.",
+    appetite:"Cravings for iron-rich or comforting foods are common as the body loses some blood.",
+    sexualDrive:"Desire varies a lot here. Some feel less interested due to discomfort, others notice no change at all.",
+    common:["Mild-to-moderate cramps","Bloating","Fatigue or low energy","Lower back discomfort","Headaches"],
+    attention:["Soaking through a pad or tampon every hour for several hours in a row","Pain severe enough to stop your daily activities","Bleeding that lasts longer than 7 days","Any new or rapidly worsening symptom"],
+  },
+  follicular:{
+    duration:"Usually 7–10 days (right after your period)",
+    biology:"Estrogen begins rising as the body prepares an egg for release. The uterine lining starts rebuilding.",
+    whyFeel:"Rising estrogen is commonly linked with improving mood, energy, and skin clarity as this phase progresses.",
+    body:"Energy typically climbs day by day. Cramping and bloating usually ease off.",
+    skin:"Skin often looks brighter and more balanced as estrogen rises. A good window to introduce new products.",
+    emotional:"Many people notice more optimism, focus, and motivation building through this phase.",
+    energy:"Energy and stamina tend to increase, making this a good stretch for more demanding workouts or projects.",
+    appetite:"Appetite is often more stable and moderate compared to other phases.",
+    sexualDrive:"Desire can start to pick up as estrogen rises, especially closer to ovulation.",
+    common:["Increasing energy","Improved mood","Clearer-feeling skin","Better focus"],
+    attention:["Persistent fatigue that doesn't lift as the phase progresses","Unusual spotting between periods","Skin changes that are severe or sudden"],
+  },
+  ovulation:{
+    duration:"Typically a short 3–4 day window mid-cycle",
+    biology:"A mature egg is released from the ovary. Estrogen peaks and testosterone rises slightly just before this happens.",
+    whyFeel:"The hormonal peak around ovulation is commonly associated with a short-lived boost in confidence, energy, and skin glow.",
+    body:"Some people notice mild one-sided pelvic twinges (sometimes called ovulation pain) and slightly more cervical discharge.",
+    skin:"This is often when skin looks its brightest. A good window for photos or a scan.",
+    emotional:"Confidence and sociability commonly peak for some people during this short window.",
+    energy:"Energy and physical performance are often at their highest around ovulation.",
+    appetite:"Appetite is often at its lowest point in the cycle.",
+    sexualDrive:"Desire commonly peaks here for many people, coinciding with the fertile window.",
+    common:["Mild one-sided pelvic twinge","Slight increase in energy","Heightened sense of well-being","Change in discharge texture"],
+    attention:["Sharp or severe one-sided pain","Pain lasting more than a day or two","Heavy bleeding outside your period"],
+  },
+  luteal:{
+    duration:"Usually 10–14 days (until your next period)",
+    biology:"Progesterone rises to prepare the uterine lining; both hormones fall sharply near the end if pregnancy doesn't occur.",
+    whyFeel:"Rising progesterone. Followed by a hormone drop right before your period. Is commonly linked to PMS-type experiences like mood changes, bloating, and breakouts.",
+    body:"Bloating, breast tenderness, headaches, and water retention are common, especially in the final days.",
+    skin:"Oil production often increases, and breakouts (especially along the jawline) are more likely here than in other phases.",
+    emotional:"Irritability, emotional sensitivity, and low mood are commonly reported in the days before a period (sometimes called PMS).",
+    energy:"Energy can dip again toward the end of this phase, and sleep quality may shift for some people.",
+    appetite:"Increased appetite and cravings. Especially for sweet or salty foods. Are very commonly reported here.",
+    sexualDrive:"Desire often eases compared to ovulation, though this varies a lot between individuals.",
+    common:["Bloating","Breast tenderness","Mood swings or irritability","Acne or breakouts","Food cravings","Brain fog"],
+    attention:["Mood changes severe enough to disrupt daily life or relationships","Symptoms so intense they interfere with work, school, or sleep","Any symptom that feels drastically different from your usual pattern"],
+  },
+};
+export const TOPIC_CARDS=[
+  {key:"body",label:"Body",icon:"body.png"},
+  {key:"emotional",label:"Mood",icon:"mood.png"},
+  {key:"appetite",label:"Appetite",icon:"appetite.png"},
+  {key:"sexualDrive",label:"Sex",icon:"sex.png"},
+  {key:"skin",label:"Skin",icon:"skin.png"},
+  {key:"energy",label:"Energy & Sleep",icon:"sleep.png"},
+];
